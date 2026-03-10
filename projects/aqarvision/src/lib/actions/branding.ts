@@ -141,3 +141,70 @@ export async function updateAgencyCoverImage(
 
   return { success: true };
 }
+
+const MAX_LOGO_SIZE = 5 * 1024 * 1024; // 5 Mo
+
+/**
+ * Upload un logo pour une agence.
+ * Stocké dans agencies/{id}/branding/logo.{ext}
+ */
+export async function updateAgencyLogo(
+  agencyId: string,
+  formData: FormData
+): Promise<ActionResult> {
+  const supabase = await createClient();
+
+  const file = formData.get('logo') as File | null;
+  if (!file) {
+    return { success: false, error: 'Aucun fichier sélectionné' };
+  }
+
+  if (file.size > MAX_LOGO_SIZE) {
+    return { success: false, error: 'Le fichier ne doit pas dépasser 5 Mo' };
+  }
+
+  if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+    return { success: false, error: 'Format accepté : JPEG, PNG ou WebP' };
+  }
+
+  const ext = file.name.split('.').pop() || 'jpg';
+  const path = `agencies/${agencyId}/branding/logo.${ext}`;
+
+  // Nettoyer les anciens fichiers logo
+  const { data: existingFiles } = await supabase.storage
+    .from('public')
+    .list(`agencies/${agencyId}/branding`);
+
+  if (existingFiles) {
+    const oldLogos = existingFiles
+      .filter((f) => f.name.startsWith('logo.') && f.name !== `logo.${ext}`)
+      .map((f) => `agencies/${agencyId}/branding/${f.name}`);
+    if (oldLogos.length > 0) {
+      await supabase.storage.from('public').remove(oldLogos);
+    }
+  }
+
+  const { error: uploadError } = await supabase.storage
+    .from('public')
+    .upload(path, file, { upsert: true });
+
+  if (uploadError) {
+    return { success: false, error: "Erreur lors de l'upload" };
+  }
+
+  const { data: urlData } = supabase.storage.from('public').getPublicUrl(path);
+
+  const { error: updateError } = await supabase
+    .from('agencies')
+    .update({
+      logo_url: urlData.publicUrl,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('id', agencyId);
+
+  if (updateError) {
+    return { success: false, error: "Erreur lors de la mise à jour de l'URL" };
+  }
+
+  return { success: true };
+}

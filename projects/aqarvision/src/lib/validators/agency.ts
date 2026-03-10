@@ -30,6 +30,9 @@ export const agencyLuxuryBrandingSchema = agencyBrandingSchema.extend({
   stats_years: z.coerce.number().int().min(0).optional().nullable(),
   stats_properties_sold: z.coerce.number().int().min(0).optional().nullable(),
   stats_clients: z.coerce.number().int().min(0).optional().nullable(),
+  instagram_url: z.string().url('URL Instagram invalide').optional().nullable(),
+  facebook_url: z.string().url('URL Facebook invalide').optional().nullable(),
+  tiktok_url: z.string().url('URL TikTok invalide').optional().nullable(),
 });
 
 export type AgencyLuxuryBrandingValues = z.infer<typeof agencyLuxuryBrandingSchema>;
