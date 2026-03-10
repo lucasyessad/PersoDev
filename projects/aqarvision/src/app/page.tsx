@@ -16,6 +16,12 @@ export default function HomePage() {
         >
           Voir une démo
         </Link>
+        <Link
+          href="/pricing"
+          className="rounded-lg border border-gray-300 bg-white px-6 py-3 font-medium text-gray-700 hover:bg-gray-50"
+        >
+          Voir les tarifs
+        </Link>
       </div>
     </div>
   );

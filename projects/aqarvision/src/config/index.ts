@@ -146,6 +146,155 @@ export const PLANS = {
 
 export type PlanType = (typeof PLANS)[keyof typeof PLANS];
 
+// ─── Plan Limits & Pricing ──────────────────────────────────────────
+
+export interface PlanLimits {
+  /** Nombre max de biens publiés */
+  maxProperties: number;
+  /** Nombre max de leads reçus par mois */
+  maxLeadsPerMonth: number;
+  /** Nombre max de membres dans l'agence */
+  maxMembers: number;
+  /** Espace stockage max en octets */
+  maxStorageBytes: number;
+  /** Accès au branding luxury */
+  luxuryBranding: boolean;
+  /** Domaine personnalisé */
+  customDomain: boolean;
+  /** Analytics avancés */
+  advancedAnalytics: boolean;
+  /** Export CSV des leads */
+  exportLeads: boolean;
+  /** Intégration réseaux sociaux */
+  socialIntegration: boolean;
+  /** Biens sponsorisés / mise en avant */
+  featuredProperties: number;
+}
+
+export interface PlanPricing {
+  /** Prix mensuel en DZD */
+  monthlyDZD: number;
+  /** Prix trimestriel en DZD (remise ~10%) */
+  quarterlyDZD: number;
+  /** Prix annuel en DZD (remise ~20%) */
+  yearlyDZD: number;
+}
+
+export interface PlanConfig {
+  id: PlanType;
+  name: string;
+  description: string;
+  limits: PlanLimits;
+  pricing: PlanPricing;
+  /** Badges / labels marketing */
+  badge: string | null;
+}
+
+/** Durée de l'essai gratuit en jours */
+export const TRIAL_DURATION_DAYS = 60;
+
+export const PLAN_CONFIGS: Record<PlanType, PlanConfig> = {
+  starter: {
+    id: 'starter',
+    name: 'Starter',
+    description: 'Pour les agents indépendants et petites agences',
+    badge: null,
+    limits: {
+      maxProperties: 15,
+      maxLeadsPerMonth: 30,
+      maxMembers: 1,
+      maxStorageBytes: 500 * 1024 * 1024, // 500 MB
+      luxuryBranding: false,
+      customDomain: false,
+      advancedAnalytics: false,
+      exportLeads: false,
+      socialIntegration: false,
+      featuredProperties: 0,
+    },
+    pricing: {
+      monthlyDZD: 5_000,
+      quarterlyDZD: 13_500, // ~10% remise
+      yearlyDZD: 48_000,    // ~20% remise
+    },
+  },
+  pro: {
+    id: 'pro',
+    name: 'Pro',
+    description: 'Pour les agences en croissance',
+    badge: 'Populaire',
+    limits: {
+      maxProperties: 50,
+      maxLeadsPerMonth: 150,
+      maxMembers: 5,
+      maxStorageBytes: 2 * 1024 * 1024 * 1024, // 2 GB
+      luxuryBranding: false,
+      customDomain: false,
+      advancedAnalytics: true,
+      exportLeads: true,
+      socialIntegration: true,
+      featuredProperties: 3,
+    },
+    pricing: {
+      monthlyDZD: 12_000,
+      quarterlyDZD: 32_400,  // ~10% remise
+      yearlyDZD: 115_200,    // ~20% remise
+    },
+  },
+  enterprise: {
+    id: 'enterprise',
+    name: 'Enterprise',
+    description: 'Pour les grandes agences et promoteurs',
+    badge: 'Premium',
+    limits: {
+      maxProperties: Infinity,
+      maxLeadsPerMonth: Infinity,
+      maxMembers: 20,
+      maxStorageBytes: 10 * 1024 * 1024 * 1024, // 10 GB
+      luxuryBranding: true,
+      customDomain: true,
+      advancedAnalytics: true,
+      exportLeads: true,
+      socialIntegration: true,
+      featuredProperties: Infinity,
+    },
+    pricing: {
+      monthlyDZD: 30_000,
+      quarterlyDZD: 81_000,  // ~10% remise
+      yearlyDZD: 288_000,    // ~20% remise
+    },
+  },
+};
+
+/**
+ * Récupère la config d'un plan. Retourne starter par défaut si inconnu.
+ */
+export function getPlanConfig(plan: string): PlanConfig {
+  return PLAN_CONFIGS[plan as PlanType] || PLAN_CONFIGS.starter;
+}
+
+/**
+ * Calcule l'économie en % pour un cycle de facturation vs mensuel.
+ */
+export function getBillingDiscount(cycle: 'monthly' | 'quarterly' | 'yearly'): number {
+  switch (cycle) {
+    case 'quarterly': return 10;
+    case 'yearly': return 20;
+    default: return 0;
+  }
+}
+
+/**
+ * Retourne le prix pour un plan et un cycle donnés.
+ */
+export function getPlanPrice(plan: string, cycle: 'monthly' | 'quarterly' | 'yearly'): number {
+  const config = getPlanConfig(plan);
+  switch (cycle) {
+    case 'quarterly': return config.pricing.quarterlyDZD;
+    case 'yearly': return config.pricing.yearlyDZD;
+    default: return config.pricing.monthlyDZD;
+  }
+}
+
 // ─── Cache & Revalidation ────────────────────────────────────────────
 
 export const CACHE = {
