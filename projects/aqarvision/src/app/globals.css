@@ -161,15 +161,15 @@
 /* === Font Display Variants === */
 
 .font-display-modern {
-  font-family: var(--font-inter), 'Inter', 'Helvetica Neue', sans-serif;
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
 }
 
 .font-display-classic {
-  font-family: var(--font-playfair), 'Playfair Display', 'Georgia', serif;
+  font-family: 'Playfair Display', 'Georgia', serif;
 }
 
 .font-display-elegant {
-  font-family: var(--font-cormorant), 'Cormorant Garamond', 'Garamond', serif;
+  font-family: 'Cormorant Garamond', 'Garamond', serif;
 }
 
 /* === Accessibility: Reduced Motion === */

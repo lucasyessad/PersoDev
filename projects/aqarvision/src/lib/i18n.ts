@@ -117,7 +117,7 @@ export function getTranslations(locale: AgencyLocale = 'fr') {
   const dict = translations[locale] || translations.fr;
 
   return function t(key: TranslationKey, params?: Record<string, string | number>): string {
-    let text = dict[key] || translations.fr[key] || key;
+    let text: string = dict[key] || translations.fr[key] || key;
     if (params) {
       for (const [k, v] of Object.entries(params)) {
         text = text.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
