@@ -1,7 +1,6 @@
 import type { SearchFilters } from '@/lib/validators/search';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function buildSearchQuery(query: any, filters: SearchFilters) {
+export function buildSearchQuery(query: any, filters: SearchFilters) { // eslint-disable-line
   let q = query;
 
   if (filters.q) {
