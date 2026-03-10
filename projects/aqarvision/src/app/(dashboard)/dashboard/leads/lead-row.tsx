@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
 import { updateLeadStatus, updateLeadPriority, deleteLead } from '@/lib/actions/lead-management';
 
 interface LeadRowProps {
@@ -111,23 +112,31 @@ export function LeadRow({ lead }: LeadRowProps) {
           })}
         </td>
         <td className="px-6 py-4">
-          {showDelete ? (
-            <div className="flex gap-1">
-              <button onClick={handleDelete} disabled={isPending}
-                className="rounded bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700 disabled:opacity-50">
-                Oui
+          <div className="flex gap-1">
+            <Link
+              href={`/dashboard/leads/${lead.id}`}
+              className="rounded bg-blue-50 px-2 py-1 text-xs text-blue-600 hover:bg-blue-100"
+            >
+              Détail
+            </Link>
+            {showDelete ? (
+              <>
+                <button onClick={handleDelete} disabled={isPending}
+                  className="rounded bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700 disabled:opacity-50">
+                  Oui
+                </button>
+                <button onClick={() => setShowDelete(false)}
+                  className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">
+                  Non
+                </button>
+              </>
+            ) : (
+              <button onClick={() => setShowDelete(true)}
+                className="rounded bg-red-50 px-2 py-1 text-xs text-red-600 hover:bg-red-100">
+                Supprimer
               </button>
-              <button onClick={() => setShowDelete(false)}
-                className="rounded bg-gray-100 px-2 py-1 text-xs text-gray-600">
-                Non
-              </button>
-            </div>
-          ) : (
-            <button onClick={() => setShowDelete(true)}
-              className="rounded bg-red-50 px-2 py-1 text-xs text-red-600 hover:bg-red-100">
-              Supprimer
-            </button>
-          )}
+            )}
+          </div>
         </td>
       </tr>
 

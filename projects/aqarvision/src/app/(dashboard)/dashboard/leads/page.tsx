@@ -1,6 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { LeadRow } from './lead-row';
+import { ExportCsvButton } from './export-csv';
+import { planHasFeature } from '@/lib/plan-gate';
 
 const SOURCE_LABELS: Record<string, string> = {
   contact_form: 'Formulaire contact',
@@ -9,6 +12,7 @@ const SOURCE_LABELS: Record<string, string> = {
   phone: 'Téléphone',
   walk_in: 'Visite',
   referral: 'Recommandation',
+  aqarsearch: 'AqarSearch',
 };
 
 export default async function LeadsPage() {
@@ -18,7 +22,7 @@ export default async function LeadsPage() {
 
   const { data: agency } = await supabase
     .from('agencies')
-    .select('id')
+    .select('id, active_plan')
     .eq('owner_id', user.id)
     .single();
 
@@ -32,18 +36,37 @@ export default async function LeadsPage() {
     .eq('agency_id', agency.id)
     .order('created_at', { ascending: false });
 
-  // Stats
   const total = leads?.length ?? 0;
   const newCount = leads?.filter((l) => l.status === 'new').length ?? 0;
   const convertedCount = leads?.filter((l) => l.status === 'converted').length ?? 0;
+  const inProgressCount = leads?.filter((l) => ['contacted', 'qualified', 'negotiation'].includes(l.status)).length ?? 0;
+  const canExport = planHasFeature(agency.active_plan, 'exportLeads');
+
+  // Prepare export data
+  const exportData = canExport && leads ? leads.map((l) => ({
+    nom: l.name,
+    telephone: l.phone,
+    email: l.email || '',
+    source: SOURCE_LABELS[l.source] || l.source,
+    statut: l.status,
+    priorite: l.priority,
+    message: l.message || '',
+    bien: (l.properties as { title: string } | null)?.title || '',
+    date: new Date(l.created_at).toLocaleDateString('fr-FR'),
+  })) : null;
 
   return (
     <div className="p-8">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Gestion des leads</h1>
-        <p className="mt-1 text-sm text-gray-500">
-          {total} lead(s) au total &middot; {newCount} nouveau(x) &middot; {convertedCount} converti(s)
-        </p>
+      <div className="mb-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Gestion des leads</h1>
+          <p className="mt-1 text-sm text-gray-500">
+            {total} lead(s) au total &middot; {newCount} nouveau(x) &middot; {convertedCount} converti(s)
+          </p>
+        </div>
+        {canExport && exportData && (
+          <ExportCsvButton data={exportData} />
+        )}
       </div>
 
       {/* Stats cards */}
@@ -51,7 +74,7 @@ export default async function LeadsPage() {
         {[
           { label: 'Total', value: total, color: 'bg-gray-50' },
           { label: 'Nouveaux', value: newCount, color: 'bg-blue-50' },
-          { label: 'En cours', value: leads?.filter((l) => ['contacted', 'qualified', 'negotiation'].includes(l.status)).length ?? 0, color: 'bg-yellow-50' },
+          { label: 'En cours', value: inProgressCount, color: 'bg-yellow-50' },
           { label: 'Convertis', value: convertedCount, color: 'bg-green-50' },
         ].map((stat) => (
           <div key={stat.label} className={`rounded-xl border border-gray-200 ${stat.color} p-4`}>
