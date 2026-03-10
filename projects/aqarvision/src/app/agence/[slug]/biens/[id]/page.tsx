@@ -17,12 +17,15 @@ interface PropertyDetailPageProps {
   params: Promise<{ slug: string; id: string }>;
 }
 
+const PROPERTY_PUBLIC_FIELDS = 'id, agency_id, title, description, price, surface, rooms, bathrooms, type, transaction_type, status, wilaya, commune, address, images, features, latitude, longitude, is_featured, views_count, created_at, updated_at, published_at' as const;
+
 async function getProperty(id: string): Promise<Property | null> {
   const supabase = await createClient();
   const { data } = await supabase
     .from('properties')
-    .select('*')
+    .select(PROPERTY_PUBLIC_FIELDS)
     .eq('id', id)
+    .eq('status', 'active')
     .single();
   return data as Property | null;
 }
@@ -35,9 +38,10 @@ async function getSimilarProperties(
   const supabase = await createClient();
   const { data } = await supabase
     .from('properties')
-    .select('*')
+    .select(PROPERTY_PUBLIC_FIELDS)
     .eq('agency_id', agencyId)
     .eq('type', type)
+    .eq('status', 'active')
     .neq('id', propertyId)
     .order('created_at', { ascending: false })
     .limit(3);

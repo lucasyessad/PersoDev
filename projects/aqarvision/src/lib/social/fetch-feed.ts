@@ -12,6 +12,7 @@ import type { SocialPost, SocialPlatform } from '@/types/database';
  */
 
 const CACHE_TTL = 3600; // 1 heure
+const FETCH_TIMEOUT_MS = 8000; // 8 secondes max par appel API externe
 
 // ─── Instagram (Meta Graph API) ──────────────────────────────────────
 
@@ -27,7 +28,10 @@ export function extractInstagramUsername(url: string): string | null {
 async function fetchInstagramAPI(accessToken: string, limit = 6): Promise<SocialPost[]> {
   const url = `https://graph.instagram.com/me/media?fields=id,caption,media_type,media_url,thumbnail_url,permalink,timestamp,like_count,comments_count&limit=${limit}&access_token=${accessToken}`;
 
-  const res = await fetch(url, { next: { revalidate: CACHE_TTL } });
+  const res = await fetch(url, {
+    next: { revalidate: CACHE_TTL },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
   if (!res.ok) return [];
 
   const json = await res.json();
@@ -63,7 +67,10 @@ export function extractFacebookPageId(url: string): string | null {
 async function fetchFacebookAPI(accessToken: string, pageId: string, limit = 6): Promise<SocialPost[]> {
   const url = `https://graph.facebook.com/v19.0/${pageId}/posts?fields=id,message,full_picture,permalink_url,created_time,type,likes.summary(true),comments.summary(true)&limit=${limit}&access_token=${accessToken}`;
 
-  const res = await fetch(url, { next: { revalidate: CACHE_TTL } });
+  const res = await fetch(url, {
+    next: { revalidate: CACHE_TTL },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
+  });
   if (!res.ok) return [];
 
   const json = await res.json();
@@ -110,6 +117,7 @@ async function fetchTikTokAPI(accessToken: string, limit = 6): Promise<SocialPos
     },
     body: JSON.stringify({ max_count: limit }),
     next: { revalidate: CACHE_TTL },
+    signal: AbortSignal.timeout(FETCH_TIMEOUT_MS),
   });
   if (!res.ok) return [];
 

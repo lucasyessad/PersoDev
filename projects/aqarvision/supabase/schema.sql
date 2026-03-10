@@ -359,6 +359,12 @@ CREATE POLICY "Public can insert property views"
   ON property_views FOR INSERT
   WITH CHECK (true);
 
+CREATE POLICY "Agency owners can delete property views"
+  ON property_views FOR DELETE
+  USING (
+    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+  );
+
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 8. ANALYTICS EVENTS
@@ -381,7 +387,9 @@ CREATE TABLE analytics_events (
     'page_view', 'property_click', 'contact_click', 'phone_click',
     'whatsapp_click', 'share_click', 'map_click', 'gallery_view',
     'search', 'filter_change', 'lead_submit'
-  ))
+  )),
+  -- Limiter la taille du payload JSONB pour éviter les abus
+  CONSTRAINT chk_event_data_size CHECK (pg_column_size(event_data) <= 4096)
 );
 
 CREATE INDEX idx_analytics_agency_id   ON analytics_events(agency_id);
@@ -401,6 +409,12 @@ CREATE POLICY "Agency members can view own analytics"
 CREATE POLICY "Public can insert analytics events"
   ON analytics_events FOR INSERT
   WITH CHECK (true);
+
+CREATE POLICY "Agency owners can delete analytics events"
+  ON analytics_events FOR DELETE
+  USING (
+    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+  );
 
 
 -- ─────────────────────────────────────────────────────────────────────────────

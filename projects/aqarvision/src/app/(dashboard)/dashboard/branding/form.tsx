@@ -20,7 +20,9 @@ export function BrandingForm({ agency, isEnterprise }: BrandingFormProps) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(
-      [...formData.entries()].map(([k, v]) => [k, v === '' ? null : v])
+      [...formData.entries()]
+        .filter(([k]) => !['__proto__', 'constructor', 'prototype'].includes(k))
+        .map(([k, v]) => [k, v === '' ? null : v])
     );
 
     startTransition(async () => {
