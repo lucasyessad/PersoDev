@@ -78,7 +78,7 @@ export function PropertyJsonLd({
     offers: {
       '@type': 'Offer',
       price: property.price,
-      priceCurrency: LOCALE.CURRENCY,
+      priceCurrency: property.currency,
       availability: 'https://schema.org/InStock',
       seller: {
         '@type': 'RealEstateAgent',
@@ -86,14 +86,15 @@ export function PropertyJsonLd({
         url: `${baseUrl}/agence/${agency.slug}`,
       },
     },
-    ...(property.wilaya && {
+    ...((property.wilaya || property.city) && {
       contentLocation: {
         '@type': 'Place',
         address: {
           '@type': 'PostalAddress',
           ...(property.address && { streetAddress: property.address }),
-          addressRegion: property.wilaya,
-          addressCountry: LOCALE.COUNTRY_CODE,
+          ...(property.city && { addressLocality: property.city }),
+          ...(property.wilaya && { addressRegion: property.wilaya }),
+          addressCountry: property.country,
         },
       },
     }),

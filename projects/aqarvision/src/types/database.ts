@@ -109,9 +109,12 @@ export interface Property {
   type: string;
   transaction_type: TransactionType;
   status: PropertyStatus;
+  country: string;
+  city: string | null;
   wilaya: string | null;
   commune: string | null;
   address: string | null;
+  currency: string;
   images: string[];
   features: string[];
   latitude: number | null;
@@ -137,6 +140,7 @@ export interface Lead {
   priority: LeadPriority;
   budget_min: number | null;
   budget_max: number | null;
+  desired_country: string | null;
   desired_wilaya: string | null;
   desired_type: string | null;
   created_at: string;

@@ -3,19 +3,12 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { useScrollReveal } from '@/hooks/use-scroll-reveal';
+import { formatPrice, getLocationLabel } from '@/lib/utils/format';
 import type { Agency, Property } from '@/types/database';
 
 interface LuxuryPropertiesSectionProps {
   agency: Agency;
   properties: Property[];
-}
-
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat('fr-DZ', {
-    style: 'currency',
-    currency: 'DZD',
-    maximumFractionDigits: 0,
-  }).format(price);
 }
 
 export function LuxuryPropertiesSection({ agency, properties }: LuxuryPropertiesSectionProps) {
@@ -89,7 +82,7 @@ export function LuxuryPropertiesSection({ agency, properties }: LuxuryProperties
                   {/* Prix overlay */}
                   <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-4 pt-12">
                     <span className="text-xl font-bold text-white">
-                      {formatPrice(property.price)}
+                      {formatPrice(property.price, property.currency)}
                     </span>
                   </div>
                 </div>
@@ -100,7 +93,7 @@ export function LuxuryPropertiesSection({ agency, properties }: LuxuryProperties
                     {property.title}
                   </h3>
                   <div className="mt-2 flex items-center gap-4 text-sm opacity-60">
-                    {property.wilaya && <span>{property.wilaya}</span>}
+                    {(property.city || property.wilaya) && <span>{getLocationLabel(property)}</span>}
                     {property.surface && <span>{property.surface} m²</span>}
                     {property.rooms && <span>{property.rooms} pièces</span>}
                   </div>

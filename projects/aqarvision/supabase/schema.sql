@@ -1,7 +1,7 @@
 -- =============================================================================
 -- AqarVision - Complete Database Schema
 -- =============================================================================
--- Plateforme SaaS immobilière multi-agences pour le marché algérien
+-- Plateforme SaaS immobilière multi-agences (Algérie + International)
 --
 -- Usage: Execute this script on a fresh Supabase database to create all tables.
 -- Order: tables are created respecting foreign key dependencies.
@@ -166,9 +166,12 @@ CREATE TABLE properties (
   type             TEXT,
   transaction_type TEXT NOT NULL DEFAULT 'sale',
   status           TEXT NOT NULL DEFAULT 'active',
+  country          TEXT NOT NULL DEFAULT 'DZ',
+  city             TEXT,
   wilaya           TEXT,
   commune          TEXT,
   address          TEXT,
+  currency         TEXT NOT NULL DEFAULT 'DZD',
   images           TEXT[] NOT NULL DEFAULT '{}',
   features         TEXT[] NOT NULL DEFAULT '{}',
   latitude         NUMERIC,
@@ -187,12 +190,16 @@ CREATE TABLE properties (
   CONSTRAINT chk_price_positive    CHECK (price >= 0),
   CONSTRAINT chk_surface_positive  CHECK (surface IS NULL OR surface >= 0),
   CONSTRAINT chk_rooms_positive    CHECK (rooms IS NULL OR rooms >= 0),
-  CONSTRAINT chk_bathrooms_positive CHECK (bathrooms IS NULL OR bathrooms >= 0)
+  CONSTRAINT chk_bathrooms_positive CHECK (bathrooms IS NULL OR bathrooms >= 0),
+  CONSTRAINT chk_country_code      CHECK (char_length(country) = 2 AND country = upper(country)),
+  CONSTRAINT chk_currency_code     CHECK (char_length(currency) = 3 AND currency = upper(currency))
 );
 
 CREATE INDEX idx_properties_agency_id        ON properties(agency_id);
 CREATE INDEX idx_properties_transaction_type  ON properties(transaction_type);
 CREATE INDEX idx_properties_status            ON properties(status);
+CREATE INDEX idx_properties_country           ON properties(country);
+CREATE INDEX idx_properties_city              ON properties(city) WHERE city IS NOT NULL;
 CREATE INDEX idx_properties_wilaya            ON properties(wilaya);
 CREATE INDEX idx_properties_type              ON properties(type);
 CREATE INDEX idx_properties_price             ON properties(price);
@@ -233,6 +240,7 @@ CREATE TABLE leads (
   priority     TEXT NOT NULL DEFAULT 'normal',
   budget_min   NUMERIC,
   budget_max   NUMERIC,
+  desired_country TEXT,
   desired_wilaya TEXT,
   desired_type TEXT,
   created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),

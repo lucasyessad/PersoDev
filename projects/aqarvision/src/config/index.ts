@@ -19,6 +19,123 @@ export const LOCALE = {
   LOCALE_FR: 'fr-DZ',
 } as const;
 
+// ─── Pays supportés ──────────────────────────────────────────────────
+
+export interface CountryConfig {
+  code: string;
+  name: string;
+  flag: string;
+  currency: string;
+  currencySymbol: string;
+  phonePrefix: string;
+  locale: string;
+  /** Terme local pour la subdivision (wilaya, ville, émirat...) */
+  regionLabel: string;
+}
+
+export const COUNTRIES: Record<string, CountryConfig> = {
+  DZ: {
+    code: 'DZ',
+    name: 'Algérie',
+    flag: '🇩🇿',
+    currency: 'DZD',
+    currencySymbol: 'DA',
+    phonePrefix: '213',
+    locale: 'fr-DZ',
+    regionLabel: 'Wilaya',
+  },
+  FR: {
+    code: 'FR',
+    name: 'France',
+    flag: '🇫🇷',
+    currency: 'EUR',
+    currencySymbol: '€',
+    phonePrefix: '33',
+    locale: 'fr-FR',
+    regionLabel: 'Département',
+  },
+  ES: {
+    code: 'ES',
+    name: 'Espagne',
+    flag: '🇪🇸',
+    currency: 'EUR',
+    currencySymbol: '€',
+    phonePrefix: '34',
+    locale: 'es-ES',
+    regionLabel: 'Provincia',
+  },
+  AE: {
+    code: 'AE',
+    name: 'Émirats Arabes Unis',
+    flag: '🇦🇪',
+    currency: 'AED',
+    currencySymbol: 'AED',
+    phonePrefix: '971',
+    locale: 'ar-AE',
+    regionLabel: 'Émirat',
+  },
+  MA: {
+    code: 'MA',
+    name: 'Maroc',
+    flag: '🇲🇦',
+    currency: 'MAD',
+    currencySymbol: 'MAD',
+    phonePrefix: '212',
+    locale: 'fr-MA',
+    regionLabel: 'Région',
+  },
+  TN: {
+    code: 'TN',
+    name: 'Tunisie',
+    flag: '🇹🇳',
+    currency: 'TND',
+    currencySymbol: 'TND',
+    phonePrefix: '216',
+    locale: 'fr-TN',
+    regionLabel: 'Gouvernorat',
+  },
+  TR: {
+    code: 'TR',
+    name: 'Turquie',
+    flag: '🇹🇷',
+    currency: 'TRY',
+    currencySymbol: '₺',
+    phonePrefix: '90',
+    locale: 'tr-TR',
+    regionLabel: 'Province',
+  },
+  US: {
+    code: 'US',
+    name: 'États-Unis',
+    flag: '🇺🇸',
+    currency: 'USD',
+    currencySymbol: '$',
+    phonePrefix: '1',
+    locale: 'en-US',
+    regionLabel: 'State',
+  },
+  GB: {
+    code: 'GB',
+    name: 'Royaume-Uni',
+    flag: '🇬🇧',
+    currency: 'GBP',
+    currencySymbol: '£',
+    phonePrefix: '44',
+    locale: 'en-GB',
+    regionLabel: 'County',
+  },
+};
+
+/** Pays par défaut */
+export const DEFAULT_COUNTRY = 'DZ';
+
+/**
+ * Récupère la config d'un pays. Retourne DZ par défaut si inconnu.
+ */
+export function getCountryConfig(countryCode: string): CountryConfig {
+  return COUNTRIES[countryCode] || COUNTRIES[DEFAULT_COUNTRY];
+}
+
 // ─── Plans ───────────────────────────────────────────────────────────
 
 export const PLANS = {

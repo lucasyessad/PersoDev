@@ -9,6 +9,7 @@ import { ConditionalMap } from '@/components/agency/location-map';
 import { SocialFeedWidget } from '@/components/agency/social-feed-widget';
 import { fetchSocialFeed } from '@/lib/social/fetch-feed';
 import { PAGINATION, PLANS, LOCALE, MESSAGES } from '@/config';
+import { formatPrice, getLocationLabel } from '@/lib/utils/format';
 import type { Agency, Property } from '@/types/database';
 import type { Metadata } from 'next';
 
@@ -18,7 +19,7 @@ interface PropertyDetailPageProps {
   params: Promise<{ slug: string; id: string }>;
 }
 
-const PROPERTY_PUBLIC_FIELDS = 'id, agency_id, title, description, price, surface, rooms, bathrooms, type, transaction_type, status, wilaya, commune, address, images, features, latitude, longitude, is_featured, views_count, created_at, updated_at, published_at' as const;
+const PROPERTY_PUBLIC_FIELDS = 'id, agency_id, title, description, price, surface, rooms, bathrooms, type, transaction_type, status, country, city, wilaya, commune, address, currency, images, features, latitude, longitude, is_featured, views_count, created_at, updated_at, published_at' as const;
 
 async function getProperty(id: string): Promise<Property | null> {
   const supabase = await createClient();
@@ -54,23 +55,16 @@ export async function generateMetadata({ params }: PropertyDetailPageProps): Pro
   const property = await getProperty(id);
   if (!property) return {};
 
-  const price = new Intl.NumberFormat('fr-DZ').format(property.price);
+  const priceStr = formatPrice(property.price, property.currency);
+  const location = getLocationLabel(property);
   return {
     title: property.title,
-    description: `${property.title} — ${price} DZD${property.wilaya ? ` à ${property.wilaya}` : ''}`,
+    description: `${property.title} — ${priceStr}${location ? ` à ${location}` : ''}`,
     openGraph: {
       title: property.title,
       ...(property.images[0] && { images: [{ url: property.images[0] }] }),
     },
   };
-}
-
-function formatPrice(price: number): string {
-  return new Intl.NumberFormat(LOCALE.LOCALE_FR, {
-    style: 'currency',
-    currency: LOCALE.CURRENCY,
-    maximumFractionDigits: 0,
-  }).format(price);
 }
 
 function PropertyInfo({ label, value }: { label: string; value: string | number }) {
@@ -112,7 +106,7 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
   const accentColor = agency.secondary_color || agency.primary_color;
 
   // WhatsApp message
-  const whatsappMessage = MESSAGES.whatsappProperty(agency.name, property.title, formatPrice(property.price));
+  const whatsappMessage = MESSAGES.whatsappProperty(agency.name, property.title, formatPrice(property.price, property.currency));
   const whatsappNumber = agency.phone
     ? agency.phone.replace(/[\s\-().+]/g, '').replace(/^0/, LOCALE.PHONE_PREFIX)
     : null;
@@ -177,7 +171,7 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
               <h1 className="font-display-classic text-display-lg">{property.title}</h1>
 
               <p className="mt-4 text-3xl font-bold" style={{ color: accentColor }}>
-                {formatPrice(property.price)}
+                {formatPrice(property.price, property.currency)}
               </p>
 
               {/* Caractéristiques */}
@@ -190,7 +184,7 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
                 {property.surface && <PropertyInfo label="Surface" value={`${property.surface} m²`} />}
                 {property.rooms && <PropertyInfo label="Pièces" value={property.rooms} />}
                 {property.bathrooms && <PropertyInfo label="SdB" value={property.bathrooms} />}
-                {property.wilaya && <PropertyInfo label="Wilaya" value={property.wilaya} />}
+                {(property.city || property.wilaya) && <PropertyInfo label="Localisation" value={getLocationLabel(property)} />}
                 {property.address && <PropertyInfo label="Adresse" value={property.address} />}
               </div>
 
@@ -270,13 +264,13 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
                         </div>
                       )}
                       <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent px-4 pb-4 pt-12">
-                        <span className="text-lg font-bold text-white">{formatPrice(p.price)}</span>
+                        <span className="text-lg font-bold text-white">{formatPrice(p.price, p.currency)}</span>
                       </div>
                     </div>
                     <div className={`p-4 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
                       <h3 className="font-semibold">{p.title}</h3>
                       <p className="mt-1 text-sm opacity-60">
-                        {p.wilaya} {p.surface && `· ${p.surface} m²`}
+                        {getLocationLabel(p)} {p.surface && `· ${p.surface} m²`}
                       </p>
                     </div>
                   </Link>
@@ -330,13 +324,13 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
           </div>
 
           <h1 className="text-2xl font-bold">{property.title}</h1>
-          <p className="mt-2 text-2xl font-bold text-blue-600">{formatPrice(property.price)}</p>
+          <p className="mt-2 text-2xl font-bold text-blue-600">{formatPrice(property.price, property.currency)}</p>
 
           <div className="mt-6 grid grid-cols-2 gap-4 rounded-lg bg-gray-50 p-4 sm:grid-cols-4">
             {property.surface && <PropertyInfo label="Surface" value={`${property.surface} m²`} />}
             {property.rooms && <PropertyInfo label="Pièces" value={property.rooms} />}
             {property.bathrooms && <PropertyInfo label="SdB" value={property.bathrooms} />}
-            {property.wilaya && <PropertyInfo label="Wilaya" value={property.wilaya} />}
+            {(property.city || property.wilaya) && <PropertyInfo label="Localisation" value={getLocationLabel(property)} />}
           </div>
 
           {property.description && (
@@ -405,9 +399,9 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
                 <div className="p-4">
                   <h3 className="font-semibold">{p.title}</h3>
                   <p className="mt-1 text-sm text-gray-500">
-                    {p.wilaya} {p.surface && `· ${p.surface} m²`}
+                    {getLocationLabel(p)} {p.surface && `· ${p.surface} m²`}
                   </p>
-                  <p className="mt-2 font-bold text-blue-600">{formatPrice(p.price)}</p>
+                  <p className="mt-2 font-bold text-blue-600">{formatPrice(p.price, p.currency)}</p>
                 </div>
               </Link>
             ))}
