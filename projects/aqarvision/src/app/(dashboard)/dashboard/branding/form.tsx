@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import Image from 'next/image';
-import { updateAgencyBranding, updateAgencyCoverImage } from '@/lib/actions';
+import { updateAgencyBranding, updateAgencyCoverImage, updateAgencyLogo } from '@/lib/actions';
 import type { Agency } from '@/types/database';
 
 interface BrandingFormProps {
@@ -14,12 +14,15 @@ export function BrandingForm({ agency, isEnterprise }: BrandingFormProps) {
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(agency.cover_image_url);
+  const [logoPreview, setLogoPreview] = useState<string | null>(agency.logo_url);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
     const data = Object.fromEntries(
-      [...formData.entries()].map(([k, v]) => [k, v === '' ? null : v])
+      [...formData.entries()]
+        .filter(([k]) => !['__proto__', 'constructor', 'prototype'].includes(k))
+        .map(([k, v]) => [k, v === '' ? null : v])
     );
 
     startTransition(async () => {
@@ -47,6 +50,24 @@ export function BrandingForm({ agency, isEnterprise }: BrandingFormProps) {
       if (!result.success) {
         setMessage({ type: 'error', text: result.error || "Erreur lors de l'upload" });
         setCoverPreview(agency.cover_image_url);
+      }
+    });
+  }
+
+  async function handleLogoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setLogoPreview(URL.createObjectURL(file));
+
+    const formData = new FormData();
+    formData.append('logo', file);
+
+    startTransition(async () => {
+      const result = await updateAgencyLogo(agency.id, formData);
+      if (!result.success) {
+        setMessage({ type: 'error', text: result.error || "Erreur lors de l'upload du logo" });
+        setLogoPreview(agency.logo_url);
       }
     });
   }
@@ -114,7 +135,7 @@ export function BrandingForm({ agency, isEnterprise }: BrandingFormProps) {
           />
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid gap-6 sm:grid-cols-3">
           <div>
             <label htmlFor="primary_color" className="mb-1 block text-sm font-medium">
               Couleur principale
@@ -126,6 +147,25 @@ export function BrandingForm({ agency, isEnterprise }: BrandingFormProps) {
               defaultValue={agency.primary_color}
               className="h-10 w-20 cursor-pointer rounded border"
             />
+          </div>
+
+          <div>
+            <label htmlFor="locale" className="mb-1 block text-sm font-medium">
+              Langue du site
+            </label>
+            <select
+              id="locale"
+              name="locale"
+              defaultValue={agency.locale ?? 'fr'}
+              className="w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm transition-colors hover:border-gray-400"
+            >
+              <option value="fr">Fran&ccedil;ais</option>
+              <option value="ar">العربية (Arabe)</option>
+              <option value="en">English</option>
+            </select>
+            <p className="mt-1 text-xs text-gray-500">
+              Langue affich&eacute;e sur votre mini-site public
+            </p>
           </div>
 
           <div>
@@ -209,6 +249,34 @@ export function BrandingForm({ agency, isEnterprise }: BrandingFormProps) {
             </h2>
           </div>
 
+          {/* Logo upload */}
+          <div>
+            <label className="mb-2 block text-sm font-medium">
+              Logo de l&apos;agence
+            </label>
+            <div className="flex items-center gap-4">
+              {logoPreview && (
+                <div className="relative h-20 w-20 overflow-hidden rounded-full">
+                  <Image
+                    src={logoPreview}
+                    alt="Logo preview"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              )}
+              <div>
+                <input
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp"
+                  onChange={handleLogoUpload}
+                  className="text-sm"
+                />
+                <p className="mt-1 text-xs text-gray-500">JPEG, PNG ou WebP. Max 5 Mo.</p>
+              </div>
+            </div>
+          </div>
+
           {/* Cover image upload */}
           <div>
             <label className="mb-2 block text-sm font-medium">
@@ -243,7 +311,7 @@ export function BrandingForm({ agency, isEnterprise }: BrandingFormProps) {
                 id="hero_style"
                 name="hero_style"
                 defaultValue={agency.hero_style}
-                className="w-full rounded-md border px-3 py-2 text-sm"
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm transition-colors hover:border-gray-400"
               >
                 <option value="color">Couleur unie</option>
                 <option value="cover">Image de couverture</option>
@@ -307,7 +375,7 @@ export function BrandingForm({ agency, isEnterprise }: BrandingFormProps) {
                 id="font_style"
                 name="font_style"
                 defaultValue={agency.font_style}
-                className="w-full rounded-md border px-3 py-2 text-sm"
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm transition-colors hover:border-gray-400"
               >
                 <option value="modern">Modern (Sans-serif)</option>
                 <option value="classic">Classic (Playfair)</option>
@@ -324,7 +392,7 @@ export function BrandingForm({ agency, isEnterprise }: BrandingFormProps) {
                 id="theme_mode"
                 name="theme_mode"
                 defaultValue={agency.theme_mode}
-                className="w-full rounded-md border px-3 py-2 text-sm"
+                className="w-full rounded-md border border-gray-300 bg-white px-3 py-2.5 text-sm transition-colors hover:border-gray-400"
               >
                 <option value="dark">Sombre luxe</option>
                 <option value="light">Clair</option>
@@ -374,6 +442,54 @@ export function BrandingForm({ agency, isEnterprise }: BrandingFormProps) {
                   type="number"
                   min={0}
                   defaultValue={agency.stats_clients ?? ''}
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Social URLs */}
+          <div>
+            <h3 className="mb-3 text-sm font-semibold text-amber-800">
+              Réseaux sociaux
+            </h3>
+            <div className="grid gap-6 sm:grid-cols-3">
+              <div>
+                <label htmlFor="instagram_url" className="mb-1 block text-sm font-medium">
+                  Instagram
+                </label>
+                <input
+                  id="instagram_url"
+                  name="instagram_url"
+                  type="url"
+                  defaultValue={agency.instagram_url || ''}
+                  placeholder="https://instagram.com/..."
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="facebook_url" className="mb-1 block text-sm font-medium">
+                  Facebook
+                </label>
+                <input
+                  id="facebook_url"
+                  name="facebook_url"
+                  type="url"
+                  defaultValue={agency.facebook_url || ''}
+                  placeholder="https://facebook.com/..."
+                  className="w-full rounded-md border px-3 py-2 text-sm"
+                />
+              </div>
+              <div>
+                <label htmlFor="tiktok_url" className="mb-1 block text-sm font-medium">
+                  TikTok
+                </label>
+                <input
+                  id="tiktok_url"
+                  name="tiktok_url"
+                  type="url"
+                  defaultValue={agency.tiktok_url || ''}
+                  placeholder="https://tiktok.com/@..."
                   className="w-full rounded-md border px-3 py-2 text-sm"
                 />
               </div>

@@ -6,6 +6,7 @@ export const agencyBrandingSchema = z.object({
   slogan: z.string().max(120, 'Le slogan ne doit pas dépasser 120 caractères').optional().nullable(),
   description: z.string().max(2000).optional().nullable(),
   primary_color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Couleur invalide'),
+  locale: z.enum(['fr', 'ar', 'en']).default('fr'),
   phone: z.string().optional().nullable(),
   email: z.string().email('Email invalide').optional().nullable(),
   website: z.string().url('URL invalide').optional().nullable(),
@@ -30,6 +31,9 @@ export const agencyLuxuryBrandingSchema = agencyBrandingSchema.extend({
   stats_years: z.coerce.number().int().min(0).optional().nullable(),
   stats_properties_sold: z.coerce.number().int().min(0).optional().nullable(),
   stats_clients: z.coerce.number().int().min(0).optional().nullable(),
+  instagram_url: z.string().url('URL Instagram invalide').optional().nullable(),
+  facebook_url: z.string().url('URL Facebook invalide').optional().nullable(),
+  tiktok_url: z.string().url('URL TikTok invalide').optional().nullable(),
 });
 
 export type AgencyLuxuryBrandingValues = z.infer<typeof agencyLuxuryBrandingSchema>;

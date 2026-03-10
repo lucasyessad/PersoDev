@@ -217,4 +217,27 @@ describe('leadSchema', () => {
       expect(result.data.source).toBe('contact_form');
     }
   });
+
+  it('accepts all valid source values matching DB CHECK constraint', () => {
+    const sources = ['contact_form', 'property_detail', 'whatsapp', 'phone', 'walk_in', 'referral'];
+    for (const source of sources) {
+      const result = leadSchema.safeParse({
+        agency_id: '550e8400-e29b-41d4-a716-446655440000',
+        name: 'Ahmed',
+        phone: '0555123456',
+        source,
+      });
+      expect(result.success).toBe(true);
+    }
+  });
+
+  it('rejects invalid source value', () => {
+    const result = leadSchema.safeParse({
+      agency_id: '550e8400-e29b-41d4-a716-446655440000',
+      name: 'Ahmed',
+      phone: '0555123456',
+      source: 'invalid_source',
+    });
+    expect(result.success).toBe(false);
+  });
 });
