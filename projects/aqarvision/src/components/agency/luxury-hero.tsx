@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Play } from 'lucide-react';
 import type { Agency } from '@/types/database';
 
 interface LuxuryHeroProps {
@@ -62,6 +62,53 @@ function getYouTubeId(url: string): string | null {
   return match?.[1] ?? null;
 }
 
+/**
+ * Façade YouTube légère : affiche la miniature + bouton play.
+ * L'iframe n'est chargée qu'au clic (~500KB–1MB économisés au chargement initial).
+ */
+function YouTubeFacade({ videoId }: { videoId: string }) {
+  const [activated, setActivated] = useState(false);
+
+  const handleActivate = useCallback(() => setActivated(true), []);
+
+  if (activated) {
+    return (
+      <iframe
+        className="absolute inset-0 h-full w-full"
+        src={`https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&playlist=${videoId}`}
+        allow="autoplay; fullscreen"
+        style={{ border: 0, pointerEvents: 'none' }}
+        title="Hero video"
+      />
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleActivate}
+      className="absolute inset-0 h-full w-full cursor-pointer"
+      aria-label="Lire la vidéo"
+    >
+      {/* Thumbnail YouTube (maxresdefault avec fallback hqdefault) */}
+      <Image
+        src={`https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`}
+        alt="Aperçu vidéo"
+        fill
+        className="object-cover"
+        sizes="100vw"
+        priority
+      />
+      {/* Play button overlay */}
+      <div className="absolute inset-0 flex items-center justify-center bg-black/20 transition-colors hover:bg-black/30">
+        <div className="flex h-20 w-20 items-center justify-center rounded-full bg-white/90 shadow-2xl transition-transform hover:scale-110">
+          <Play className="ml-1 h-8 w-8 fill-gray-900 text-gray-900" />
+        </div>
+      </div>
+    </button>
+  );
+}
+
 export function LuxuryHero({ agency }: LuxuryHeroProps) {
   const {
     hero_style,
@@ -100,13 +147,7 @@ export function LuxuryHero({ agency }: LuxuryHeroProps) {
       {hero_style === 'video' && hero_video_url ? (
         <>
           {getYouTubeId(hero_video_url) ? (
-            <iframe
-              className="absolute inset-0 h-full w-full object-cover"
-              src={`https://www.youtube.com/embed/${getYouTubeId(hero_video_url)}?autoplay=1&mute=1&loop=1&controls=0&showinfo=0&playlist=${getYouTubeId(hero_video_url)}`}
-              allow="autoplay; fullscreen"
-              style={{ border: 0, pointerEvents: 'none' }}
-              title="Hero video"
-            />
+            <YouTubeFacade videoId={getYouTubeId(hero_video_url)!} />
           ) : (
             <video
               className="absolute inset-0 h-full w-full object-cover"
@@ -115,6 +156,7 @@ export function LuxuryHero({ agency }: LuxuryHeroProps) {
               muted
               loop
               playsInline
+              preload="metadata"
             />
           )}
         </>
@@ -160,6 +202,7 @@ export function LuxuryHero({ agency }: LuxuryHeroProps) {
         <div
           className="luxury-animate-line-grow mx-auto mt-6 h-0.5"
           style={{ backgroundColor: accentColor }}
+          aria-hidden="true"
         />
 
         {/* Tagline ou slogan */}
@@ -198,7 +241,7 @@ export function LuxuryHero({ agency }: LuxuryHeroProps) {
         )}
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 luxury-animate-scroll-bounce">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 luxury-animate-scroll-bounce" aria-hidden="true">
           <ChevronDown className="h-8 w-8 opacity-50" />
         </div>
       </div>

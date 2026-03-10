@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Menu, X, Phone, Mail, MapPin } from 'lucide-react';
@@ -21,6 +21,8 @@ const FONT_CLASS_MAP = {
 export function LuxuryLayout({ agency, children }: LuxuryLayoutProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const mobileMenuRef = useRef<HTMLElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   const isDark = agency.theme_mode === 'dark';
   const accentColor = agency.secondary_color || agency.primary_color;
@@ -31,6 +33,47 @@ export function LuxuryLayout({ agency, children }: LuxuryLayoutProps) {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Focus trap: piège le focus dans le menu mobile quand il est ouvert
+  const handleMenuKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setMenuOpen(false);
+      menuButtonRef.current?.focus();
+      return;
+    }
+
+    if (e.key !== 'Tab') return;
+
+    const menu = mobileMenuRef.current;
+    if (!menu) return;
+
+    const focusable = menu.querySelectorAll<HTMLElement>('a, button, [tabindex]:not([tabindex="-1"])');
+    if (focusable.length === 0) return;
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  }, []);
+
+  // Fermer le menu mobile en appuyant Escape (même hors focus du menu)
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setMenuOpen(false);
+        menuButtonRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, [menuOpen]);
 
   const navLinks = [
     { href: `/agence/${agency.slug}`, label: 'Accueil' },
@@ -76,7 +119,7 @@ export function LuxuryLayout({ agency, children }: LuxuryLayoutProps) {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden items-center gap-8 md:flex">
+          <nav className="hidden items-center gap-8 md:flex" aria-label="Navigation principale">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
@@ -90,9 +133,12 @@ export function LuxuryLayout({ agency, children }: LuxuryLayoutProps) {
 
           {/* Mobile hamburger */}
           <button
+            ref={menuButtonRef}
             onClick={() => setMenuOpen(!menuOpen)}
             className="md:hidden"
-            aria-label="Menu"
+            aria-label={menuOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-menu"
           >
             {menuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
@@ -100,7 +146,14 @@ export function LuxuryLayout({ agency, children }: LuxuryLayoutProps) {
 
         {/* Mobile Menu */}
         {menuOpen && (
-          <nav className={`md:hidden border-t ${isDark ? 'border-white/10 bg-black/90' : 'border-gray-200 bg-white/95'} backdrop-blur-lg`}>
+          <nav
+            id="mobile-menu"
+            ref={mobileMenuRef}
+            role="navigation"
+            aria-label="Menu mobile"
+            className={`md:hidden border-t ${isDark ? 'border-white/10 bg-black/90' : 'border-gray-200 bg-white/95'} backdrop-blur-lg`}
+            onKeyDown={handleMenuKeyDown}
+          >
             <div className="flex flex-col px-6 py-4 gap-4">
               {navLinks.map((link) => (
                 <Link
@@ -130,6 +183,7 @@ export function LuxuryLayout({ agency, children }: LuxuryLayoutProps) {
           <div
             className="mx-auto mb-12 h-0.5 w-20"
             style={{ backgroundColor: accentColor }}
+            aria-hidden="true"
           />
 
           <div className="grid gap-12 md:grid-cols-3">

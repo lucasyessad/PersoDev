@@ -3,6 +3,7 @@
 export type HeroStyle = 'color' | 'cover' | 'video';
 export type FontStyle = 'modern' | 'classic' | 'elegant';
 export type ThemeMode = 'light' | 'dark';
+export type AgencyLocale = 'fr' | 'ar';
 
 export type AgencyPlan = 'starter' | 'pro' | 'enterprise';
 
@@ -35,6 +36,13 @@ export interface Agency {
   stats_years: number | null;
   stats_properties_sold: number | null;
   stats_clients: number | null;
+
+  // === Locale & RTL Support ===
+  locale: AgencyLocale;
+
+  // === Geolocation ===
+  latitude: number | null;
+  longitude: number | null;
 }
 
 export interface Property {
@@ -51,6 +59,8 @@ export interface Property {
   wilaya: string | null;
   address: string | null;
   images: string[];
+  latitude: number | null;
+  longitude: number | null;
   created_at: string;
   updated_at: string;
 }

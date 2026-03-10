@@ -2,8 +2,12 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Playfair_Display, Cormorant_Garamond, Inter } from 'next/font/google';
 import { LuxuryLayout } from '@/components/agency/luxury-layout';
+import { AgencyJsonLd } from '@/components/seo/json-ld';
 import { getAgencyBySlug } from '@/lib/queries/agency';
+import { getLocaleAttrs } from '@/lib/i18n';
 import type { Metadata } from 'next';
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://aqarvision.dz';
 
 const playfair = Playfair_Display({
   subsets: ['latin'],
@@ -67,11 +71,15 @@ export default async function AgencyLayout({ children, params }: AgencyLayoutPro
   if (!agency) notFound();
 
   const fontVars = `${playfair.variable} ${cormorant.variable} ${inter.variable}`;
+  const localeAttrs = getLocaleAttrs(agency.locale ?? 'fr');
+
+  const jsonLd = <AgencyJsonLd agency={agency} baseUrl={BASE_URL} />;
 
   // Enterprise → Luxury Layout
   if (agency.active_plan === 'enterprise') {
     return (
-      <div className={fontVars}>
+      <div className={fontVars} dir={localeAttrs.dir} lang={localeAttrs.lang}>
+        {jsonLd}
         <LuxuryLayout agency={agency}>{children}</LuxuryLayout>
       </div>
     );
@@ -79,7 +87,8 @@ export default async function AgencyLayout({ children, params }: AgencyLayoutPro
 
   // Starter / Pro → Layout basique
   return (
-    <div className={`min-h-screen bg-white ${fontVars}`}>
+    <div className={`min-h-screen bg-white ${fontVars}`} dir={localeAttrs.dir} lang={localeAttrs.lang}>
+      {jsonLd}
       <header className="border-b px-6 py-4">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <Link href={`/agence/${slug}`} className="text-lg font-semibold">

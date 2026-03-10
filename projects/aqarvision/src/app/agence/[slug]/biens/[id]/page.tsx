@@ -4,8 +4,12 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { getAgencyBySlug } from '@/lib/queries/agency';
 import { ContactForm } from '@/components/agency/contact-form';
+import { PropertyJsonLd, BreadcrumbJsonLd } from '@/components/seo/json-ld';
+import { ConditionalMap } from '@/components/agency/location-map';
 import type { Agency, Property } from '@/types/database';
 import type { Metadata } from 'next';
+
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://aqarvision.dz';
 
 interface PropertyDetailPageProps {
   params: Promise<{ slug: string; id: string }>;
@@ -94,9 +98,24 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
     ? agency.phone.replace(/[\s\-().+]/g, '').replace(/^0/, '213')
     : null;
 
+  const structuredData = (
+    <>
+      <PropertyJsonLd property={property} agency={agency} baseUrl={BASE_URL} />
+      <BreadcrumbJsonLd
+        baseUrl={BASE_URL}
+        items={[
+          { name: agency.name, url: `/agence/${slug}` },
+          { name: 'Biens', url: `/agence/${slug}/biens` },
+          { name: property.title, url: `/agence/${slug}/biens/${property.id}` },
+        ]}
+      />
+    </>
+  );
+
   if (isEnterprise) {
     return (
       <article className={`py-24 ${isDark ? 'bg-gray-950 text-white' : 'bg-white text-gray-900'}`}>
+        {structuredData}
         <div className="mx-auto max-w-6xl px-6">
           {/* Breadcrumb */}
           <nav className="mb-8 text-sm opacity-50">
@@ -165,6 +184,14 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
                   </p>
                 </div>
               )}
+
+              {/* Carte */}
+              <ConditionalMap
+                latitude={property.latitude ?? null}
+                longitude={property.longitude ?? null}
+                label={property.title}
+                className={`mt-8 h-64 w-full overflow-hidden rounded-lg ${isDark ? 'opacity-90' : ''}`}
+              />
             </div>
 
             {/* Sidebar: Contact */}
@@ -236,6 +263,7 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
   // Starter / Pro → Detail basique
   return (
     <article className="mx-auto max-w-5xl px-6 py-12">
+      {structuredData}
       {/* Breadcrumb */}
       <nav className="mb-6 text-sm text-gray-500">
         <Link href={`/agence/${slug}`} className="hover:underline">Accueil</Link>
@@ -288,6 +316,14 @@ export default async function PropertyDetailPage({ params }: PropertyDetailPageP
               <p className="leading-relaxed text-gray-600">{property.description}</p>
             </div>
           )}
+
+          {/* Carte */}
+          <ConditionalMap
+            latitude={property.latitude ?? null}
+            longitude={property.longitude ?? null}
+            label={property.title}
+            className="mt-6 h-56 w-full overflow-hidden rounded-lg"
+          />
         </div>
 
         <div>

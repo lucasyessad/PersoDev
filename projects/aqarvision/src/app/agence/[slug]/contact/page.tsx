@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { getAgencyBySlug } from '@/lib/queries/agency';
 import { ContactForm } from '@/components/agency/contact-form';
+import { ConditionalMap } from '@/components/agency/location-map';
 import type { Metadata } from 'next';
 
 interface ContactPageProps {
@@ -106,6 +107,16 @@ export default async function ContactPage({ params }: ContactPageProps) {
               <ContactForm agency={agency} />
             </div>
           </div>
+
+          {/* Carte */}
+          <ConditionalMap
+            latitude={agency.latitude ?? null}
+            longitude={agency.longitude ?? null}
+            label={agency.name}
+            className={`mt-12 h-72 w-full overflow-hidden rounded-xl ${
+              isDark ? 'opacity-90' : ''
+            }`}
+          />
         </div>
       </section>
     );
@@ -139,6 +150,14 @@ export default async function ContactPage({ params }: ContactPageProps) {
           <ContactForm agency={agency} />
         </div>
       </div>
+
+      {/* Carte */}
+      <ConditionalMap
+        latitude={agency.latitude ?? null}
+        longitude={agency.longitude ?? null}
+        label={agency.name}
+        className="mt-8 h-64 w-full overflow-hidden rounded-xl"
+      />
     </div>
   );
 }

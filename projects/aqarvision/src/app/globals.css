@@ -217,3 +217,34 @@
   line-height: 1.2;
   letter-spacing: -0.01em;
 }
+
+/* === RTL Support === */
+
+[dir="rtl"] {
+  text-align: right;
+}
+
+[dir="rtl"] .luxury-animate-line-grow {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+[dir="rtl"] .luxury-header-glass .flex {
+  flex-direction: row-reverse;
+}
+
+/* Flip horizontal padding/margins for RTL */
+[dir="rtl"] .ml-1 {
+  margin-left: 0;
+  margin-right: 0.25rem;
+}
+
+/* Arabic-appropriate font stack */
+[dir="rtl"] .font-display-classic,
+[dir="rtl"] .font-display-elegant {
+  font-family: 'Noto Naskh Arabic', 'Amiri', serif;
+}
+
+[dir="rtl"] .font-display-modern {
+  font-family: 'Noto Sans Arabic', 'Cairo', sans-serif;
+}
