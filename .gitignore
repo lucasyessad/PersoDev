@@ -1,0 +1,77 @@
+# PersoDev .gitignore
+
+# Templates GitHub (trop lourds - cloner via script)
+templates/github-web-apps/
+templates/github-api/
+templates/github-mobile/
+templates/github-saas/
+templates/github-data-science/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependencies
+node_modules/
+bower_components/
+vendor/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+.cache/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Backups
+*.backup
+*.bak
+backup-*/
+
+# Testing
+coverage/
+.nyc_output/
+.coverage
+
+# Misc
+*.swp
+*.swo
+.sass-cache/
