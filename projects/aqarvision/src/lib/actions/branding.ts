@@ -8,6 +8,63 @@ interface ActionResult {
   error?: string;
 }
 
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
+const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp'];
+const MAX_COVER_SIZE = 10 * 1024 * 1024; // 10 Mo
+const MAX_LOGO_SIZE = 5 * 1024 * 1024; // 5 Mo
+
+/**
+ * Vérifie que l'utilisateur est authentifié et propriétaire de l'agence.
+ * Retourne l'agence si autorisé, ou un ActionResult d'erreur.
+ */
+async function verifyAgencyOwnership(
+  agencyId: string
+): Promise<{ agency: { active_plan: string }; error?: never } | { agency?: never; error: ActionResult }> {
+  const supabase = await createClient();
+
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
+  if (authError || !user) {
+    return { error: { success: false, error: 'Vous devez être connecté' } };
+  }
+
+  const { data: agency, error: fetchError } = await supabase
+    .from('agencies')
+    .select('active_plan, owner_id')
+    .eq('id', agencyId)
+    .single();
+
+  if (fetchError || !agency) {
+    return { error: { success: false, error: 'Agence introuvable' } };
+  }
+
+  // Vérifier que l'utilisateur est propriétaire ou admin de l'agence
+  if (agency.owner_id !== user.id) {
+    const { data: member } = await supabase
+      .from('agency_members')
+      .select('role')
+      .eq('agency_id', agencyId)
+      .eq('user_id', user.id)
+      .eq('role', 'admin')
+      .single();
+
+    if (!member) {
+      return { error: { success: false, error: 'Accès non autorisé' } };
+    }
+  }
+
+  return { agency: { active_plan: agency.active_plan } };
+}
+
+/**
+ * Valide et normalise l'extension d'un fichier uploadé.
+ * Retourne uniquement les extensions autorisées.
+ */
+function getSafeExtension(fileName: string): string | null {
+  const ext = fileName.split('.').pop()?.toLowerCase();
+  if (!ext || !ALLOWED_EXTENSIONS.includes(ext)) return null;
+  return ext;
+}
+
 /**
  * Met à jour le branding d'une agence.
  * Détecte automatiquement le plan (Enterprise vs Starter/Pro)
@@ -17,20 +74,10 @@ export async function updateAgencyBranding(
   agencyId: string,
   formData: Record<string, unknown>
 ): Promise<ActionResult> {
-  const supabase = await createClient();
+  const auth = await verifyAgencyOwnership(agencyId);
+  if (auth.error) return auth.error;
 
-  // Récupérer l'agence pour déterminer le plan
-  const { data: agency, error: fetchError } = await supabase
-    .from('agencies')
-    .select('active_plan')
-    .eq('id', agencyId)
-    .single();
-
-  if (fetchError || !agency) {
-    return { success: false, error: 'Agence introuvable' };
-  }
-
-  const isEnterprise = agency.active_plan === 'enterprise';
+  const isEnterprise = auth.agency.active_plan === 'enterprise';
   const schema = isEnterprise ? agencyLuxuryBrandingSchema : agencyBrandingSchema;
 
   // Valider les données
@@ -39,6 +86,8 @@ export async function updateAgencyBranding(
     const firstError = result.error.errors[0];
     return { success: false, error: firstError?.message || 'Données invalides' };
   }
+
+  const supabase = await createClient();
 
   // Mettre à jour l'agence
   const { error: updateError } = await supabase
@@ -56,9 +105,6 @@ export async function updateAgencyBranding(
   return { success: true };
 }
 
-const MAX_COVER_SIZE = 10 * 1024 * 1024; // 10 Mo
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
-
 /**
  * Upload une image de couverture pour une agence Enterprise.
  * Stockée dans agencies/{id}/branding/cover.{ext}
@@ -67,20 +113,10 @@ export async function updateAgencyCoverImage(
   agencyId: string,
   formData: FormData
 ): Promise<ActionResult> {
-  const supabase = await createClient();
+  const auth = await verifyAgencyOwnership(agencyId);
+  if (auth.error) return auth.error;
 
-  // Vérifier que l'agence est Enterprise
-  const { data: agency, error: fetchError } = await supabase
-    .from('agencies')
-    .select('active_plan')
-    .eq('id', agencyId)
-    .single();
-
-  if (fetchError || !agency) {
-    return { success: false, error: 'Agence introuvable' };
-  }
-
-  if (agency.active_plan !== 'enterprise') {
+  if (auth.agency.active_plan !== 'enterprise') {
     return { success: false, error: 'Cette fonctionnalité est réservée au plan Enterprise' };
   }
 
@@ -97,8 +133,13 @@ export async function updateAgencyCoverImage(
     return { success: false, error: 'Format accepté : JPEG, PNG ou WebP' };
   }
 
-  const ext = file.name.split('.').pop() || 'jpg';
+  const ext = getSafeExtension(file.name);
+  if (!ext) {
+    return { success: false, error: 'Extension de fichier non autorisée' };
+  }
+
   const path = `agencies/${agencyId}/branding/cover.${ext}`;
+  const supabase = await createClient();
 
   // Nettoyer les anciens fichiers cover (éviter les orphelins si extension change)
   const { data: existingFiles } = await supabase.storage
@@ -142,8 +183,6 @@ export async function updateAgencyCoverImage(
   return { success: true };
 }
 
-const MAX_LOGO_SIZE = 5 * 1024 * 1024; // 5 Mo
-
 /**
  * Upload un logo pour une agence.
  * Stocké dans agencies/{id}/branding/logo.{ext}
@@ -152,7 +191,8 @@ export async function updateAgencyLogo(
   agencyId: string,
   formData: FormData
 ): Promise<ActionResult> {
-  const supabase = await createClient();
+  const auth = await verifyAgencyOwnership(agencyId);
+  if (auth.error) return auth.error;
 
   const file = formData.get('logo') as File | null;
   if (!file) {
@@ -167,8 +207,13 @@ export async function updateAgencyLogo(
     return { success: false, error: 'Format accepté : JPEG, PNG ou WebP' };
   }
 
-  const ext = file.name.split('.').pop() || 'jpg';
+  const ext = getSafeExtension(file.name);
+  if (!ext) {
+    return { success: false, error: 'Extension de fichier non autorisée' };
+  }
+
   const path = `agencies/${agencyId}/branding/logo.${ext}`;
+  const supabase = await createClient();
 
   // Nettoyer les anciens fichiers logo
   const { data: existingFiles } = await supabase.storage
