@@ -7,7 +7,7 @@ export const leadSchema = z.object({
   phone: z.string().min(9, 'Numéro de téléphone invalide'),
   email: z.string().email('Email invalide').optional().nullable(),
   message: z.string().max(2000).optional().nullable(),
-  source: z.enum(['contact_form', 'property_detail', 'whatsapp']).default('contact_form'),
+  source: z.enum(['contact_form', 'property_detail', 'whatsapp', 'phone', 'walk_in', 'referral']).default('contact_form'),
 });
 
 export type LeadFormValues = z.infer<typeof leadSchema>;

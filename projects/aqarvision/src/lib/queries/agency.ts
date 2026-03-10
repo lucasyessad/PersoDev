@@ -18,7 +18,8 @@ export const getAgencyBySlug = cache(async (slug: string): Promise<Agency | null
 });
 
 /**
- * Récupère les propriétés d'une agence avec pagination.
+ * Récupère les propriétés actives d'une agence avec pagination.
+ * Filtre par status = 'active' pour les pages publiques.
  */
 export const getAgencyProperties = cache(
   async (agencyId: string, limit = 6, offset = 0): Promise<Property[]> => {
@@ -27,6 +28,7 @@ export const getAgencyProperties = cache(
       .from('properties')
       .select('*')
       .eq('agency_id', agencyId)
+      .eq('status', 'active')
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -36,7 +38,7 @@ export const getAgencyProperties = cache(
 );
 
 /**
- * Compte le nombre total de propriétés d'une agence.
+ * Compte le nombre total de propriétés actives d'une agence.
  */
 export const getAgencyPropertiesCount = cache(
   async (agencyId: string): Promise<number> => {
@@ -44,7 +46,8 @@ export const getAgencyPropertiesCount = cache(
     const { count } = await supabase
       .from('properties')
       .select('*', { count: 'exact', head: true })
-      .eq('agency_id', agencyId);
+      .eq('agency_id', agencyId)
+      .eq('status', 'active');
     return count || 0;
   }
 );
