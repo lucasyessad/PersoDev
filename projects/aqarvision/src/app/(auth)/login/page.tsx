@@ -145,9 +145,10 @@ function LoginForm() {
             </div>
           )}
 
+          {/* OAuth désactivé temporairement
           <OAuthButtons redirectTo={redirectTo} setError={setError} />
-
           <Divider />
+          */}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
