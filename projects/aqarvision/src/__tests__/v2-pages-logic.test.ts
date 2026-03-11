@@ -13,7 +13,7 @@ function readSource(path: string): string {
 // ─── Dashboard Layout ─────────────────────────────────────────────
 
 describe('dashboard layout', () => {
-  const source = readSource('app/(dashboard)/dashboard/layout.tsx');
+  const source = readSource('app/aqarpro/[slug]/layout.tsx');
 
   it('includes nav items via Sidebar component', () => {
     // Nav items are now defined in the Sidebar component
@@ -29,17 +29,17 @@ describe('dashboard layout', () => {
     expect(source).toContain('getUnreadNotificationsCount');
   });
 
-  it('has logout link', () => {
+  it('has logout link in sidebar', () => {
     // Logout is handled in the Sidebar component
     const sidebarSource = readSource('components/dashboard/sidebar.tsx');
-    expect(sidebarSource).toContain('/dashboard/logout');
+    expect(sidebarSource).toContain('/logout');
   });
 });
 
 // ─── Dashboard Overview ───────────────────────────────────────────
 
 describe('dashboard overview page', () => {
-  const source = readSource('app/(dashboard)/dashboard/page.tsx');
+  const source = readSource('app/aqarpro/[slug]/dashboard/page.tsx');
 
   it('shows KPI stats', () => {
     expect(source).toContain('Biens actifs');
@@ -54,15 +54,15 @@ describe('dashboard overview page', () => {
   });
 
   it('has quick action links', () => {
-    expect(source).toContain('/dashboard/properties/new');
-    expect(source).toContain('/dashboard/leads');
+    expect(source).toContain('properties/new');
+    expect(source).toContain('/leads');
   });
 });
 
 // ─── Team Page ────────────────────────────────────────────────────
 
 describe('team page', () => {
-  const source = readSource('app/(dashboard)/dashboard/team/page.tsx');
+  const source = readSource('app/aqarpro/[slug]/settings/team/page.tsx');
 
   it('shows member count vs limit', () => {
     expect(source).toContain('planConfig.limits.maxMembers');
@@ -81,7 +81,7 @@ describe('team page', () => {
 });
 
 describe('team invite form', () => {
-  const source = readSource('app/(dashboard)/dashboard/team/invite-form.tsx');
+  const source = readSource('app/aqarpro/[slug]/settings/team/invite-form.tsx');
 
   it('has role selection', () => {
     expect(source).toContain('agent');
@@ -102,7 +102,7 @@ describe('team invite form', () => {
 // ─── Notifications Page ───────────────────────────────────────────
 
 describe('notifications page', () => {
-  const source = readSource('app/(dashboard)/dashboard/notifications/page.tsx');
+  const source = readSource('app/aqarpro/[slug]/notifications/page.tsx');
 
   it('shows unread count', () => {
     expect(source).toContain('getUnreadNotificationsCount');
@@ -115,7 +115,7 @@ describe('notifications page', () => {
 });
 
 describe('notification item', () => {
-  const source = readSource('app/(dashboard)/dashboard/notifications/notification-item.tsx');
+  const source = readSource('app/aqarpro/[slug]/notifications/notification-item.tsx');
 
   it('has type icons', () => {
     expect(source).toContain('new_lead');
@@ -137,7 +137,7 @@ describe('notification item', () => {
 // ─── Billing Page ─────────────────────────────────────────────────
 
 describe('billing page', () => {
-  const source = readSource('app/(dashboard)/dashboard/billing/page.tsx');
+  const source = readSource('app/aqarpro/[slug]/settings/billing/page.tsx');
 
   it('shows current plan info', () => {
     expect(source).toContain('Plan actuel');
@@ -179,7 +179,7 @@ describe('billing page', () => {
 // ─── Analytics Page ───────────────────────────────────────────────
 
 describe('analytics page', () => {
-  const source = readSource('app/(dashboard)/dashboard/analytics/page.tsx');
+  const source = readSource('app/aqarpro/[slug]/analytics/page.tsx');
 
   it('is plan-gated to pro', () => {
     expect(source).toContain('planHasFeature');
@@ -217,7 +217,7 @@ describe('analytics page', () => {
 // ─── Lead Detail Page ─────────────────────────────────────────────
 
 describe('lead detail page', () => {
-  const source = readSource('app/(dashboard)/dashboard/leads/[id]/page.tsx');
+  const source = readSource('app/aqarpro/[slug]/leads/[id]/page.tsx');
 
   it('shows lead info', () => {
     expect(source).toContain('lead.name');
@@ -240,7 +240,7 @@ describe('lead detail page', () => {
   });
 
   it('has back link', () => {
-    expect(source).toContain('/dashboard/leads');
+    expect(source).toContain('/leads');
     expect(source).toContain('Retour aux leads');
   });
 });
@@ -248,7 +248,7 @@ describe('lead detail page', () => {
 // ─── Export CSV ───────────────────────────────────────────────────
 
 describe('export csv component', () => {
-  const source = readSource('app/(dashboard)/dashboard/leads/export-csv.tsx');
+  const source = readSource('app/aqarpro/[slug]/leads/export-csv.tsx');
 
   it('generates CSV with BOM', () => {
     expect(source).toContain('\\uFEFF');

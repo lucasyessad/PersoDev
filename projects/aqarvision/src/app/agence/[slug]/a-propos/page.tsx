@@ -3,6 +3,7 @@ import { LuxuryAboutSection } from '@/components/agency/luxury-about-section';
 import { getAgencyBySlug } from '@/lib/queries/agency';
 import { getTranslations } from '@/lib/i18n';
 import { PLANS } from '@/config';
+import { MapPin, FileText, Building2, Phone, Mail, Globe } from 'lucide-react';
 import type { Metadata } from 'next';
 
 interface AboutPageProps {
@@ -30,33 +31,52 @@ export default async function AboutPage({ params }: AboutPageProps) {
     return <LuxuryAboutSection agency={agency} />;
   }
 
-  // Starter / Pro → Page basique
+  const accentColor = agency.accent_color || agency.primary_color || '#234E6F';
+
+  const infoItems = [
+    { icon: MapPin, label: t('about.wilaya'), value: agency.wilaya },
+    { icon: Building2, label: t('about.address'), value: agency.address },
+    { icon: FileText, label: t('about.registre'), value: agency.registre_commerce },
+    { icon: Phone, label: t('contact.phone'), value: agency.phone },
+    { icon: Mail, label: t('contact.email'), value: agency.email },
+    { icon: Globe, label: t('contact.website'), value: agency.website },
+  ].filter((item) => item.value);
+
+  // Starter / Pro → Page professionnelle
   return (
-    <div className="mx-auto max-w-3xl px-6 py-12">
-      <h1 className="mb-6 text-2xl font-bold">{t('about.heading', { name: agency.name })}</h1>
+    <div className="mx-auto max-w-4xl px-6 py-12">
+      <h1 className="text-heading-lg text-neutral-900">
+        {t('about.heading', { name: agency.name })}
+      </h1>
+      <div className="mt-3 agency-line" style={{ backgroundColor: accentColor }} />
+
       {agency.description && (
-        <p className="leading-relaxed text-gray-600">{agency.description}</p>
+        <p className="mt-4 text-body-sm text-neutral-600 leading-relaxed max-w-2xl">
+          {agency.description}
+        </p>
       )}
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        {agency.wilaya && (
-          <div className="rounded-lg bg-gray-50 p-4">
-            <span className="text-sm text-gray-500">{t('about.wilaya')}</span>
-            <p className="mt-1 font-medium">{agency.wilaya}</p>
-          </div>
-        )}
-        {agency.address && (
-          <div className="rounded-lg bg-gray-50 p-4">
-            <span className="text-sm text-gray-500">{t('about.address')}</span>
-            <p className="mt-1 font-medium">{agency.address}</p>
-          </div>
-        )}
-        {agency.registre_commerce && (
-          <div className="rounded-lg bg-gray-50 p-4">
-            <span className="text-sm text-gray-500">{t('about.registre')}</span>
-            <p className="mt-1 font-medium">{agency.registre_commerce}</p>
-          </div>
-        )}
-      </div>
+
+      {infoItems.length > 0 && (
+        <div className="mt-10 grid gap-4 sm:grid-cols-2">
+          {infoItems.map((item) => (
+            <div
+              key={item.label}
+              className="flex items-start gap-3 bg-white rounded-xl border border-neutral-200 p-5"
+            >
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                style={{ backgroundColor: `${accentColor}15` }}
+              >
+                <item.icon className="h-4.5 w-4.5" style={{ color: accentColor }} />
+              </div>
+              <div>
+                <p className="text-caption text-neutral-400">{item.label}</p>
+                <p className="mt-0.5 text-body-sm font-medium text-neutral-900">{item.value}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

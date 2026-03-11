@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { createClient } from '@/lib/supabase/server';
 import { getPlanPrice, type PlanType } from '@/config';
 import { revalidatePath } from 'next/cache';
+import { proPattern } from '@/lib/utils/paths';
 
 const VALID_PLANS    = ['starter', 'pro', 'enterprise'] as const;
 const VALID_CYCLES   = ['monthly', 'quarterly', 'yearly'] as const;
@@ -73,6 +74,6 @@ export async function createSubscription(formData: FormData) {
     .update({ active_plan: plan })
     .eq('id', agency.id);
 
-  revalidatePath('/dashboard/billing');
+  revalidatePath(proPattern('settings/billing'));
   return { success: true };
 }

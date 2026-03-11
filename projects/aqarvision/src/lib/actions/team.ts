@@ -3,6 +3,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { createPlanGate } from '@/lib/plan-gate';
 import { revalidatePath } from 'next/cache';
+import { proPattern } from '@/lib/utils/paths';
 import { getAgencyForCurrentUser } from './auth';
 import { isAuthError } from './auth-utils';
 
@@ -72,7 +73,7 @@ export async function inviteMember(
 
     if (error) return { success: false, error: 'Erreur lors de la réactivation' };
 
-    revalidatePath('/dashboard/team');
+    revalidatePath(proPattern('settings/team'));
     return { success: true };
   }
 
@@ -92,7 +93,7 @@ export async function inviteMember(
     return { success: false, error: 'Erreur lors de l\'invitation' };
   }
 
-  revalidatePath('/dashboard/team');
+  revalidatePath(proPattern('settings/team'));
   return { success: true };
 }
 
@@ -119,7 +120,7 @@ export async function updateMemberRole(
     return { success: false, error: 'Erreur lors de la mise à jour' };
   }
 
-  revalidatePath('/dashboard/team');
+  revalidatePath(proPattern('settings/team'));
   return { success: true };
 }
 
@@ -139,6 +140,6 @@ export async function removeMember(memberId: string): Promise<ActionResult> {
     return { success: false, error: 'Erreur lors de la suppression' };
   }
 
-  revalidatePath('/dashboard/team');
+  revalidatePath(proPattern('settings/team'));
   return { success: true };
 }

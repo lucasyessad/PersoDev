@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { proPattern } from '@/lib/utils/paths';
 import { getAgencyForCurrentUser } from './auth';
 import { isAuthError } from './auth-utils';
 
@@ -45,7 +46,7 @@ export async function updateLeadStatus(
     return { success: false, error: 'Erreur lors de la mise à jour' };
   }
 
-  revalidatePath('/dashboard/leads');
+  revalidatePath(proPattern('leads'));
   return { success: true };
 }
 
@@ -75,7 +76,7 @@ export async function updateLeadPriority(
     return { success: false, error: 'Erreur lors de la mise à jour' };
   }
 
-  revalidatePath('/dashboard/leads');
+  revalidatePath(proPattern('leads'));
   return { success: true };
 }
 
@@ -95,6 +96,6 @@ export async function deleteLead(leadId: string): Promise<ActionResult> {
     return { success: false, error: 'Erreur lors de la suppression' };
   }
 
-  revalidatePath('/dashboard/leads');
+  revalidatePath(proPattern('leads'));
   return { success: true };
 }

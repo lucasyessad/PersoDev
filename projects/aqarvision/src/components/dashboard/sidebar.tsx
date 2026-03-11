@@ -15,6 +15,10 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  BarChart3,
+  Shield,
+  Calendar,
+  ExternalLink,
   Bell,
 } from 'lucide-react';
 
@@ -23,23 +27,36 @@ interface NavItem {
   href: string;
   icon: typeof LayoutDashboard;
   badge?: number;
+  external?: boolean;
 }
 
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Tableau de bord', href: '/dashboard',             icon: LayoutDashboard },
-  { label: 'Biens',           href: '/dashboard/properties',  icon: Home },
-  { label: 'Leads',           href: '/dashboard/leads',       icon: Users },
-  { label: 'Messages',        href: '/dashboard/notifications', icon: MessageSquare },
-];
+function buildNav(slug: string): NavItem[] {
+  const base = `/aqarpro/${slug}`;
+  return [
+    { label: 'Tableau de bord', href: `${base}/dashboard`,      icon: LayoutDashboard },
+    { label: 'Biens',           href: `${base}/properties`,     icon: Home },
+    { label: 'Leads',           href: `${base}/leads`,          icon: Users },
+    { label: 'Messages',        href: `${base}/messages`,       icon: MessageSquare },
+    { label: 'Notifications',   href: `${base}/notifications`,  icon: Bell },
+    { label: 'Analytics',       href: `${base}/analytics`,      icon: BarChart3 },
+    { label: 'Calendrier',      href: `${base}/calendar`,       icon: Calendar },
+  ];
+}
 
-const SETTINGS_ITEMS: NavItem[] = [
-  { label: 'Branding',     href: '/dashboard/branding',  icon: Palette },
-  { label: 'Abonnement',   href: '/dashboard/billing',   icon: CreditCard },
-  { label: 'Paramètres',   href: '/dashboard/settings',  icon: Settings },
-];
+function buildSettings(slug: string): NavItem[] {
+  const base = `/aqarpro/${slug}/settings`;
+  return [
+    { label: 'Branding',       href: `${base}/branding`,      icon: Palette },
+    { label: 'Vérification',   href: `${base}/verification`,  icon: Shield },
+    { label: 'Équipe',         href: `${base}/team`,           icon: Users },
+    { label: 'Abonnement',     href: `${base}/billing`,       icon: CreditCard },
+    { label: 'Paramètres',     href: base,                     icon: Settings },
+  ];
+}
 
 interface SidebarProps {
   agencyName?: string;
+  agencySlug?: string;
   userEmail?: string;
   userName?: string;
   unreadLeads?: number;
@@ -48,6 +65,7 @@ interface SidebarProps {
 
 export function Sidebar({
   agencyName = 'Mon agence',
+  agencySlug = '',
   userEmail = '',
   userName = '',
   unreadLeads = 0,
@@ -56,16 +74,24 @@ export function Sidebar({
   const pathname   = usePathname();
   const [collapsed, setCollapsed] = useState(false);
 
-  const items = NAV_ITEMS.map(item => ({
+  const slug = agencySlug;
+  const base = `/aqarpro/${slug}`;
+
+  const navItems = buildNav(slug);
+  const settingsItems = buildSettings(slug);
+
+  const items = navItems.map(item => ({
     ...item,
     badge:
-      item.href === '/dashboard/leads'       ? unreadLeads :
-      item.href === '/dashboard/notifications' ? unreadMessages :
+      item.href === `${base}/leads`         ? unreadLeads :
+      item.href === `${base}/notifications`  ? unreadMessages :
       undefined,
   }));
 
   const isActive = (href: string) =>
-    href === '/dashboard' ? pathname === href : pathname.startsWith(href);
+    href === `${base}/dashboard`
+      ? pathname === href || pathname === base
+      : pathname.startsWith(href);
 
   return (
     <aside
@@ -99,13 +125,34 @@ export function Sidebar({
 
         <div className="my-3 border-t border-neutral-100" />
 
+        {/* Gestion */}
+        {!collapsed && (
+          <p className="px-3 mb-1.5 text-caption text-neutral-400 uppercase tracking-wider">Gestion</p>
+        )}
         <ul className="flex flex-col gap-0.5">
-          {SETTINGS_ITEMS.map(item => (
+          {settingsItems.map(item => (
             <li key={item.href}>
               <NavLink item={item} collapsed={collapsed} active={isActive(item.href)} />
             </li>
           ))}
         </ul>
+
+        {/* Lien vitrine agence */}
+        {agencySlug && (
+          <>
+            <div className="my-3 border-t border-neutral-100" />
+            <a
+              href={`/agence/${agencySlug}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={collapsed ? 'Voir ma vitrine' : undefined}
+              className="flex items-center gap-3 px-3 h-10 rounded-md transition-colors text-body-md font-medium text-primary-600 hover:bg-primary-50"
+            >
+              <ExternalLink className="h-5 w-5 shrink-0" />
+              {!collapsed && <span className="truncate">Voir ma vitrine</span>}
+            </a>
+          </>
+        )}
       </nav>
 
       {/* User profile */}
@@ -121,13 +168,13 @@ export function Sidebar({
               <p className="text-body-sm font-medium text-neutral-900 truncate">{userName || 'Utilisateur'}</p>
               <p className="text-caption text-neutral-400 truncate">{userEmail}</p>
             </div>
-            <Link href="/dashboard/logout" className="text-neutral-400 hover:text-neutral-700 transition-colors">
+            <Link href={`${base}/logout`} className="text-neutral-400 hover:text-neutral-700 transition-colors">
               <LogOut className="h-4 w-4" />
             </Link>
           </div>
         ) : (
           <Link
-            href="/dashboard/logout"
+            href={`${base}/logout`}
             className="flex items-center justify-center h-9 w-full text-neutral-400 hover:text-neutral-700 transition-colors rounded-md hover:bg-neutral-50"
           >
             <LogOut className="h-4 w-4" />

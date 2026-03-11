@@ -5,6 +5,7 @@ import { getAgencyBySlug, getAgencyProperties, getAgencyPropertiesCount } from '
 import { getTranslations } from '@/lib/i18n';
 import { PAGINATION, PLANS } from '@/config';
 import { formatPrice, getLocationLabel } from '@/lib/utils/format';
+import { MapPin, Maximize2, BedDouble, Home, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Agency, Property } from '@/types/database';
 import type { Metadata } from 'next';
 
@@ -33,7 +34,7 @@ function PropertyCard({
   t: ReturnType<typeof getTranslations>;
 }) {
   const isDark = agency.theme_mode === 'dark';
-  const accentColor = agency.secondary_color || agency.primary_color;
+  const accentColor = agency.accent_color || agency.secondary_color || agency.primary_color;
 
   if (luxury) {
     return (
@@ -83,35 +84,63 @@ function PropertyCard({
     );
   }
 
-  // Basic card
+  // Basic card — design system
   return (
     <Link
       href={`/agence/${agency.slug}/biens/${property.id}`}
-      className="block overflow-hidden rounded-lg border transition-shadow hover:shadow-md"
+      className="group bg-white rounded-xl border border-neutral-200 overflow-hidden hover:shadow-lg hover:border-neutral-300 transition-all"
     >
-      {property.images[0] && (
-        <div className="relative aspect-[4/3]">
+      <div className="relative aspect-[4/3] bg-neutral-100">
+        {property.images[0] ? (
           <Image
             src={property.images[0]}
             alt={property.title}
             fill
-            className="object-cover"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
           />
-        </div>
-      )}
-      <div className="p-4">
+        ) : (
+          <div className="flex items-center justify-center h-full text-body-sm text-neutral-300">
+            {t('properties.noPhoto')}
+          </div>
+        )}
+        <span
+          className="absolute top-3 left-3 px-2.5 py-1 text-caption font-semibold uppercase tracking-wider text-white rounded-md"
+          style={{ backgroundColor: accentColor || '#234E6F' }}
+        >
+          {property.transaction_type === 'sale' ? t('properties.sale') : t('properties.rent')}
+        </span>
+      </div>
+      <div className="p-5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium uppercase text-gray-500">
-            {property.transaction_type === 'sale' ? t('properties.sale') : t('properties.rent')}
+          <span className="text-caption font-medium uppercase text-neutral-400">
+            {property.type}
           </span>
-          <span className="text-xs text-gray-400">{property.type}</span>
         </div>
-        <h3 className="mt-1 font-semibold">{property.title}</h3>
-        <p className="mt-1 text-sm text-gray-500">
-          {getLocationLabel(property)} {property.surface && `· ${property.surface} m²`}
-          {property.rooms && ` · ${property.rooms} ${t('properties.rooms')}`}
+        <h3 className="mt-1 text-body-sm font-semibold text-neutral-900 line-clamp-1">
+          {property.title}
+        </h3>
+        <p className="mt-1 flex items-center gap-1 text-caption text-neutral-400">
+          <MapPin className="h-3 w-3" />
+          {getLocationLabel(property)}
         </p>
-        <p className="mt-2 font-bold text-blue-600">{formatPrice(property.price, property.currency)}</p>
+        <div className="mt-3 flex items-center gap-3 text-caption text-neutral-500">
+          {property.surface && (
+            <span className="flex items-center gap-1">
+              <Maximize2 className="h-3 w-3" /> {property.surface} m²
+            </span>
+          )}
+          {property.rooms && (
+            <span className="flex items-center gap-1">
+              <BedDouble className="h-3 w-3" /> {property.rooms} {t('properties.rooms')}
+            </span>
+          )}
+        </div>
+        <p className="mt-3 text-body-sm font-bold" style={{ color: accentColor || '#234E6F' }}>
+          {formatPrice(property.price, property.currency)}
+          {property.transaction_type === 'rent' && (
+            <span className="text-neutral-400 font-normal"> /mois</span>
+          )}
+        </p>
       </div>
     </Link>
   );
@@ -136,7 +165,7 @@ export default async function BiensPage({ params, searchParams }: BiensPageProps
   const totalPages = Math.ceil(totalCount / PAGINATION.PROPERTIES_PER_PAGE);
   const isEnterprise = agency.active_plan === PLANS.ENTERPRISE;
   const isDark = agency.theme_mode === 'dark';
-  const accentColor = agency.secondary_color || agency.primary_color;
+  const accentColor = agency.accent_color || agency.secondary_color || agency.primary_color;
 
   const plural = totalCount > 1 ? 's' : '';
   const availableText = t('properties.available', { count: totalCount, plural });
@@ -220,14 +249,14 @@ export default async function BiensPage({ params, searchParams }: BiensPageProps
     );
   }
 
-  // Starter / Pro → Listing basique
+  // Starter / Pro → Listing professionnel
   return (
     <div className="mx-auto max-w-7xl px-6 py-12">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">{t('properties.our')}</h1>
+          <h1 className="text-heading-lg text-neutral-900">{t('properties.our')}</h1>
           {totalCount > 0 && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-body-sm text-neutral-500">
               {availableText}
             </p>
           )}
@@ -235,7 +264,7 @@ export default async function BiensPage({ params, searchParams }: BiensPageProps
       </div>
 
       {properties.length > 0 ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {properties.map((property) => (
             <PropertyCard
               key={property.id}
@@ -247,29 +276,34 @@ export default async function BiensPage({ params, searchParams }: BiensPageProps
           ))}
         </div>
       ) : (
-        <p className="text-center text-gray-500">{t('properties.none')}</p>
+        <div className="rounded-xl border-2 border-dashed border-neutral-200 bg-white py-16 text-center">
+          <div className="mx-auto w-12 h-12 bg-neutral-100 rounded-full flex items-center justify-center mb-4">
+            <Home className="h-6 w-6 text-neutral-400" />
+          </div>
+          <p className="text-body-md text-neutral-500">{t('properties.none')}</p>
+        </div>
       )}
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="mt-12 flex items-center justify-center gap-3">
+        <div className="mt-12 flex items-center justify-center gap-2">
           {currentPage > 1 && (
             <Link
               href={`/agence/${slug}/biens?page=${currentPage - 1}`}
-              className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50"
+              className="inline-flex items-center gap-1 h-9 px-4 text-body-sm font-medium text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
             >
-              {t('pagination.prev')}
+              <ChevronLeft className="h-4 w-4" /> {t('pagination.prev')}
             </Link>
           )}
-          <span className="text-sm text-gray-500">
+          <span className="px-3 text-body-sm text-neutral-500">
             {t('pagination.page', { current: currentPage, total: totalPages })}
           </span>
           {currentPage < totalPages && (
             <Link
               href={`/agence/${slug}/biens?page=${currentPage + 1}`}
-              className="rounded-lg border px-4 py-2 text-sm hover:bg-gray-50"
+              className="inline-flex items-center gap-1 h-9 px-4 text-body-sm font-medium text-neutral-700 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
             >
-              {t('pagination.next')}
+              {t('pagination.next')} <ChevronRight className="h-4 w-4" />
             </Link>
           )}
         </div>

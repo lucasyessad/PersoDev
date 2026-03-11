@@ -90,7 +90,7 @@ export default async function AgencesPage() {
                 )}
 
                 <span className="inline-flex items-center gap-1 text-body-sm text-primary-600 font-medium group-hover:gap-2 transition-all">
-                  Voir l'agence <ArrowRight className="h-3.5 w-3.5" />
+                  Voir l&apos;agence <ArrowRight className="h-3.5 w-3.5" />
                 </span>
               </Link>
             ))}
@@ -102,7 +102,7 @@ export default async function AgencesPage() {
               <Building2 className="h-8 w-8 text-primary-600" />
             </div>
             <h2 className="font-display text-display-md text-neutral-900 mb-3">
-              Aucune agence pour l'instant
+              Aucune agence pour l&apos;instant
             </h2>
             <p className="text-body-lg text-neutral-500 max-w-md mb-8">
               Les agences partenaires apparaîtront ici. Vous êtes une agence immobilière ?

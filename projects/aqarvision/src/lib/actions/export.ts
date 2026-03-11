@@ -50,7 +50,7 @@ export async function getLeadsForExport(agencyId: string): Promise<ExportResult>
     status: l.status,
     priority: l.priority,
     source: l.source,
-    property_title: (l.properties as { title: string } | null)?.title ?? null,
+    property_title: (l.properties as unknown as { title: string } | null)?.title ?? null,
     created_at: l.created_at,
   }));
 

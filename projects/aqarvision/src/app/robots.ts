@@ -6,7 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/agence/',
-        disallow: ['/dashboard/', '/api/', '/login', '/register'],
+        disallow: ['/aqarpro/', '/api/', '/login', '/register'],
       },
     ],
   };

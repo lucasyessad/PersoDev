@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { proPattern } from '@/lib/utils/paths';
 import type { NotificationType } from '@/types/database';
 
 interface ActionResult {
@@ -22,7 +23,7 @@ export async function markNotificationAsRead(notificationId: string): Promise<Ac
 
   if (error) return { success: false, error: 'Erreur lors de la mise à jour' };
 
-  revalidatePath('/dashboard');
+  revalidatePath(proPattern('dashboard'));
   return { success: true };
 }
 
@@ -39,7 +40,7 @@ export async function markAllNotificationsAsRead(): Promise<ActionResult> {
 
   if (error) return { success: false, error: 'Erreur lors de la mise à jour' };
 
-  revalidatePath('/dashboard');
+  revalidatePath(proPattern('dashboard'));
   return { success: true };
 }
 
@@ -56,7 +57,7 @@ export async function deleteNotification(notificationId: string): Promise<Action
 
   if (error) return { success: false, error: 'Erreur lors de la suppression' };
 
-  revalidatePath('/dashboard');
+  revalidatePath(proPattern('dashboard'));
   return { success: true };
 }
 

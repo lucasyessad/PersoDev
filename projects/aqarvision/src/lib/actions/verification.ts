@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { proPattern } from '@/lib/utils/paths';
 
 interface VerificationStatus {
   verification_status: 'pending' | 'submitted' | 'verified' | 'rejected';
@@ -108,6 +109,6 @@ export async function submitVerification(formData: FormData): Promise<ActionResu
 
   if (updateError) return { error: 'Erreur lors de l\'envoi de la demande' };
 
-  revalidatePath('/dashboard/verification');
+  revalidatePath(proPattern('settings/verification'));
   return { success: true };
 }

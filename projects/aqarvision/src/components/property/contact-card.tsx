@@ -73,7 +73,7 @@ export function ContactCard({
       {sent ? (
         <div className="text-center py-4">
           <div className="text-success-600 text-heading-sm mb-2">✓ Message envoyé !</div>
-          <p className="text-body-sm text-neutral-500">L'agence vous contactera très prochainement.</p>
+          <p className="text-body-sm text-neutral-500">L&apos;agence vous contactera très prochainement.</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -111,7 +111,7 @@ export function ContactCard({
             <a href={`tel:${agency.phone}`}>
               <Button type="button" variant="secondary" fullWidth>
                 <Phone className="h-4 w-4" />
-                Appeler l'agence
+                Appeler l&apos;agence
               </Button>
             </a>
           )}

@@ -265,7 +265,14 @@ function AgencySignupForm() {
           return;
         }
 
-        router.push('/dashboard');
+        // Fetch the slug we just created
+        const { data: newAgency } = await supabase
+          .from('agencies')
+          .select('slug')
+          .eq('owner_id', authData.user.id)
+          .single();
+
+        router.push(`/aqarpro/${newAgency?.slug}/dashboard`);
         router.refresh();
       }
     });
@@ -276,7 +283,7 @@ function AgencySignupForm() {
   return (
     <div className="rounded-xl bg-white p-8 shadow-sm space-y-5">
       <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
-        Créez votre vitrine agence et publiez vos annonces immobilières dès aujourd'hui.
+        Créez votre vitrine agence et publiez vos annonces immobilières dès aujourd&apos;hui.
       </div>
 
       {error && (

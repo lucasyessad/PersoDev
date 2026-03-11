@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server';
 import { propertySchema } from '@/lib/validators/property';
 import { createPlanGate } from '@/lib/plan-gate';
 import { revalidatePath } from 'next/cache';
+import { proPattern } from '@/lib/utils/paths';
 import { getAgencyForCurrentUser } from './auth';
 import { isAuthError } from './auth-utils';
 
@@ -58,7 +59,7 @@ export async function createProperty(
     return { success: false, error: `Erreur DB: ${error.message} (code: ${error.code})` };
   }
 
-  revalidatePath('/dashboard/properties');
+  revalidatePath(proPattern('properties'));
   return { success: true, id: data.id };
 }
 
@@ -90,7 +91,7 @@ export async function updateProperty(
     return { success: false, error: 'Erreur lors de la mise à jour' };
   }
 
-  revalidatePath('/dashboard/properties');
+  revalidatePath(proPattern('properties'));
   return { success: true };
 }
 
@@ -110,6 +111,6 @@ export async function deleteProperty(propertyId: string): Promise<ActionResult> 
     return { success: false, error: 'Erreur lors de la suppression' };
   }
 
-  revalidatePath('/dashboard/properties');
+  revalidatePath(proPattern('properties'));
   return { success: true };
 }

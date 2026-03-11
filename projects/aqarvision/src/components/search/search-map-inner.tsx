@@ -7,9 +7,9 @@ import 'leaflet/dist/leaflet.css';
 import type { SearchPropertyResult } from '@/types/database';
 
 // Fix broken default icons in Next.js
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// eslint-disable-next-line
 const iconUrl = (require('leaflet/dist/images/marker-icon.png') as { default: string }).default ?? require('leaflet/dist/images/marker-icon.png');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+// eslint-disable-next-line
 const iconShadow = (require('leaflet/dist/images/marker-shadow.png') as { default: string }).default ?? require('leaflet/dist/images/marker-shadow.png');
 
 const DefaultIcon = L.icon({

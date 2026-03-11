@@ -2,14 +2,14 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 /**
- * Middleware Next.js — protège les routes /dashboard/* avec Supabase Auth.
+ * Middleware Next.js — protège les routes /aqarpro/* avec Supabase Auth.
  *
  * 1. Rafraîchit la session Supabase (cookies)
  * 2. Redirige vers /login si non authentifié sur les routes protégées
- * 3. Redirige vers /dashboard si déjà authentifié sur /login
+ * 3. Redirige vers le dashboard si déjà authentifié sur /login ou /signup
  */
 
-const PROTECTED_ROUTES = ['/dashboard', '/favoris', '/alertes', '/recherches', '/messages', '/profil'];
+const PROTECTED_PREFIXES = ['/aqarpro', '/favoris', '/alertes', '/recherches', '/messages', '/profil'];
 const AUTH_ROUTES = ['/login', '/signup'];
 
 export async function middleware(request: NextRequest) {
@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Routes protégées → rediriger vers /login si pas connecté
-  const isProtected = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
+  const isProtected = PROTECTED_PREFIXES.some((route) => pathname.startsWith(route));
   if (isProtected && !user) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
@@ -56,11 +56,22 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url);
   }
 
-  // Routes auth → rediriger vers /dashboard si déjà connecté
+  // Routes auth → rediriger vers le dashboard si déjà connecté
   const isAuthRoute = AUTH_ROUTES.some((route) => pathname.startsWith(route));
   if (isAuthRoute && user) {
+    // Fetch agency slug for redirect
+    const { data: agency } = await supabase
+      .from('agencies')
+      .select('slug')
+      .eq('owner_id', user.id)
+      .single();
+
     const url = request.nextUrl.clone();
-    url.pathname = '/dashboard';
+    if (agency?.slug) {
+      url.pathname = `/aqarpro/${agency.slug}/dashboard`;
+    } else {
+      url.pathname = '/profil';
+    }
     return NextResponse.redirect(url);
   }
 
@@ -75,7 +86,6 @@ export const config = {
      * - _next/image (optimisation images)
      * - favicon.ico
      * - fichiers publics (svg, png, jpg, etc.)
-     * - routes API internes Next.js
      */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],

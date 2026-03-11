@@ -1,7 +1,8 @@
 'use server';
 
 import { createClient } from '@/lib/supabase/server';
-import { agencyBrandingSchema, agencyLuxuryBrandingSchema } from '@/lib/validators';
+import { agencyBrandingSchema, agencyLuxuryBrandingSchema, agencyWilayasSchema } from '@/lib/validators';
+import type { AgencyWilayaInput } from '@/lib/validators';
 import { UPLOADS, PLANS, STORAGE } from '@/config';
 
 interface ActionResult {
@@ -247,6 +248,63 @@ export async function updateAgencyLogo(
 
   if (updateError) {
     return { success: false, error: "Erreur lors de la mise à jour de l'URL" };
+  }
+
+  return { success: true };
+}
+
+/**
+ * Met à jour les wilayas d'une agence (multi-wilayas).
+ * Supprime les anciennes et insère les nouvelles en une transaction.
+ */
+export async function updateAgencyWilayas(
+  agencyId: string,
+  wilayas: AgencyWilayaInput[]
+): Promise<ActionResult> {
+  const auth = await verifyAgencyOwnership(agencyId);
+  if (auth.error) return auth.error;
+
+  const result = agencyWilayasSchema.safeParse(wilayas);
+  if (!result.success) {
+    const firstError = result.error.errors[0];
+    return { success: false, error: firstError?.message || 'Données invalides' };
+  }
+
+  const supabase = await createClient();
+
+  // Supprimer les anciennes wilayas
+  const { error: deleteError } = await supabase
+    .from('agency_wilayas')
+    .delete()
+    .eq('agency_id', agencyId);
+
+  if (deleteError) {
+    return { success: false, error: 'Erreur lors de la suppression des wilayas' };
+  }
+
+  // Insérer les nouvelles
+  const rows = result.data.map((w) => ({
+    agency_id: agencyId,
+    wilaya: w.wilaya,
+    address: w.address || null,
+    is_headquarters: w.is_headquarters,
+  }));
+
+  const { error: insertError } = await supabase
+    .from('agency_wilayas')
+    .insert(rows);
+
+  if (insertError) {
+    return { success: false, error: "Erreur lors de l'ajout des wilayas" };
+  }
+
+  // Mettre à jour la wilaya principale sur la table agencies (rétrocompatibilité)
+  const hq = result.data.find((w) => w.is_headquarters) || result.data[0];
+  if (hq) {
+    await supabase
+      .from('agencies')
+      .update({ wilaya: hq.wilaya, updated_at: new Date().toISOString() })
+      .eq('id', agencyId);
   }
 
   return { success: true };

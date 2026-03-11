@@ -9,7 +9,7 @@ import { NextResponse } from 'next/server';
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
-  const redirectTo = searchParams.get('redirectTo') || '/dashboard';
+  const redirectTo = searchParams.get('redirectTo') || null;
 
   if (code) {
     const supabase = await createClient();
@@ -48,7 +48,23 @@ export async function GET(request: Request) {
         });
       }
 
-      return NextResponse.redirect(`${origin}${redirectTo}`);
+      // Resolve redirect target
+      if (redirectTo) {
+        return NextResponse.redirect(`${origin}${redirectTo}`);
+      }
+
+      // Default: find agency slug and redirect to dashboard
+      const { data: agency } = await supabase
+        .from('agencies')
+        .select('slug')
+        .eq('owner_id', data.user.id)
+        .single();
+
+      const target = agency?.slug
+        ? `/aqarpro/${agency.slug}/dashboard`
+        : '/profil';
+
+      return NextResponse.redirect(`${origin}${target}`);
     }
   }
 

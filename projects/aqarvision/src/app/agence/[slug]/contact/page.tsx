@@ -6,6 +6,7 @@ import { ConditionalMap } from '@/components/agency/location-map';
 import { SocialFeedWidget } from '@/components/agency/social-feed-widget';
 import { getTranslations } from '@/lib/i18n';
 import { PAGINATION, PLANS } from '@/config';
+import { Phone, Mail, Globe, MapPin } from 'lucide-react';
 import type { Metadata } from 'next';
 
 interface ContactPageProps {
@@ -39,14 +40,14 @@ export default async function ContactPage({ params }: ContactPageProps) {
     : { posts: [], embeds: [], hasApiData: false };
 
   const isEnterprise = agency.active_plan === PLANS.ENTERPRISE;
-  const accentColor = agency.secondary_color || agency.primary_color;
+  const accentColor = agency.secondary_color || agency.primary_color || '#234E6F';
   const isDark = agency.theme_mode === 'dark';
 
   const contactItems = [
-    { label: t('contact.phone'), value: agency.phone, href: agency.phone ? `tel:${agency.phone}` : null },
-    { label: t('contact.email'), value: agency.email, href: agency.email ? `mailto:${agency.email}` : null },
-    { label: t('contact.website'), value: agency.website, href: agency.website },
-    { label: t('contact.address'), value: agency.address, href: null },
+    { icon: Phone, label: t('contact.phone'), value: agency.phone, href: agency.phone ? `tel:${agency.phone}` : null },
+    { icon: Mail, label: t('contact.email'), value: agency.email, href: agency.email ? `mailto:${agency.email}` : null },
+    { icon: Globe, label: t('contact.website'), value: agency.website, href: agency.website },
+    { icon: MapPin, label: t('contact.address'), value: agency.address, href: null },
   ].filter((c) => c.value);
 
   // Enterprise → Contact luxe avec formulaire
@@ -149,31 +150,48 @@ export default async function ContactPage({ params }: ContactPageProps) {
     );
   }
 
-  // Starter / Pro → Contact basique avec formulaire
+  // Starter / Pro → Contact professionnel
   return (
     <div className="mx-auto max-w-4xl px-6 py-12">
-      <h1 className="mb-8 text-2xl font-bold">{t('contact.contactName', { name: agency.name })}</h1>
+      <h1 className="text-heading-lg text-neutral-900 mb-8">
+        {t('contact.contactName', { name: agency.name })}
+      </h1>
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         {/* Coordonnées */}
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-1">
+        <div className="flex flex-col gap-4">
           {contactItems.map((item) => (
-            <div key={item.label} className="rounded-lg border p-4">
-              <span className="text-sm text-gray-500">{item.label}</span>
-              {item.href ? (
-                <a href={item.href} className="mt-1 block font-medium text-blue-600 hover:underline">
-                  {item.value}
-                </a>
-              ) : (
-                <p className="mt-1 font-medium">{item.value}</p>
-              )}
+            <div
+              key={item.label}
+              className="flex items-start gap-3 bg-white rounded-xl border border-neutral-200 p-5"
+            >
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+                style={{ backgroundColor: `${accentColor}15` }}
+              >
+                <item.icon className="h-4.5 w-4.5" style={{ color: accentColor }} />
+              </div>
+              <div>
+                <p className="text-caption text-neutral-400">{item.label}</p>
+                {item.href ? (
+                  <a
+                    href={item.href}
+                    className="mt-0.5 text-body-sm font-medium transition-colors hover:underline"
+                    style={{ color: accentColor }}
+                  >
+                    {item.value}
+                  </a>
+                ) : (
+                  <p className="mt-0.5 text-body-sm font-medium text-neutral-900">{item.value}</p>
+                )}
+              </div>
             </div>
           ))}
         </div>
 
         {/* Formulaire */}
-        <div className="rounded-xl border p-6">
-          <h2 className="mb-6 text-lg font-semibold">{t('contact.sendMessage')}</h2>
+        <div className="bg-white rounded-xl border border-neutral-200 p-6">
+          <h2 className="text-heading-sm text-neutral-900 mb-6">{t('contact.sendMessage')}</h2>
           <ContactForm agency={agency} />
         </div>
       </div>
@@ -183,7 +201,7 @@ export default async function ContactPage({ params }: ContactPageProps) {
         latitude={agency.latitude ?? null}
         longitude={agency.longitude ?? null}
         label={agency.name}
-        className="mt-8 h-64 w-full overflow-hidden rounded-xl"
+        className="mt-8 h-64 w-full overflow-hidden rounded-xl border border-neutral-200"
       />
 
       {/* Widget réseaux sociaux */}

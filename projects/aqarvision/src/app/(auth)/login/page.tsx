@@ -78,13 +78,13 @@ function LoginForm() {
       // Vérifier si l'utilisateur a une agence
       const { data: agency } = await supabase
         .from('agencies')
-        .select('id')
+        .select('slug')
         .eq('owner_id', user.id)
         .maybeSingle();
 
-      if (agency) {
+      if (agency?.slug) {
         // Agence → dashboard
-        router.push('/dashboard');
+        router.push(`/aqarpro/${agency.slug}/dashboard`);
       } else {
         // Particulier → profil
         router.push('/profil');
@@ -154,7 +154,7 @@ function LoginForm() {
           <p className="text-center text-sm text-gray-600">
             Pas encore de compte ?{' '}
             <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
-              S'inscrire
+              S&apos;inscrire
             </Link>
           </p>
         </div>

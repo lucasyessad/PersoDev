@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { proPattern } from '@/lib/utils/paths';
 import { getAgencyForCurrentUser } from './auth';
 import { isAuthError } from './auth-utils';
 
@@ -46,7 +47,7 @@ export async function addLeadNote(
     return { success: false, error: 'Erreur lors de l\'ajout de la note' };
   }
 
-  revalidatePath('/dashboard/leads');
+  revalidatePath(proPattern('leads'));
   return { success: true };
 }
 
@@ -66,6 +67,6 @@ export async function deleteLeadNote(noteId: string): Promise<ActionResult> {
     return { success: false, error: 'Erreur lors de la suppression' };
   }
 
-  revalidatePath('/dashboard/leads');
+  revalidatePath(proPattern('leads'));
   return { success: true };
 }

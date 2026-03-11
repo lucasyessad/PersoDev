@@ -4,9 +4,11 @@
 
 // === Enums ===
 
+export type AgencyTheme = 'classic' | 'modern' | 'luxury' | 'natural' | 'minimal' | 'bold' | 'custom';
 export type HeroStyle = 'color' | 'cover' | 'video';
 export type FontStyle = 'modern' | 'classic' | 'elegant';
 export type ThemeMode = 'light' | 'dark';
+export type BorderStyle = 'rounded' | 'square';
 export type AgencyLocale = 'fr' | 'ar' | 'en';
 export type AgencyPlan = 'starter' | 'pro' | 'enterprise';
 export type MemberRole = 'admin' | 'agent' | 'viewer';
@@ -58,6 +60,14 @@ export interface Agency {
   locale: AgencyLocale;
   custom_domain: string | null;
 
+  // Theme & Personnalisation
+  theme: AgencyTheme;
+  secondary_color: string | null;
+  accent_color: string | null;
+  font_style: FontStyle;
+  theme_mode: ThemeMode;
+  border_style: BorderStyle;
+
   // Geolocation
   latitude: number | null;
   longitude: number | null;
@@ -67,12 +77,9 @@ export interface Agency {
   facebook_url: string | null;
   tiktok_url: string | null;
 
-  // Luxury Branding (Enterprise)
-  secondary_color: string | null;
+  // Hero & Contenu premium (Enterprise)
   hero_video_url: string | null;
   hero_style: HeroStyle;
-  font_style: FontStyle;
-  theme_mode: ThemeMode;
   tagline: string | null;
   stats_years: number | null;
   stats_properties_sold: number | null;
@@ -81,6 +88,15 @@ export interface Agency {
   // Timestamps
   created_at: string;
   updated_at: string;
+}
+
+export interface AgencyWilaya {
+  id: string;
+  agency_id: string;
+  wilaya: string;
+  address: string | null;
+  is_headquarters: boolean;
+  created_at: string;
 }
 
 export interface AgencyMember {

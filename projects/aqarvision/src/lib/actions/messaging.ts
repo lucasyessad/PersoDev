@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
+import { proPattern } from '@/lib/utils/paths';
 import { z } from 'zod';
 import type { Conversation, Message } from '@/types/database';
 
@@ -156,7 +157,7 @@ export async function sendMessage(
   }
 
   revalidatePath(`/messages/${conversationId}`);
-  revalidatePath(`/dashboard/messages/${conversationId}`);
+  revalidatePath(proPattern(`messages/${conversationId}`));
 
   return { success: true, data: message as Message };
 }
@@ -317,7 +318,7 @@ export async function archiveConversation(
   if (error) return { error: 'Erreur lors de l\'archivage' };
 
   revalidatePath('/messages');
-  revalidatePath('/dashboard/messages');
+  revalidatePath(proPattern('messages'));
 
   return {};
 }
