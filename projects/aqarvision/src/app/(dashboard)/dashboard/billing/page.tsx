@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { getActiveSubscription, getSubscriptionHistory } from '@/lib/queries/subscription';
-import { getPlanConfig, PLAN_CONFIGS } from '@/config';
+import { getPlanConfig, PLAN_CONFIGS, getPlanPrice } from '@/config';
 import Link from 'next/link';
+import { SubscribeForm } from './subscribe-form';
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   trial: { label: 'Essai gratuit', color: 'bg-blue-100 text-blue-700' },
@@ -124,18 +125,15 @@ export default async function BillingPage() {
         <div className="mt-6 flex gap-3">
           <Link
             href="/pricing"
-            className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700"
+            className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
           >
-            {subscription ? 'Changer de plan' : 'Voir les plans'}
+            Voir les plans
           </Link>
-          {subscription?.payment_method && (
-            <p className="flex items-center text-sm text-gray-500">
-              Paiement : {PAYMENT_LABELS[subscription.payment_method] || subscription.payment_method}
-              {subscription.payment_reference && ` (Réf: ${subscription.payment_reference})`}
-            </p>
-          )}
         </div>
       </div>
+
+      {/* Subscribe Form */}
+      <SubscribeForm currentPlanId={agency.active_plan} />
 
       {/* Plan Limits */}
       <div className="mb-8 rounded-xl border border-gray-200 bg-white p-6">

@@ -55,7 +55,7 @@ export async function createProperty(
     .single();
 
   if (error) {
-    return { success: false, error: 'Erreur lors de la création du bien' };
+    return { success: false, error: `Erreur DB: ${error.message} (code: ${error.code})` };
   }
 
   revalidatePath('/dashboard/properties');

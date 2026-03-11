@@ -132,7 +132,7 @@ function LoginForm() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">AqarVision</h1>
+          <h1 className="text-3xl font-bold text-gray-900">AqarPro</h1>
           <p className="mt-2 text-sm text-gray-600">
             Connectez-vous à votre espace agence
           </p>

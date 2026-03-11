@@ -14,12 +14,3 @@ export interface AuthError {
 export function isAuthError(result: AgencyAuth | AuthError): result is AuthError {
   return 'success' in result && result.success === false;
 }
-
-import type { AgencyAuth, AuthError } from './auth';
-
-/**
- * Type guard pour différencier une erreur d'auth d'un résultat valide.
- */
-export function isAuthError(result: AgencyAuth | AuthError): result is AuthError {
-  return 'success' in result && result.success === false;
-}

@@ -324,7 +324,7 @@ describe('CSS accessibility and RTL support', () => {
     expect(reducedMotionBlock).toMatch(/animation:\s*none/);
   });
 
-  it('defines RTL overrides for font-display-classic', () => {
-    expect(cssSource).toMatch(/\[dir="rtl"\].*\.font-display-classic/);
+  it('defines RTL overrides for font-display', () => {
+    expect(cssSource).toMatch(/\[dir="rtl"\].*\.font-display/);
   });
 });

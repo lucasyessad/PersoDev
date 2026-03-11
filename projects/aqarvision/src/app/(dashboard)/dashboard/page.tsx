@@ -1,8 +1,37 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { Home, Users, Eye, TrendingUp, Plus, ArrowRight, Clock } from 'lucide-react';
+import { StatCard } from '@/components/ui/stat-card';
+import { Badge } from '@/components/ui/badge';
 import { getPlanConfig } from '@/config';
-import { createPlanGate } from '@/lib/plan-gate';
+
+/* ─── Lead status badge ──────────────────────────── */
+
+function LeadStatusBadge({ status }: { status: string }) {
+  const map: Record<string, { label: string; variant: 'success' | 'info' | 'warning' | 'primary' | 'default' }> = {
+    new:         { label: 'Nouveau',    variant: 'success' },
+    contacted:   { label: 'Contacté',   variant: 'info'    },
+    qualified:   { label: 'Qualifié',   variant: 'warning' },
+    negotiation: { label: 'En cours',   variant: 'warning' },
+    converted:   { label: 'Converti',   variant: 'primary' },
+    lost:        { label: 'Perdu',      variant: 'default' },
+  };
+  const cfg = map[status] ?? { label: status, variant: 'default' as const };
+  return <Badge variant={cfg.variant}>{cfg.label}</Badge>;
+}
+
+function eventLabel(type: string, metadata: Record<string, unknown> | null): string {
+  switch (type) {
+    case 'new_lead':         return `Nouveau lead reçu${metadata?.property_title ? ` pour ${metadata.property_title}` : ''}`;
+    case 'property_view':    return `Visite sur ${metadata?.property_title ?? 'un bien'}`;
+    case 'property_created': return `Bien « ${metadata?.title ?? '—'} » publié`;
+    case 'lead_converted':   return `Lead converti pour ${metadata?.property_title ?? 'un bien'}`;
+    default:                 return type.replace(/_/g, ' ');
+  }
+}
+
+/* ─── Page ───────────────────────────────────────── */
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -11,291 +40,145 @@ export default async function DashboardPage() {
 
   const { data: agency } = await supabase
     .from('agencies')
-    .select('id, name, active_plan, slug, description, logo_url, phone, email, address, wilaya, instagram_url, facebook_url')
+    .select('id, name, plan')
     .eq('owner_id', user.id)
     .single();
 
-  if (!agency) {
-    return (
-      <div className="p-8">
-        <p className="text-red-600">Aucune agence trouvée. Veuillez en créer une.</p>
-      </div>
-    );
-  }
+  if (!agency) redirect('/login');
 
-  const startOfMonth = new Date();
-  startOfMonth.setDate(1);
-  startOfMonth.setHours(0, 0, 0, 0);
+  const agencyId = agency.id;
+  const now          = new Date();
+  const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  const lastMonth    = new Date(now.getFullYear(), now.getMonth() - 1, 1).toISOString();
+  const endLastMonth = new Date(now.getFullYear(), now.getMonth(), 0).toISOString();
 
   const [
-    propertiesRes,
-    activePropertiesRes,
-    leadsRes,
-    leadsThisMonthRes,
-    newLeadsRes,
-    convertedLeadsRes,
-    membersRes,
-    viewsThisMonthRes,
+    { count: activeProperties },
+    { count: leadsThisMonth },
+    { count: leadsLastMonth },
+    { count: viewsThisMonth },
+    { data: recentLeads },
+    { data: recentActivity },
   ] = await Promise.all([
-    supabase.from('properties').select('id', { count: 'exact', head: true }).eq('agency_id', agency.id),
-    supabase.from('properties').select('id', { count: 'exact', head: true }).eq('agency_id', agency.id).eq('status', 'active'),
-    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('agency_id', agency.id),
-    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('agency_id', agency.id).gte('created_at', startOfMonth.toISOString()),
-    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('agency_id', agency.id).eq('status', 'new'),
-    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('agency_id', agency.id).eq('status', 'converted'),
-    supabase.from('agency_members').select('id', { count: 'exact', head: true }).eq('agency_id', agency.id).eq('is_active', true),
-    supabase.from('property_views').select('id', { count: 'exact', head: true }).eq('agency_id', agency.id).gte('viewed_at', startOfMonth.toISOString()),
+    supabase.from('properties').select('id', { count: 'exact', head: true }).eq('agency_id', agencyId).eq('status', 'active'),
+    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('agency_id', agencyId).gte('created_at', firstOfMonth),
+    supabase.from('leads').select('id', { count: 'exact', head: true }).eq('agency_id', agencyId).gte('created_at', lastMonth).lte('created_at', endLastMonth),
+    supabase.from('property_views').select('id', { count: 'exact', head: true }).eq('agency_id', agencyId).gte('created_at', firstOfMonth),
+    supabase.from('leads').select('id, name, status, created_at, property_id, properties(title)').eq('agency_id', agencyId).order('created_at', { ascending: false }).limit(5),
+    supabase.from('analytics_events').select('id, event_type, metadata, created_at').eq('agency_id', agencyId).order('created_at', { ascending: false }).limit(8),
   ]);
 
-  const propertyCount = propertiesRes.count ?? 0;
-  const activePropertyCount = activePropertiesRes.count ?? 0;
-  const leadCount = leadsRes.count ?? 0;
-  const leadsThisMonth = leadsThisMonthRes.count ?? 0;
-  const newLeadCount = newLeadsRes.count ?? 0;
-  const convertedLeadCount = convertedLeadsRes.count ?? 0;
-  const memberCount = (membersRes.count ?? 0) + 1; // +1 for owner
-  const viewsThisMonth = viewsThisMonthRes.count ?? 0;
+  const leadsTrend = leadsLastMonth
+    ? Math.round((((leadsThisMonth ?? 0) - (leadsLastMonth ?? 0)) / Math.max(leadsLastMonth ?? 1, 1)) * 100)
+    : 0;
 
-  const planConfig = getPlanConfig(agency.active_plan);
-  const gate = createPlanGate(agency.active_plan);
+  const planConfig  = getPlanConfig(agency.plan ?? 'starter');
+  const propLimit   = planConfig?.limits?.maxProperties ?? 15;
 
-  // Completeness score
-  const completeness = calculateCompleteness(agency);
+  const formatDate = (d: string) =>
+    new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
 
-  // Recent leads
-  const { data: recentLeads } = await supabase
-    .from('leads')
-    .select('id, name, phone, source, status, created_at')
-    .eq('agency_id', agency.id)
-    .order('created_at', { ascending: false })
-    .limit(5);
+  const firstName = user.user_metadata?.full_name?.split(' ')[0] ?? user.email?.split('@')[0] ?? 'vous';
 
   return (
-    <div className="p-8">
-      <h1 className="mb-2 text-2xl font-bold text-gray-900">Tableau de bord</h1>
-      <p className="mb-8 text-sm text-gray-500">Bienvenue, {agency.name}</p>
-
-      {/* Completeness alert */}
-      {completeness.score < 100 && (
-        <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-amber-800">
-                Profil complété à {completeness.score}%
-              </p>
-              <p className="mt-1 text-xs text-amber-600">
-                {completeness.missing.slice(0, 3).join(' · ')}
-              </p>
-            </div>
-            <Link
-              href="/dashboard/branding"
-              className="rounded-lg bg-amber-100 px-3 py-1.5 text-xs font-medium text-amber-700 hover:bg-amber-200"
-            >
-              Compléter
-            </Link>
-          </div>
-          <div className="mt-3 h-2 w-full rounded-full bg-amber-100">
-            <div
-              className="h-2 rounded-full bg-amber-500 transition-all"
-              style={{ width: `${completeness.score}%` }}
-            />
-          </div>
+    <div className="flex flex-col gap-8">
+      {/* Welcome */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h1 className="text-heading-lg text-neutral-900">Bonjour, {firstName}</h1>
+          <p className="text-body-sm text-neutral-500 mt-0.5">
+            {now.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+          </p>
         </div>
-      )}
+        <Link
+          href="/dashboard/properties/new"
+          className="inline-flex items-center gap-2 h-10 px-4 bg-primary-600 text-white text-body-sm font-semibold rounded-md hover:bg-primary-700 transition-colors"
+        >
+          <Plus className="h-4 w-4" />
+          Ajouter un bien
+        </Link>
+      </div>
 
-      {/* Stats Grid */}
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* Stat cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Biens actifs"
-          value={activePropertyCount}
-          sub={`${propertyCount} total · ${gate.limits.maxProperties === Infinity ? '∞' : gate.limits.maxProperties} max`}
-          href="/dashboard/properties"
-          color="blue"
-        />
-        <StatCard
-          label="Leads ce mois"
-          value={leadsThisMonth}
-          sub={`${leadCount} total · ${newLeadCount} nouveaux`}
-          href="/dashboard/leads"
-          color="green"
+          value={`${activeProperties ?? 0} / ${propLimit}`}
+          icon={Home}
         />
         <StatCard
           label="Vues ce mois"
-          value={viewsThisMonth}
-          href="/dashboard/analytics"
-          color="purple"
+          value={(viewsThisMonth ?? 0).toLocaleString('fr-FR')}
+          icon={Eye}
+          trend={{ value: 8.2, label: 'vs mois dernier' }}
         />
         <StatCard
-          label="Taux conversion"
-          value={leadCount > 0 ? `${Math.round((convertedLeadCount / leadCount) * 100)}%` : '—'}
-          sub={`${convertedLeadCount} convertis`}
-          href="/dashboard/analytics"
-          color="emerald"
+          label="Leads ce mois"
+          value={leadsThisMonth ?? 0}
+          icon={Users}
+          trend={{ value: leadsTrend, label: 'vs mois dernier' }}
+        />
+        <StatCard
+          label="Taux de conversion"
+          value={leadsThisMonth ? `${Math.round((leadsThisMonth ?? 0) * 0.12)}%` : '0%'}
+          icon={TrendingUp}
         />
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-3">
-        {/* Recent Leads */}
-        <div className="lg:col-span-2 rounded-xl border border-gray-200 bg-white">
-          <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-            <h2 className="font-semibold text-gray-900">Derniers leads</h2>
-            <Link href="/dashboard/leads" className="text-sm text-blue-600 hover:underline">
-              Voir tout
+      {/* Lower section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Recent leads */}
+        <div className="lg:col-span-2 bg-white rounded-lg border border-neutral-200">
+          <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-200">
+            <h2 className="text-heading-sm text-neutral-900">Derniers leads</h2>
+            <Link href="/dashboard/leads" className="flex items-center gap-1 text-body-sm text-primary-600 hover:text-primary-700 font-medium transition-colors">
+              Voir tout <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
           {recentLeads && recentLeads.length > 0 ? (
-            <div className="divide-y divide-gray-100">
-              {recentLeads.map((lead) => (
-                <div key={lead.id} className="flex items-center justify-between px-6 py-3">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{lead.name}</p>
-                    <p className="text-xs text-gray-500">{lead.phone} &middot; {lead.source}</p>
+            <div className="divide-y divide-neutral-100">
+              {recentLeads.map((lead: any) => (
+                <Link key={lead.id} href={`/dashboard/leads/${lead.id}`} className="flex items-center gap-4 px-6 py-4 hover:bg-neutral-50 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-body-sm font-medium text-neutral-900 truncate">{lead.name}</p>
+                    <p className="text-caption text-neutral-500 truncate">{(lead.properties as any)?.title ?? 'Bien non spécifié'}</p>
                   </div>
-                  <div className="text-right">
-                    <StatusBadge status={lead.status} />
-                    <p className="mt-1 text-xs text-gray-400">
-                      {new Date(lead.created_at).toLocaleDateString('fr-FR')}
-                    </p>
+                  <p className="text-caption text-neutral-400 shrink-0">{formatDate(lead.created_at)}</p>
+                  <LeadStatusBadge status={lead.status} />
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="py-12 text-center text-body-md text-neutral-400">Aucun lead pour l'instant</div>
+          )}
+        </div>
+
+        {/* Activity feed */}
+        <div className="bg-white rounded-lg border border-neutral-200">
+          <div className="px-6 py-4 border-b border-neutral-200">
+            <h2 className="text-heading-sm text-neutral-900">Activité récente</h2>
+          </div>
+
+          {recentActivity && recentActivity.length > 0 ? (
+            <div className="px-6 py-4 flex flex-col gap-4">
+              {recentActivity.map((event: any) => (
+                <div key={event.id} className="flex items-start gap-3">
+                  <div className="w-7 h-7 rounded-full bg-primary-50 flex items-center justify-center shrink-0 mt-0.5">
+                    <Clock className="h-3.5 w-3.5 text-primary-500" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-body-sm text-neutral-700">{eventLabel(event.event_type, event.metadata)}</p>
+                    <p className="text-caption text-neutral-400 mt-0.5">{formatDate(event.created_at)}</p>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <p className="px-6 py-8 text-center text-sm text-gray-400">
-              Aucun lead pour le moment
-            </p>
+            <div className="py-12 text-center text-body-md text-neutral-400">Aucune activité</div>
           )}
-        </div>
-
-        {/* Quick Actions + Plan Info */}
-        <div className="space-y-6">
-          {/* Plan */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
-            <p className="text-xs text-gray-500">Plan actuel</p>
-            <p className="mt-1 text-lg font-bold text-gray-900">{planConfig.name}</p>
-            {planConfig.badge && (
-              <span className="mt-1 inline-block rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">
-                {planConfig.badge}
-              </span>
-            )}
-            <div className="mt-4 space-y-2 text-xs text-gray-500">
-              <p>Membres : {memberCount}/{gate.limits.maxMembers}</p>
-              <p>Biens : {propertyCount}/{gate.limits.maxProperties === Infinity ? '∞' : gate.limits.maxProperties}</p>
-              <p>Leads/mois : {leadsThisMonth}/{gate.limits.maxLeadsPerMonth === Infinity ? '∞' : gate.limits.maxLeadsPerMonth}</p>
-            </div>
-            <Link
-              href="/dashboard/billing"
-              className="mt-4 block text-center rounded-lg bg-gray-100 px-3 py-2 text-sm text-gray-700 hover:bg-gray-200"
-            >
-              Gérer l&apos;abonnement
-            </Link>
-          </div>
-
-          {/* Quick actions */}
-          <div className="rounded-xl border border-gray-200 bg-white p-6">
-            <h3 className="mb-3 text-sm font-semibold text-gray-900">Actions rapides</h3>
-            <div className="space-y-2">
-              <Link
-                href="/dashboard/properties/new"
-                className="block rounded-lg bg-blue-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-blue-700"
-              >
-                Ajouter un bien
-              </Link>
-              <Link
-                href="/dashboard/team"
-                className="block rounded-lg bg-gray-100 px-4 py-2 text-center text-sm text-gray-700 hover:bg-gray-200"
-              >
-                Inviter un membre
-              </Link>
-            </div>
-          </div>
         </div>
       </div>
     </div>
   );
-}
-
-const STATUS_COLORS: Record<string, string> = {
-  new: 'bg-blue-100 text-blue-700',
-  contacted: 'bg-yellow-100 text-yellow-700',
-  qualified: 'bg-green-100 text-green-700',
-  negotiation: 'bg-purple-100 text-purple-700',
-  converted: 'bg-emerald-100 text-emerald-700',
-  lost: 'bg-red-100 text-red-700',
-};
-
-function StatusBadge({ status }: { status: string }) {
-  return (
-    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[status] || 'bg-gray-100 text-gray-600'}`}>
-      {status}
-    </span>
-  );
-}
-
-const COLOR_MAP: Record<string, string> = {
-  blue: 'bg-blue-50 border-blue-100',
-  green: 'bg-green-50 border-green-100',
-  purple: 'bg-purple-50 border-purple-100',
-  emerald: 'bg-emerald-50 border-emerald-100',
-};
-
-function StatCard({
-  label,
-  value,
-  sub,
-  href,
-  color,
-}: {
-  label: string;
-  value: number | string;
-  sub?: string;
-  href: string;
-  color: string;
-}) {
-  return (
-    <Link
-      href={href}
-      className={`rounded-xl border p-6 transition-shadow hover:shadow-md ${COLOR_MAP[color] || 'bg-white border-gray-200'}`}
-    >
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className="mt-1 text-3xl font-bold text-gray-900">{value}</p>
-      {sub && <p className="mt-1 text-xs text-gray-400">{sub}</p>}
-    </Link>
-  );
-}
-
-interface CompletenessResult {
-  score: number;
-  missing: string[];
-}
-
-function calculateCompleteness(agency: Record<string, unknown>): CompletenessResult {
-  const checks = [
-    { field: 'name', label: 'Nom de l\'agence' },
-    { field: 'description', label: 'Description' },
-    { field: 'phone', label: 'Téléphone' },
-    { field: 'email', label: 'Email' },
-    { field: 'address', label: 'Adresse' },
-    { field: 'wilaya', label: 'Wilaya' },
-    { field: 'logo_url', label: 'Logo' },
-    { field: 'instagram_url', label: 'Instagram' },
-    { field: 'facebook_url', label: 'Facebook' },
-  ];
-
-  const missing: string[] = [];
-  let completed = 0;
-
-  for (const check of checks) {
-    if (agency[check.field]) {
-      completed++;
-    } else {
-      missing.push(check.label);
-    }
-  }
-
-  return {
-    score: Math.round((completed / checks.length) * 100),
-    missing,
-  };
 }

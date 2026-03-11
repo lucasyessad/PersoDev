@@ -4,7 +4,8 @@ import { redirect } from 'next/navigation';
 import { getUserFavorites, getUserFavoritesCount } from '@/lib/queries/favorites';
 import { ResultCard } from '@/components/search/result-card';
 import { FavoriteButton } from '@/components/search/favorite-button';
-import { Heart } from 'lucide-react';
+import { EmptyState } from '@/components/ui/empty-state';
+import { Heart, Building2 } from 'lucide-react';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
@@ -23,19 +24,30 @@ export default async function FavorisPage() {
   ]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="bg-white border-b border-gray-200">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="text-2xl font-bold text-gray-900">Mes favoris</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            {count} bien{count !== 1 ? 's' : ''} sauvegardé{count !== 1 ? 's' : ''}
-          </p>
+    <div className="min-h-screen bg-neutral-50">
+      {/* Header */}
+      <header className="bg-white border-b border-neutral-200">
+        <div className="max-w-[1440px] mx-auto px-6 py-5 flex items-center gap-4">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
+              <Building2 className="h-4 w-4 text-white" />
+            </div>
+            <span className="font-display text-lg text-primary-900">Aqar</span>
+          </Link>
+          <div className="border-l border-neutral-200 h-5" />
+          <h1 className="font-display text-display-md text-neutral-900">Vos favoris</h1>
+          {count > 0 && (
+            <span className="text-body-sm text-neutral-500">
+              {count} bien{count !== 1 ? 's' : ''} sauvegardé{count !== 1 ? 's' : ''}
+            </span>
+          )}
         </div>
-      </div>
+      </header>
 
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+      {/* Content */}
+      <div className="max-w-[1440px] mx-auto px-6 py-8">
         {favorites.length > 0 ? (
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {favorites.map((property) => (
               <ResultCard
                 key={property.property_id}
@@ -51,21 +63,12 @@ export default async function FavorisPage() {
             ))}
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <Heart className="mb-4 h-16 w-16 text-gray-300" />
-            <h3 className="mb-2 text-lg font-semibold text-gray-900">
-              Aucun favori
-            </h3>
-            <p className="mb-6 text-sm text-gray-500">
-              Ajoutez des biens à vos favoris pour les retrouver facilement.
-            </p>
-            <Link
-              href="/recherche"
-              className="rounded-lg bg-blue-600 px-6 py-2.5 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              Rechercher des biens
-            </Link>
-          </div>
+          <EmptyState
+            icon={Heart}
+            title="Pas encore de favoris"
+            description="Ajoutez des biens à vos favoris pour les retrouver facilement ici."
+            action={{ label: 'Explorer les biens', href: '/recherche' }}
+          />
         )}
       </div>
     </div>

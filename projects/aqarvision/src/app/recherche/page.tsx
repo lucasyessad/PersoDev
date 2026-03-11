@@ -1,5 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { Building2, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 import { searchProperties, searchPropertiesCount } from '@/lib/queries/search';
 import { searchFiltersSchema } from '@/lib/validators/search';
 import { SEARCH } from '@/config';
@@ -10,8 +12,6 @@ import { ResultEmptyState } from '@/components/search/result-empty-state';
 import { FavoriteButton } from '@/components/search/favorite-button';
 import { AlertButton } from '@/components/search/alert-button';
 import { createClient } from '@/lib/supabase/server';
-import Link from 'next/link';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Recherche immobilière — AqarSearch',
@@ -25,7 +25,6 @@ interface PageProps {
 export default async function RecherchePage({ searchParams }: PageProps) {
   const rawParams = await searchParams;
 
-  // Normalize searchParams
   const params: Record<string, string> = {};
   for (const [key, value] of Object.entries(rawParams)) {
     if (typeof value === 'string') params[key] = value;
@@ -33,9 +32,9 @@ export default async function RecherchePage({ searchParams }: PageProps) {
   }
 
   const filters = searchFiltersSchema.parse(params);
-  const page = filters.page;
-  const limit = SEARCH.RESULTS_PER_PAGE;
-  const offset = (page - 1) * limit;
+  const page    = filters.page;
+  const limit   = SEARCH.RESULTS_PER_PAGE;
+  const offset  = (page - 1) * limit;
 
   const [properties, total] = await Promise.all([
     searchProperties(filters, limit, offset),
@@ -44,12 +43,10 @@ export default async function RecherchePage({ searchParams }: PageProps) {
 
   const totalPages = Math.ceil(total / limit);
 
-  // Check auth for favorite button
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   const isAuthenticated = !!user;
 
-  // Check if any filter is active
   const hasFilters = !!(
     filters.q || filters.transaction_type || filters.country ||
     filters.wilaya || filters.commune || filters.city ||
@@ -57,43 +54,56 @@ export default async function RecherchePage({ searchParams }: PageProps) {
     filters.surface_min || filters.surface_max || filters.rooms_min
   );
 
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-          <h1 className="mb-4 text-2xl font-bold text-gray-900">
-            Aqar<span className="text-blue-600">Search</span>
-          </h1>
-          <Suspense fallback={<div className="h-12 animate-pulse rounded-lg bg-gray-100" />}>
-            <SearchBar />
-          </Suspense>
-        </div>
-      </div>
+  const searchQuery = filters.q ?? '';
 
-      {/* Content */}
-      <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Filters + Alert */}
-        <div className="mb-6 flex items-start justify-between gap-4">
-          <div className="flex-1">
-            <Suspense fallback={null}>
-              <FilterPanel />
+  return (
+    <div className="min-h-screen bg-neutral-50">
+      {/* Sticky header */}
+      <header className="sticky top-0 z-30 bg-white border-b border-neutral-200">
+        <div className="max-w-[1440px] mx-auto px-6 h-[72px] flex items-center gap-6">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
+              <Building2 className="h-4 w-4 text-white" />
+            </div>
+            <span className="font-display text-lg text-primary-900">Aqar</span>
+          </Link>
+
+          {/* Nav search bar */}
+          <div className="flex-1 max-w-[560px]">
+            <Suspense fallback={<div className="h-12 rounded-full bg-neutral-100 animate-pulse" />}>
+              <SearchBar variant="nav" defaultValues={{ location: searchQuery }} />
             </Suspense>
           </div>
-          <Suspense fallback={null}>
-            <AlertButton isAuthenticated={isAuthenticated} />
-          </Suspense>
+
+          {/* Alert button */}
+          <div className="ml-auto">
+            <Suspense fallback={null}>
+              <AlertButton isAuthenticated={isAuthenticated} />
+            </Suspense>
+          </div>
         </div>
 
+        {/* Filter bar */}
+        <div className="border-t border-neutral-100 px-6 py-2 overflow-x-auto">
+          <Suspense fallback={null}>
+            <FilterPanel />
+          </Suspense>
+        </div>
+      </header>
+
+      {/* Main content */}
+      <div className="max-w-[1440px] mx-auto px-6 py-6">
         {/* Results count */}
-        <p className="mb-4 text-sm text-gray-500">
-          {total} bien{total !== 1 ? 's' : ''} trouvé{total !== 1 ? 's' : ''}
+        <p className="text-body-sm text-neutral-500 mb-6">
+          {total.toLocaleString('fr-FR')} bien{total !== 1 ? 's' : ''} trouvé{total !== 1 ? 's' : ''}
+          {searchQuery && <span className="text-neutral-900 font-medium"> à « {searchQuery} »</span>}
         </p>
 
-        {/* Results grid */}
         {properties.length > 0 ? (
           <>
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {/* Property grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {properties.map((property) => (
                 <ResultCard
                   key={property.property_id}
@@ -111,36 +121,36 @@ export default async function RecherchePage({ searchParams }: PageProps) {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <nav className="mt-8 flex items-center justify-center gap-4">
+              <nav className="mt-10 flex items-center justify-center gap-4">
                 {page > 1 ? (
                   <Link
                     href={`/recherche?${new URLSearchParams({ ...params, page: String(page - 1) }).toString()}`}
-                    className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex items-center gap-1.5 h-10 px-4 rounded-md border border-neutral-300 bg-white text-body-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
                   >
                     <ChevronLeft className="h-4 w-4" />
                     Précédent
                   </Link>
                 ) : (
-                  <span className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-400">
+                  <span className="flex items-center gap-1.5 h-10 px-4 rounded-md border border-neutral-200 bg-neutral-50 text-body-sm text-neutral-400">
                     <ChevronLeft className="h-4 w-4" />
                     Précédent
                   </span>
                 )}
 
-                <span className="text-sm text-gray-600">
+                <span className="text-body-sm text-neutral-500">
                   Page {page} / {totalPages}
                 </span>
 
                 {page < totalPages ? (
                   <Link
                     href={`/recherche?${new URLSearchParams({ ...params, page: String(page + 1) }).toString()}`}
-                    className="flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex items-center gap-1.5 h-10 px-4 rounded-md border border-neutral-300 bg-white text-body-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors"
                   >
                     Suivant
                     <ChevronRight className="h-4 w-4" />
                   </Link>
                 ) : (
-                  <span className="flex items-center gap-1 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2 text-sm text-gray-400">
+                  <span className="flex items-center gap-1.5 h-10 px-4 rounded-md border border-neutral-200 bg-neutral-50 text-body-sm text-neutral-400">
                     Suivant
                     <ChevronRight className="h-4 w-4" />
                   </span>

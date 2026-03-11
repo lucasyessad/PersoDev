@@ -1,20 +1,22 @@
 -- =============================================================================
--- AqarVision - Complete Database Schema
+-- AqarVision — Setup complet (idempotent)
 -- =============================================================================
--- Plateforme SaaS immobilière multi-agences (Algérie + International)
+-- Crée tous les objets de base de données en une seule exécution.
+-- Peut être relancé sans erreur grâce aux IF NOT EXISTS / OR REPLACE.
 --
--- Usage: Execute this script on a fresh Supabase database to create all tables.
--- Order: tables are created respecting foreign key dependencies.
+-- Usage :
+--   1. Via Supabase Dashboard → SQL Editor → coller et exécuter
+--   2. Via CLI : psql $DATABASE_URL -f supabase/setup.sql
 --
--- Tables (11):
+-- Tables (11) :
 --   1. agencies            — Agences immobilières
 --   2. agency_members      — Membres/agents d'une agence
---   3. properties          — Biens immobiliers
+--   3. properties          — Biens immobiliers (avec support international)
 --   4. leads               — Contacts/demandes reçues
 --   5. lead_notes          — Notes internes sur les leads
 --   6. favorites           — Biens favoris des visiteurs
 --   7. property_views      — Statistiques de vues par bien
---   8. analytics_events    — Événements analytics (visites, clics)
+--   8. analytics_events    — Événements analytics
 --   9. subscriptions       — Abonnements et facturation
 --  10. notifications       — Notifications internes
 --  11. media               — Gestion centralisée des fichiers/images
@@ -25,7 +27,7 @@
 -- 1. AGENCIES
 -- ─────────────────────────────────────────────────────────────────────────────
 
-CREATE TABLE agencies (
+CREATE TABLE IF NOT EXISTS agencies (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   owner_id         UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   name             TEXT NOT NULL,
@@ -80,37 +82,35 @@ CREATE TABLE agencies (
   CONSTRAINT chk_stats_clients         CHECK (stats_clients IS NULL OR stats_clients >= 0)
 );
 
-CREATE UNIQUE INDEX idx_agencies_slug          ON agencies(slug);
-CREATE UNIQUE INDEX idx_agencies_custom_domain ON agencies(custom_domain) WHERE custom_domain IS NOT NULL;
-CREATE INDEX idx_agencies_owner_id             ON agencies(owner_id);
-CREATE INDEX idx_agencies_active_plan          ON agencies(active_plan);
-CREATE INDEX idx_agencies_wilaya               ON agencies(wilaya);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_agencies_slug          ON agencies(slug);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_agencies_custom_domain ON agencies(custom_domain) WHERE custom_domain IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_agencies_owner_id             ON agencies(owner_id);
+CREATE INDEX IF NOT EXISTS idx_agencies_active_plan          ON agencies(active_plan);
+CREATE INDEX IF NOT EXISTS idx_agencies_wilaya               ON agencies(wilaya);
 
 ALTER TABLE agencies ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Public can view agencies"
-  ON agencies FOR SELECT
-  USING (true);
-
-CREATE POLICY "Owners can update own agency"
-  ON agencies FOR UPDATE
-  USING (owner_id = auth.uid());
-
-CREATE POLICY "Authenticated users can create agency"
-  ON agencies FOR INSERT
-  WITH CHECK (owner_id = auth.uid());
-
-CREATE POLICY "Owners can delete own agency"
-  ON agencies FOR DELETE
-  USING (owner_id = auth.uid());
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'agencies' AND policyname = 'Public can view agencies') THEN
+    CREATE POLICY "Public can view agencies" ON agencies FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'agencies' AND policyname = 'Owners can update own agency') THEN
+    CREATE POLICY "Owners can update own agency" ON agencies FOR UPDATE USING (owner_id = auth.uid());
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'agencies' AND policyname = 'Authenticated users can create agency') THEN
+    CREATE POLICY "Authenticated users can create agency" ON agencies FOR INSERT WITH CHECK (owner_id = auth.uid());
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'agencies' AND policyname = 'Owners can delete own agency') THEN
+    CREATE POLICY "Owners can delete own agency" ON agencies FOR DELETE USING (owner_id = auth.uid());
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 2. AGENCY MEMBERS
 -- ─────────────────────────────────────────────────────────────────────────────
--- Membres/agents d'une agence avec rôles (admin, agent, viewer)
 
-CREATE TABLE agency_members (
+CREATE TABLE IF NOT EXISTS agency_members (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   agency_id  UUID NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
   user_id    UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -129,31 +129,41 @@ CREATE TABLE agency_members (
   CONSTRAINT uq_agency_member UNIQUE (agency_id, user_id)
 );
 
-CREATE INDEX idx_agency_members_agency_id ON agency_members(agency_id);
-CREATE INDEX idx_agency_members_user_id   ON agency_members(user_id);
+CREATE INDEX IF NOT EXISTS idx_agency_members_agency_id ON agency_members(agency_id);
+CREATE INDEX IF NOT EXISTS idx_agency_members_user_id   ON agency_members(user_id);
 
 ALTER TABLE agency_members ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Members can view own agency members"
-  ON agency_members FOR SELECT
-  USING (
-    agency_id IN (SELECT agency_id FROM agency_members WHERE user_id = auth.uid())
-    OR agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
-  );
+-- Fonction SECURITY DEFINER pour éviter la récursion infinie dans les policies
+CREATE OR REPLACE FUNCTION get_user_agency_ids(uid UUID)
+RETURNS TABLE(agency_id UUID, role TEXT) AS $$
+  SELECT am.agency_id, am.role
+  FROM agency_members am
+  WHERE am.user_id = uid AND am.is_active = true;
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
 
-CREATE POLICY "Agency owners and admins can manage members"
-  ON agency_members FOR ALL
-  USING (
-    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
-    OR agency_id IN (SELECT agency_id FROM agency_members WHERE user_id = auth.uid() AND role = 'admin')
-  );
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'agency_members' AND policyname = 'Members can view own agency members') THEN
+    CREATE POLICY "Members can view own agency members" ON agency_members FOR SELECT
+      USING (
+        user_id = auth.uid()
+        OR agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+      );
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'agency_members' AND policyname = 'Agency owners can manage members') THEN
+    CREATE POLICY "Agency owners can manage members" ON agency_members FOR ALL
+      USING (
+        agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+      );
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 3. PROPERTIES
 -- ─────────────────────────────────────────────────────────────────────────────
 
-CREATE TABLE properties (
+CREATE TABLE IF NOT EXISTS properties (
   id               UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   agency_id        UUID NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
   created_by       UUID REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -195,59 +205,61 @@ CREATE TABLE properties (
   CONSTRAINT chk_currency_code     CHECK (char_length(currency) = 3 AND currency = upper(currency))
 );
 
-CREATE INDEX idx_properties_agency_id        ON properties(agency_id);
-CREATE INDEX idx_properties_transaction_type  ON properties(transaction_type);
-CREATE INDEX idx_properties_status            ON properties(status);
-CREATE INDEX idx_properties_country           ON properties(country);
-CREATE INDEX idx_properties_city              ON properties(city) WHERE city IS NOT NULL;
-CREATE INDEX idx_properties_wilaya            ON properties(wilaya);
-CREATE INDEX idx_properties_type              ON properties(type);
-CREATE INDEX idx_properties_price             ON properties(price);
-CREATE INDEX idx_properties_is_featured       ON properties(is_featured) WHERE is_featured = true;
-CREATE INDEX idx_properties_created_at        ON properties(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_properties_agency_id        ON properties(agency_id);
+CREATE INDEX IF NOT EXISTS idx_properties_transaction_type  ON properties(transaction_type);
+CREATE INDEX IF NOT EXISTS idx_properties_status            ON properties(status);
+CREATE INDEX IF NOT EXISTS idx_properties_country           ON properties(country);
+CREATE INDEX IF NOT EXISTS idx_properties_city              ON properties(city) WHERE city IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_properties_wilaya            ON properties(wilaya);
+CREATE INDEX IF NOT EXISTS idx_properties_type              ON properties(type);
+CREATE INDEX IF NOT EXISTS idx_properties_price             ON properties(price);
+CREATE INDEX IF NOT EXISTS idx_properties_is_featured       ON properties(is_featured) WHERE is_featured = true;
+CREATE INDEX IF NOT EXISTS idx_properties_created_at        ON properties(created_at DESC);
 
 ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Public can view active properties"
-  ON properties FOR SELECT
-  USING (status = 'active' OR agency_id IN (
-    SELECT id FROM agencies WHERE owner_id = auth.uid()
-  ));
-
-CREATE POLICY "Agency members can manage properties"
-  ON properties FOR ALL
-  USING (
-    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
-    OR agency_id IN (SELECT agency_id FROM agency_members WHERE user_id = auth.uid() AND role IN ('admin', 'agent'))
-  );
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'properties' AND policyname = 'Public can view active properties') THEN
+    CREATE POLICY "Public can view active properties" ON properties FOR SELECT
+      USING (status = 'active' OR agency_id IN (
+        SELECT id FROM agencies WHERE owner_id = auth.uid()
+      ));
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'properties' AND policyname = 'Agency members can manage properties') THEN
+    CREATE POLICY "Agency members can manage properties" ON properties FOR ALL
+      USING (
+        agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+        OR agency_id IN (SELECT am.agency_id FROM get_user_agency_ids(auth.uid()) am WHERE am.role IN ('admin', 'agent'))
+      );
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 4. LEADS
 -- ─────────────────────────────────────────────────────────────────────────────
 
-CREATE TABLE leads (
-  id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  agency_id    UUID NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
-  property_id  UUID REFERENCES properties(id) ON DELETE SET NULL,
-  assigned_to  UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-  name         TEXT NOT NULL,
-  phone        TEXT NOT NULL,
-  email        TEXT,
-  message      TEXT,
-  source       TEXT NOT NULL DEFAULT 'contact_form',
-  status       TEXT NOT NULL DEFAULT 'new',
-  priority     TEXT NOT NULL DEFAULT 'normal',
-  budget_min   NUMERIC,
-  budget_max   NUMERIC,
+CREATE TABLE IF NOT EXISTS leads (
+  id              UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  agency_id       UUID NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
+  property_id     UUID REFERENCES properties(id) ON DELETE SET NULL,
+  assigned_to     UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  name            TEXT NOT NULL,
+  phone           TEXT NOT NULL,
+  email           TEXT,
+  message         TEXT,
+  source          TEXT NOT NULL DEFAULT 'contact_form',
+  status          TEXT NOT NULL DEFAULT 'new',
+  priority        TEXT NOT NULL DEFAULT 'normal',
+  budget_min      NUMERIC,
+  budget_max      NUMERIC,
   desired_country TEXT,
-  desired_wilaya TEXT,
-  desired_type TEXT,
-  created_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
-  updated_at   TIMESTAMPTZ NOT NULL DEFAULT now(),
-  contacted_at TIMESTAMPTZ,
+  desired_wilaya  TEXT,
+  desired_type    TEXT,
+  created_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  contacted_at    TIMESTAMPTZ,
 
-  -- Constraints
   CONSTRAINT chk_lead_source       CHECK (source IN ('contact_form', 'property_detail', 'whatsapp', 'phone', 'walk_in', 'referral')),
   CONSTRAINT chk_lead_status       CHECK (status IN ('new', 'contacted', 'qualified', 'negotiation', 'converted', 'lost')),
   CONSTRAINT chk_lead_priority     CHECK (priority IN ('low', 'normal', 'high', 'urgent')),
@@ -255,38 +267,39 @@ CREATE TABLE leads (
   CONSTRAINT chk_lead_phone_length CHECK (char_length(phone) >= 9)
 );
 
-CREATE INDEX idx_leads_agency_id   ON leads(agency_id);
-CREATE INDEX idx_leads_status      ON leads(status);
-CREATE INDEX idx_leads_assigned_to ON leads(assigned_to);
-CREATE INDEX idx_leads_created_at  ON leads(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_leads_agency_id   ON leads(agency_id);
+CREATE INDEX IF NOT EXISTS idx_leads_status      ON leads(status);
+CREATE INDEX IF NOT EXISTS idx_leads_assigned_to ON leads(assigned_to);
+CREATE INDEX IF NOT EXISTS idx_leads_created_at  ON leads(created_at DESC);
 
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Agency members can view own leads"
-  ON leads FOR SELECT
-  USING (
-    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
-    OR agency_id IN (SELECT agency_id FROM agency_members WHERE user_id = auth.uid())
-  );
-
-CREATE POLICY "Agency members can manage leads"
-  ON leads FOR ALL
-  USING (
-    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
-    OR agency_id IN (SELECT agency_id FROM agency_members WHERE user_id = auth.uid() AND role IN ('admin', 'agent'))
-  );
-
-CREATE POLICY "Public can insert leads"
-  ON leads FOR INSERT
-  WITH CHECK (true);
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'leads' AND policyname = 'Agency members can view own leads') THEN
+    CREATE POLICY "Agency members can view own leads" ON leads FOR SELECT
+      USING (
+        agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+        OR agency_id IN (SELECT am.agency_id FROM get_user_agency_ids(auth.uid()) am)
+      );
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'leads' AND policyname = 'Agency members can manage leads') THEN
+    CREATE POLICY "Agency members can manage leads" ON leads FOR ALL
+      USING (
+        agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+        OR agency_id IN (SELECT am.agency_id FROM get_user_agency_ids(auth.uid()) am WHERE am.role IN ('admin', 'agent'))
+      );
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'leads' AND policyname = 'Public can insert leads') THEN
+    CREATE POLICY "Public can insert leads" ON leads FOR INSERT WITH CHECK (true);
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 5. LEAD NOTES
 -- ─────────────────────────────────────────────────────────────────────────────
--- Notes internes et historique de suivi des leads
 
-CREATE TABLE lead_notes (
+CREATE TABLE IF NOT EXISTS lead_notes (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   lead_id    UUID NOT NULL REFERENCES leads(id) ON DELETE CASCADE,
   author_id  UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -294,28 +307,29 @@ CREATE TABLE lead_notes (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_lead_notes_lead_id ON lead_notes(lead_id);
+CREATE INDEX IF NOT EXISTS idx_lead_notes_lead_id ON lead_notes(lead_id);
 
 ALTER TABLE lead_notes ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Agency members can manage lead notes"
-  ON lead_notes FOR ALL
-  USING (
-    lead_id IN (
-      SELECT l.id FROM leads l
-      JOIN agencies a ON l.agency_id = a.id
-      LEFT JOIN agency_members am ON am.agency_id = a.id
-      WHERE a.owner_id = auth.uid() OR am.user_id = auth.uid()
-    )
-  );
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'lead_notes' AND policyname = 'Agency members can manage lead notes') THEN
+    CREATE POLICY "Agency members can manage lead notes" ON lead_notes FOR ALL
+      USING (
+        lead_id IN (
+          SELECT l.id FROM leads l
+          WHERE l.agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+             OR l.agency_id IN (SELECT am.agency_id FROM get_user_agency_ids(auth.uid()) am)
+        )
+      );
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 6. FAVORITES
 -- ─────────────────────────────────────────────────────────────────────────────
--- Biens favoris sauvegardés par les visiteurs connectés
 
-CREATE TABLE favorites (
+CREATE TABLE IF NOT EXISTS favorites (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id     UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
@@ -324,22 +338,23 @@ CREATE TABLE favorites (
   CONSTRAINT uq_favorite UNIQUE (user_id, property_id)
 );
 
-CREATE INDEX idx_favorites_user_id     ON favorites(user_id);
-CREATE INDEX idx_favorites_property_id ON favorites(property_id);
+CREATE INDEX IF NOT EXISTS idx_favorites_user_id     ON favorites(user_id);
+CREATE INDEX IF NOT EXISTS idx_favorites_property_id ON favorites(property_id);
 
 ALTER TABLE favorites ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can manage own favorites"
-  ON favorites FOR ALL
-  USING (user_id = auth.uid());
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'favorites' AND policyname = 'Users can manage own favorites') THEN
+    CREATE POLICY "Users can manage own favorites" ON favorites FOR ALL USING (user_id = auth.uid());
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 7. PROPERTY VIEWS
 -- ─────────────────────────────────────────────────────────────────────────────
--- Tracking des vues par bien (agrégé par jour pour les analytics)
 
-CREATE TABLE property_views (
+CREATE TABLE IF NOT EXISTS property_views (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
   agency_id   UUID NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
@@ -350,36 +365,35 @@ CREATE TABLE property_views (
   viewed_at   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
-CREATE INDEX idx_property_views_property_id ON property_views(property_id);
-CREATE INDEX idx_property_views_agency_id   ON property_views(agency_id);
-CREATE INDEX idx_property_views_viewed_at   ON property_views(viewed_at DESC);
+CREATE INDEX IF NOT EXISTS idx_property_views_property_id ON property_views(property_id);
+CREATE INDEX IF NOT EXISTS idx_property_views_agency_id   ON property_views(agency_id);
+CREATE INDEX IF NOT EXISTS idx_property_views_viewed_at   ON property_views(viewed_at DESC);
 
 ALTER TABLE property_views ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Agency members can view own property views"
-  ON property_views FOR SELECT
-  USING (
-    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
-    OR agency_id IN (SELECT agency_id FROM agency_members WHERE user_id = auth.uid())
-  );
-
-CREATE POLICY "Public can insert property views"
-  ON property_views FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "Agency owners can delete property views"
-  ON property_views FOR DELETE
-  USING (
-    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
-  );
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'property_views' AND policyname = 'Agency members can view own property views') THEN
+    CREATE POLICY "Agency members can view own property views" ON property_views FOR SELECT
+      USING (
+        agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+        OR agency_id IN (SELECT am.agency_id FROM get_user_agency_ids(auth.uid()) am)
+      );
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'property_views' AND policyname = 'Public can insert property views') THEN
+    CREATE POLICY "Public can insert property views" ON property_views FOR INSERT WITH CHECK (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'property_views' AND policyname = 'Agency owners can delete property views') THEN
+    CREATE POLICY "Agency owners can delete property views" ON property_views FOR DELETE
+      USING (agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid()));
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 8. ANALYTICS EVENTS
 -- ─────────────────────────────────────────────────────────────────────────────
--- Événements analytics génériques (visites pages, clics CTA, etc.)
 
-CREATE TABLE analytics_events (
+CREATE TABLE IF NOT EXISTS analytics_events (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   agency_id  UUID NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
   event_type TEXT NOT NULL,
@@ -396,41 +410,39 @@ CREATE TABLE analytics_events (
     'whatsapp_click', 'share_click', 'map_click', 'gallery_view',
     'search', 'filter_change', 'lead_submit'
   )),
-  -- Limiter la taille du payload JSONB pour éviter les abus
   CONSTRAINT chk_event_data_size CHECK (pg_column_size(event_data) <= 4096)
 );
 
-CREATE INDEX idx_analytics_agency_id   ON analytics_events(agency_id);
-CREATE INDEX idx_analytics_event_type  ON analytics_events(event_type);
-CREATE INDEX idx_analytics_created_at  ON analytics_events(created_at DESC);
-CREATE INDEX idx_analytics_session_id  ON analytics_events(session_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_agency_id   ON analytics_events(agency_id);
+CREATE INDEX IF NOT EXISTS idx_analytics_event_type  ON analytics_events(event_type);
+CREATE INDEX IF NOT EXISTS idx_analytics_created_at  ON analytics_events(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_session_id  ON analytics_events(session_id);
 
 ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Agency members can view own analytics"
-  ON analytics_events FOR SELECT
-  USING (
-    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
-    OR agency_id IN (SELECT agency_id FROM agency_members WHERE user_id = auth.uid())
-  );
-
-CREATE POLICY "Public can insert analytics events"
-  ON analytics_events FOR INSERT
-  WITH CHECK (true);
-
-CREATE POLICY "Agency owners can delete analytics events"
-  ON analytics_events FOR DELETE
-  USING (
-    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
-  );
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'analytics_events' AND policyname = 'Agency members can view own analytics') THEN
+    CREATE POLICY "Agency members can view own analytics" ON analytics_events FOR SELECT
+      USING (
+        agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+        OR agency_id IN (SELECT am.agency_id FROM get_user_agency_ids(auth.uid()) am)
+      );
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'analytics_events' AND policyname = 'Public can insert analytics events') THEN
+    CREATE POLICY "Public can insert analytics events" ON analytics_events FOR INSERT WITH CHECK (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'analytics_events' AND policyname = 'Agency owners can delete analytics events') THEN
+    CREATE POLICY "Agency owners can delete analytics events" ON analytics_events FOR DELETE
+      USING (agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid()));
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 9. SUBSCRIPTIONS
 -- ─────────────────────────────────────────────────────────────────────────────
--- Gestion des abonnements et facturation
 
-CREATE TABLE subscriptions (
+CREATE TABLE IF NOT EXISTS subscriptions (
   id                UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   agency_id         UUID NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
   plan              TEXT NOT NULL,
@@ -452,26 +464,25 @@ CREATE TABLE subscriptions (
   CONSTRAINT chk_sub_payment CHECK (payment_method IS NULL OR payment_method IN ('ccp', 'baridi_mob', 'virement', 'cash', 'dahabia'))
 );
 
-CREATE INDEX idx_subscriptions_agency_id ON subscriptions(agency_id);
-CREATE INDEX idx_subscriptions_status    ON subscriptions(status);
-CREATE INDEX idx_subscriptions_ends_at   ON subscriptions(ends_at);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_agency_id ON subscriptions(agency_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_status    ON subscriptions(status);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_ends_at   ON subscriptions(ends_at);
 
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Agency owners can view own subscriptions"
-  ON subscriptions FOR SELECT
-  USING (agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid()));
-
--- Seul le backend (service_role) peut insérer/modifier les abonnements
--- Pas de policy INSERT/UPDATE pour les utilisateurs normaux
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'subscriptions' AND policyname = 'Agency owners can view own subscriptions') THEN
+    CREATE POLICY "Agency owners can view own subscriptions" ON subscriptions FOR SELECT
+      USING (agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid()));
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 10. NOTIFICATIONS
 -- ─────────────────────────────────────────────────────────────────────────────
--- Notifications internes (nouveau lead, abonnement, etc.)
 
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
   id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id    UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   agency_id  UUID REFERENCES agencies(id) ON DELETE CASCADE,
@@ -492,28 +503,28 @@ CREATE TABLE notifications (
   ))
 );
 
-CREATE INDEX idx_notifications_user_id    ON notifications(user_id);
-CREATE INDEX idx_notifications_agency_id  ON notifications(agency_id);
-CREATE INDEX idx_notifications_is_read    ON notifications(is_read) WHERE is_read = false;
-CREATE INDEX idx_notifications_created_at ON notifications(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_user_id    ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_agency_id  ON notifications(agency_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_is_read    ON notifications(is_read) WHERE is_read = false;
+CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC);
 
 ALTER TABLE notifications ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view own notifications"
-  ON notifications FOR SELECT
-  USING (user_id = auth.uid());
-
-CREATE POLICY "Users can update own notifications"
-  ON notifications FOR UPDATE
-  USING (user_id = auth.uid());
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'notifications' AND policyname = 'Users can view own notifications') THEN
+    CREATE POLICY "Users can view own notifications" ON notifications FOR SELECT USING (user_id = auth.uid());
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'notifications' AND policyname = 'Users can update own notifications') THEN
+    CREATE POLICY "Users can update own notifications" ON notifications FOR UPDATE USING (user_id = auth.uid());
+  END IF;
+END $$;
 
 
 -- ─────────────────────────────────────────────────────────────────────────────
 -- 11. MEDIA
 -- ─────────────────────────────────────────────────────────────────────────────
--- Gestion centralisée des fichiers/images uploadés
 
-CREATE TABLE media (
+CREATE TABLE IF NOT EXISTS media (
   id          UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   agency_id   UUID NOT NULL REFERENCES agencies(id) ON DELETE CASCADE,
   uploaded_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
@@ -532,29 +543,30 @@ CREATE TABLE media (
   CONSTRAINT chk_file_size      CHECK (file_size > 0)
 );
 
-CREATE INDEX idx_media_agency_id  ON media(agency_id);
-CREATE INDEX idx_media_category   ON media(category);
-CREATE INDEX idx_media_created_at ON media(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_media_agency_id  ON media(agency_id);
+CREATE INDEX IF NOT EXISTS idx_media_category   ON media(category);
+CREATE INDEX IF NOT EXISTS idx_media_created_at ON media(created_at DESC);
 
 ALTER TABLE media ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Public can view media"
-  ON media FOR SELECT
-  USING (true);
-
-CREATE POLICY "Agency members can manage media"
-  ON media FOR ALL
-  USING (
-    agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
-    OR agency_id IN (SELECT agency_id FROM agency_members WHERE user_id = auth.uid() AND role IN ('admin', 'agent'))
-  );
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'media' AND policyname = 'Public can view media') THEN
+    CREATE POLICY "Public can view media" ON media FOR SELECT USING (true);
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_policies WHERE tablename = 'media' AND policyname = 'Agency members can manage media') THEN
+    CREATE POLICY "Agency members can manage media" ON media FOR ALL
+      USING (
+        agency_id IN (SELECT id FROM agencies WHERE owner_id = auth.uid())
+        OR agency_id IN (SELECT am.agency_id FROM get_user_agency_ids(auth.uid()) am WHERE am.role IN ('admin', 'agent'))
+      );
+  END IF;
+END $$;
 
 
 -- =============================================================================
--- FUNCTIONS
+-- FUNCTIONS & TRIGGERS
 -- =============================================================================
 
--- Auto-update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -563,23 +575,28 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER trg_agencies_updated_at     BEFORE UPDATE ON agencies     FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER trg_properties_updated_at   BEFORE UPDATE ON properties   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER trg_leads_updated_at        BEFORE UPDATE ON leads        FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER trg_subscriptions_updated_at BEFORE UPDATE ON subscriptions FOR EACH ROW EXECUTE FUNCTION update_updated_at();
-CREATE TRIGGER trg_agency_members_updated_at BEFORE UPDATE ON agency_members FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_agencies_updated_at') THEN
+    CREATE TRIGGER trg_agencies_updated_at BEFORE UPDATE ON agencies FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_properties_updated_at') THEN
+    CREATE TRIGGER trg_properties_updated_at BEFORE UPDATE ON properties FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_leads_updated_at') THEN
+    CREATE TRIGGER trg_leads_updated_at BEFORE UPDATE ON leads FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_subscriptions_updated_at') THEN
+    CREATE TRIGGER trg_subscriptions_updated_at BEFORE UPDATE ON subscriptions FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_agency_members_updated_at') THEN
+    CREATE TRIGGER trg_agency_members_updated_at BEFORE UPDATE ON agency_members FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+  END IF;
+END $$;
 
 
 -- =============================================================================
--- STORAGE BUCKETS
+-- STORAGE BUCKET (à exécuter manuellement si absent)
 -- =============================================================================
--- Execute in Supabase Dashboard or via CLI:
---
---   INSERT INTO storage.buckets (id, name, public) VALUES ('public', 'public', true);
---
--- File paths:
---   agencies/{agency_id}/branding/cover.{ext}   — Cover images
---   agencies/{agency_id}/branding/logo.{ext}     — Logos
---   agencies/{agency_id}/properties/{prop_id}/   — Property images
---   agencies/{agency_id}/avatars/{user_id}.{ext} — Member avatars
---   agencies/{agency_id}/documents/              — Documents
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('public', 'public', true)
+ON CONFLICT (id) DO NOTHING;

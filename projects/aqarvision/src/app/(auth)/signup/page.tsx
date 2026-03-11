@@ -132,7 +132,7 @@ export default function SignupPage() {
         });
 
         if (agencyError) {
-          setError("Compte créé mais erreur lors de la création de l'agence. Contactez le support.");
+          setError(`Erreur agence : ${agencyError.message} (code: ${agencyError.code})`);
           return;
         }
 
@@ -171,7 +171,7 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-md space-y-8">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">AqarVision</h1>
+          <h1 className="text-3xl font-bold text-gray-900">AqarPro</h1>
           <p className="mt-2 text-sm text-gray-600">
             Créez votre vitrine immobilière en quelques clics
           </p>

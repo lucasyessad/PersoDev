@@ -55,27 +55,26 @@ describe('next/image compliance in agency pages', () => {
 describe('root layout font configuration', () => {
   const layoutSource = readSource('app/layout.tsx');
 
-  it('loads Google Fonts via <link> stylesheet', () => {
-    expect(layoutSource).toContain('fonts.googleapis.com');
-    expect(layoutSource).toContain('rel="stylesheet"');
+  it('loads fonts via next/font/google', () => {
+    expect(layoutSource).toContain("from 'next/font/google'");
   });
 
   it('includes all three required font families', () => {
-    expect(layoutSource).toContain('Cormorant+Garamond');
-    expect(layoutSource).toContain('Inter');
-    expect(layoutSource).toContain('Playfair+Display');
+    expect(layoutSource).toContain('DM_Serif_Display');
+    expect(layoutSource).toContain('DM_Sans');
+    expect(layoutSource).toContain('JetBrains_Mono');
   });
 
-  it('preconnects to Google Fonts for performance', () => {
-    expect(layoutSource).toContain('rel="preconnect"');
-    expect(layoutSource).toContain('fonts.googleapis.com');
-    expect(layoutSource).toContain('fonts.gstatic.com');
+  it('exposes CSS font variables on html element', () => {
+    expect(layoutSource).toContain('--font-display');
+    expect(layoutSource).toContain('--font-body');
+    expect(layoutSource).toContain('--font-mono');
   });
 
-  it('has eslint-disable for @next/next/no-page-custom-font', () => {
-    expect(layoutSource).toContain(
-      'eslint-disable-next-line @next/next/no-page-custom-font'
-    );
+  it('applies font variable classNames to html element', () => {
+    expect(layoutSource).toContain('dmSerifDisplay.variable');
+    expect(layoutSource).toContain('dmSans.variable');
+    expect(layoutSource).toContain('jetbrainsMono.variable');
   });
 });
 
@@ -84,20 +83,19 @@ describe('root layout font configuration', () => {
 describe('globals.css font-family declarations', () => {
   const cssSource = readSource('app/globals.css');
 
-  it('defines .font-display-modern with Inter', () => {
-    expect(cssSource).toMatch(/\.font-display-modern\s*\{[^}]*Inter/);
+  it('defines .font-display utility with var(--font-display)', () => {
+    expect(cssSource).toContain('--font-display');
+    expect(cssSource).toMatch(/\.font-display\s*\{/);
   });
 
-  it('defines .font-display-classic with Playfair Display', () => {
-    expect(cssSource).toMatch(
-      /\.font-display-classic\s*\{[^}]*Playfair Display/
-    );
+  it('defines .font-body utility with var(--font-body)', () => {
+    expect(cssSource).toContain('--font-body');
+    expect(cssSource).toMatch(/\.font-body\s*\{/);
   });
 
-  it('defines .font-display-elegant with Cormorant Garamond', () => {
-    expect(cssSource).toMatch(
-      /\.font-display-elegant\s*\{[^}]*Cormorant Garamond/
-    );
+  it('defines .font-mono utility with var(--font-mono)', () => {
+    expect(cssSource).toContain('--font-mono');
+    expect(cssSource).toMatch(/\.font-mono\s*\{/);
   });
 });
 
