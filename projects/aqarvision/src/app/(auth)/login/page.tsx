@@ -4,6 +4,7 @@ import { Suspense, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
+import { Building2 } from 'lucide-react';
 
 export default function LoginPage() {
   return (
@@ -15,13 +16,13 @@ export default function LoginPage() {
 
 function LoginSkeleton() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-blanc-casse px-4">
       <div className="w-full max-w-md space-y-8 animate-pulse">
         <div className="text-center">
-          <div className="mx-auto h-8 w-40 rounded bg-gray-200" />
-          <div className="mx-auto mt-3 h-4 w-56 rounded bg-gray-200" />
+          <div className="mx-auto h-8 w-40 rounded bg-muted" />
+          <div className="mx-auto mt-3 h-4 w-56 rounded bg-muted" />
         </div>
-        <div className="h-72 rounded-xl bg-white shadow-sm" />
+        <div className="h-72 rounded-xl bg-white shadow-card" />
       </div>
     </div>
   );
@@ -95,15 +96,20 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-blanc-casse px-4">
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center">
-          <Link href="/" className="text-2xl font-bold text-blue-600">AqarVision</Link>
-          <p className="mt-1 text-sm text-gray-500">Connectez-vous à votre compte</p>
+          <Link href="/" className="inline-flex items-center gap-2.5 justify-center">
+            <div className="w-9 h-9 bg-bleu-nuit rounded-xl flex items-center justify-center shadow-sm">
+              <Building2 className="h-5 w-5 text-or" />
+            </div>
+            <span className="font-vitrine text-2xl text-bleu-nuit tracking-tight">AqarVision</span>
+          </Link>
+          <p className="mt-2 text-sm text-muted-foreground">Connectez-vous à votre compte</p>
         </div>
 
-        <div className="space-y-5 rounded-xl bg-white p-8 shadow-sm">
+        <div className="space-y-5 rounded-xl bg-white p-8 shadow-card">
           {error && (
             <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
               {error}
@@ -112,7 +118,7 @@ function LoginForm() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="email" className="mb-1 block text-sm font-medium text-foreground">
                 Email
               </label>
               <input
@@ -121,13 +127,13 @@ function LoginForm() {
                 type="email"
                 required
                 autoComplete="email"
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-or focus:outline-none focus:ring-1 focus:ring-or transition-colors"
                 placeholder="vous@exemple.dz"
               />
             </div>
 
             <div>
-              <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
+              <label htmlFor="password" className="mb-1 block text-sm font-medium text-foreground">
                 Mot de passe
               </label>
               <input
@@ -137,7 +143,7 @@ function LoginForm() {
                 required
                 autoComplete="current-password"
                 minLength={6}
-                className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-or focus:outline-none focus:ring-1 focus:ring-or transition-colors"
                 placeholder="••••••••"
               />
             </div>
@@ -145,22 +151,22 @@ function LoginForm() {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+              className="w-full rounded-lg bg-bleu-nuit py-2.5 text-sm font-semibold text-white transition-colors hover:bg-bleu-nuit/90 disabled:opacity-50"
             >
               {isPending ? 'Connexion...' : 'Se connecter'}
             </button>
           </form>
 
-          <p className="text-center text-sm text-gray-600">
+          <p className="text-center text-sm text-muted-foreground">
             Pas encore de compte ?{' '}
-            <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
+            <Link href="/signup" className="font-medium text-or hover:text-or/80 transition-colors">
               S&apos;inscrire
             </Link>
           </p>
         </div>
 
         {/* Séparateur visuel */}
-        <div className="text-center text-xs text-gray-400 space-y-1">
+        <div className="text-center text-xs text-muted-foreground space-y-1">
           <p>Particulier → redirigé vers votre profil</p>
           <p>Agence → redirigée vers votre dashboard</p>
         </div>

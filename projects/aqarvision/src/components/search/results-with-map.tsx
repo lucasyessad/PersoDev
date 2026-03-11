@@ -32,10 +32,10 @@ export function ResultsWithMap({
     <div>
       {/* Results header: count + view toggle */}
       <div className="mb-6 flex items-center justify-between gap-4">
-        <p className="text-body-sm text-neutral-500">
+        <p className="text-body-sm text-muted-foreground">
           {total.toLocaleString('fr-FR')} bien{total !== 1 ? 's' : ''} trouvé{total !== 1 ? 's' : ''}
           {searchQuery && (
-            <span className="text-neutral-900 font-medium"> à « {searchQuery} »</span>
+            <span className="text-foreground font-medium"> à « {searchQuery} »</span>
           )}
         </p>
         <ViewToggle mode={viewMode} onChange={setViewMode} />
@@ -47,13 +47,13 @@ export function ResultsWithMap({
           {propertiesWithLocation.length > 0 ? (
             <SearchMap properties={propertiesWithLocation} height="520px" />
           ) : (
-            <div className="flex h-[520px] items-center justify-center rounded-xl border border-neutral-200 bg-neutral-50">
-              <p className="text-body-sm text-neutral-400">
+            <div className="flex h-[520px] items-center justify-center rounded-xl border border-neutral-200 bg-muted/50">
+              <p className="text-body-sm text-muted-foreground">
                 Aucun bien géolocalisé dans ces résultats
               </p>
             </div>
           )}
-          <p className="mt-2 text-caption text-neutral-400">
+          <p className="mt-2 text-caption text-muted-foreground">
             {propertiesWithLocation.length} bien{propertiesWithLocation.length !== 1 ? 's' : ''} affiché{propertiesWithLocation.length !== 1 ? 's' : ''} sur la carte
           </p>
         </div>

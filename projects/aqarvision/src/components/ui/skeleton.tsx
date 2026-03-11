@@ -1,34 +1,55 @@
-import { HTMLAttributes } from 'react';
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
-interface SkeletonProps extends HTMLAttributes<HTMLDivElement> {
-  variant?: 'text' | 'circle' | 'rect';
+/* ─── CVA Base Skeleton (Github) ─────────────────── */
+
+const skeletonVariants = cva(
+  "animate-pulse bg-muted",
+  {
+    variants: {
+      variant: {
+        text: "h-4 w-full rounded-md",
+        circle: "rounded-full",
+        rectangle: "w-full rounded-xl",
+      },
+    },
+    defaultVariants: {
+      variant: "text",
+    },
+  }
+);
+
+export interface SkeletonProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof skeletonVariants> {
   width?: string;
   height?: string;
 }
 
-export function Skeleton({ variant = 'rect', width, height, className = '', style, ...props }: SkeletonProps) {
-  return (
-    <div
-      className={[
-        'skeleton',
-        variant === 'circle' ? 'rounded-full' : 'rounded-md',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      style={{ width, height, ...style }}
-      aria-hidden="true"
-      {...props}
-    />
-  );
-}
+const Skeleton = React.forwardRef<HTMLDivElement, SkeletonProps>(
+  ({ className, variant, width, height, style, ...props }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className={cn(skeletonVariants({ variant }), className)}
+        style={{ width, height, ...style }}
+        aria-hidden="true"
+        {...props}
+      />
+    );
+  }
+);
+Skeleton.displayName = "Skeleton";
 
-/* Pre-built skeleton cards */
+export { Skeleton, skeletonVariants };
+
+/* ─── Pre-built skeleton cards (PersoDev) ─────────── */
 
 export function PropertyCardSkeleton() {
   return (
     <div className="rounded-lg overflow-hidden border border-neutral-200">
-      <Skeleton className="w-full aspect-[4/3]" />
+      <Skeleton className="w-full aspect-[4/3]" variant="rectangle" />
       <div className="p-4 flex flex-col gap-2">
         <Skeleton className="h-5 w-24" />
         <Skeleton className="h-4 w-full" />

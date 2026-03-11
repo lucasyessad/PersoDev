@@ -71,7 +71,7 @@ export function MessageInput({ conversationId, onSent }: MessageInputProps) {
             rows={1}
             maxLength={MAX_CHARS}
             disabled={isPending}
-            className="w-full resize-none rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-body-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100 transition-colors disabled:opacity-50"
+            className="w-full resize-none rounded-xl border border-neutral-200 bg-muted/50 px-4 py-3 text-body-sm text-foreground placeholder:text-muted-foreground focus:border-primary-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100 transition-colors disabled:opacity-50"
             style={{ minHeight: '44px', maxHeight: '160px' }}
           />
         </div>
@@ -80,7 +80,7 @@ export function MessageInput({ conversationId, onSent }: MessageInputProps) {
           type="button"
           onClick={handleSubmit}
           disabled={!canSend}
-          className="flex-shrink-0 w-11 h-11 rounded-xl bg-primary-600 flex items-center justify-center text-white hover:bg-primary-700 active:bg-primary-800 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-shrink-0 w-11 h-11 rounded-xl bg-or flex items-center justify-center text-white hover:bg-bleu-nuit/90 active:bg-bleu-nuit transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           aria-label="Envoyer"
         >
           {isPending ? (
@@ -96,7 +96,7 @@ export function MessageInput({ conversationId, onSent }: MessageInputProps) {
 
       {/* Character counter — only show when approaching limit */}
       {content.length > MAX_CHARS * 0.8 && (
-        <p className={`text-caption mt-1.5 text-right ${charsLeft < 0 ? 'text-red-500' : 'text-neutral-400'}`}>
+        <p className={`text-caption mt-1.5 text-right ${charsLeft < 0 ? 'text-red-500' : 'text-muted-foreground'}`}>
           {charsLeft} caractère{Math.abs(charsLeft) !== 1 ? 's' : ''} restant{Math.abs(charsLeft) !== 1 ? 's' : ''}
         </p>
       )}

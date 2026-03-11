@@ -62,7 +62,7 @@ export function PasswordForm() {
           required
           minLength={8}
           autoComplete="new-password"
-          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-foreground placeholder:text-muted-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           placeholder="Minimum 8 caractères"
         />
       </div>
@@ -78,7 +78,7 @@ export function PasswordForm() {
           required
           minLength={8}
           autoComplete="new-password"
-          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-foreground placeholder:text-muted-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           placeholder="Répétez le nouveau mot de passe"
         />
       </div>
@@ -87,7 +87,7 @@ export function PasswordForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-primary-600 px-5 py-2.5 text-body-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+          className="rounded-lg bg-or px-5 py-2.5 text-body-sm font-semibold text-white transition-colors hover:bg-bleu-nuit/90 disabled:opacity-50"
         >
           {isPending ? 'Mise à jour...' : 'Changer le mot de passe'}
         </button>

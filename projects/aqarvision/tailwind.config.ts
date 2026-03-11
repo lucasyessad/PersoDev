@@ -9,6 +9,36 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Palette AqarVision — Premium
+        'bleu-nuit': '#0c1b2a',
+        'or': '#b8963e',
+        'blanc-casse': '#fafbfc',
+
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input, var(--border)))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive, 0 84% 60%))',
+          foreground: 'hsl(var(--destructive-foreground, 0 0% 100%))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted, 210 20% 96%))',
+          foreground: 'hsl(var(--muted-foreground, 215 16% 47%))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover, 0 0% 100%))',
+          foreground: 'hsl(var(--popover-foreground, 210 40% 8%))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card, 0 0% 100%))',
+          foreground: 'hsl(var(--card-foreground, 210 40% 8%))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary, 210 20% 96%))',
+          foreground: 'hsl(var(--secondary-foreground, 210 40% 8%))',
+        },
         primary: {
           50:  '#F2F8FC',
           100: '#E0EFF7',
@@ -64,16 +94,22 @@ const config: Config = {
         mono:    ['var(--font-mono)', 'SF Mono', 'monospace'],
       },
       fontSize: {
-        'display-xl': ['3.5rem',   { lineHeight: '1.1',  letterSpacing: '-0.02em' }],
+        'display-xl': ['4.5rem',   { lineHeight: '1.1',  letterSpacing: '-0.02em' }],
+        'display':    ['3.75rem',  { lineHeight: '1.1',  letterSpacing: '-0.02em' }],
         'display-lg': ['2.75rem',  { lineHeight: '1.15', letterSpacing: '-0.02em' }],
         'display-md': ['2.25rem',  { lineHeight: '1.2',  letterSpacing: '-0.01em' }],
+        'heading-1':  ['3rem',     { lineHeight: '1.15', letterSpacing: '-0.02em' }],
+        'heading-2':  ['2.25rem',  { lineHeight: '1.2',  letterSpacing: '-0.01em' }],
+        'heading-3':  ['1.5rem',   { lineHeight: '1.3',  letterSpacing: '-0.01em' }],
+        'heading-4':  ['1.25rem',  { lineHeight: '1.4' }],
         'heading-lg': ['1.75rem',  { lineHeight: '1.3',  letterSpacing: '-0.01em', fontWeight: '600' }],
         'heading-md': ['1.375rem', { lineHeight: '1.35', letterSpacing: '-0.005em', fontWeight: '600' }],
         'heading-sm': ['1.125rem', { lineHeight: '1.4',  fontWeight: '600' }],
-        'body-lg':    ['1.0625rem',{ lineHeight: '1.65' }],
+        'body-lg':    ['1.125rem', { lineHeight: '1.7' }],
+        'body':       ['1rem',     { lineHeight: '1.6' }],
         'body-md':    ['0.9375rem',{ lineHeight: '1.6'  }],
-        'body-sm':    ['0.8125rem',{ lineHeight: '1.5',  letterSpacing: '0.005em' }],
-        'caption':    ['0.6875rem',{ lineHeight: '1.4',  letterSpacing: '0.03em',  fontWeight: '500' }],
+        'body-sm':    ['0.875rem', { lineHeight: '1.5' }],
+        'caption':    ['0.75rem',  { lineHeight: '1.4' }],
         'price':      ['1.625rem', { lineHeight: '1.2',  letterSpacing: '-0.01em', fontWeight: '700' }],
         'price-sm':   ['1.125rem', { lineHeight: '1.2',  letterSpacing: '-0.005em', fontWeight: '600' }],
       },
@@ -90,8 +126,11 @@ const config: Config = {
         md:           '0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04)',
         lg:           '0 10px 15px rgba(0,0,0,0.06), 0 4px 6px rgba(0,0,0,0.04)',
         xl:           '0 20px 25px rgba(0,0,0,0.08), 0 8px 10px rgba(0,0,0,0.04)',
-        card:         '0 1px 3px rgba(0,0,0,0.04)',
+        card:         '0 2px 8px -2px rgba(0,0,0,0.05), 0 4px 16px -4px rgba(0,0,0,0.04)',
         'card-hover': '0 8px 25px rgba(0,0,0,0.08)',
+        soft:         '0 1px 3px 0 rgba(0,0,0,0.04), 0 1px 2px -1px rgba(0,0,0,0.03)',
+        elevated:     '0 8px 30px -8px rgba(0,0,0,0.08), 0 4px 12px -4px rgba(0,0,0,0.04)',
+        float:        '0 20px 60px -12px rgba(0,0,0,0.12), 0 8px 20px -8px rgba(0,0,0,0.06)',
       },
       spacing: {
         1:  '4px',
@@ -167,7 +206,7 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };
 
 export default config;

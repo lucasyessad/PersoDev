@@ -16,21 +16,21 @@ export default function EstimerPage() {
       <header className="bg-white border-b border-neutral-200">
         <div className="max-w-[1440px] mx-auto px-6 h-16 flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
+            <div className="w-7 h-7 bg-or rounded-lg flex items-center justify-center">
               <Building2 className="h-4 w-4 text-white" />
             </div>
-            <span className="font-display text-lg text-primary-900">AqarVision</span>
+            <span className="font-vitrine text-lg text-bleu-nuit">AqarVision</span>
           </Link>
           <nav className="ml-auto flex items-center gap-6">
-            <Link href="/recherche" className="text-body-sm text-neutral-600 hover:text-neutral-900 transition-colors">
+            <Link href="/recherche" className="text-body-sm text-neutral-600 hover:text-foreground transition-colors">
               Recherche
             </Link>
-            <Link href="/pricing" className="text-body-sm text-neutral-600 hover:text-neutral-900 transition-colors">
+            <Link href="/pricing" className="text-body-sm text-neutral-600 hover:text-foreground transition-colors">
               Tarifs
             </Link>
             <Link
               href="/dashboard"
-              className="flex items-center gap-1.5 px-4 py-2 bg-primary-600 text-white text-body-sm font-medium rounded-lg hover:bg-primary-700 transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2 bg-or text-white text-body-sm font-medium rounded-lg hover:bg-bleu-nuit/90 transition-colors"
             >
               Dashboard
               <ArrowRight className="h-3.5 w-3.5" />
@@ -42,11 +42,11 @@ export default function EstimerPage() {
       {/* Hero */}
       <section className="max-w-[1440px] mx-auto px-6 pt-12 pb-8">
         <div className="max-w-2xl mx-auto text-center mb-10">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 border border-primary-200 text-primary-700 text-caption font-medium mb-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary-50 border border-primary-200 text-bleu-nuit/90 text-caption font-medium mb-4">
             <TrendingUp className="h-3.5 w-3.5" />
             Estimation gratuite
           </div>
-          <h1 className="text-heading-lg text-neutral-900 mb-3">
+          <h1 className="text-heading-lg text-foreground mb-3">
             Estimer le prix de votre bien
           </h1>
           <p className="text-body-md text-neutral-600">
@@ -59,7 +59,7 @@ export default function EstimerPage() {
         <PriceEstimator />
 
         {/* Disclaimer */}
-        <p className="text-caption text-neutral-400 text-center mt-6 max-w-lg mx-auto">
+        <p className="text-caption text-muted-foreground text-center mt-6 max-w-lg mx-auto">
           Cette estimation est indicative et basée sur les annonces disponibles sur AqarVision.
           Pour une évaluation précise, consultez un agent immobilier agréé.
         </p>
@@ -69,16 +69,16 @@ export default function EstimerPage() {
       <section className="max-w-[1440px] mx-auto px-6 pb-16">
         <div className="max-w-2xl mx-auto bg-white rounded-2xl border border-neutral-200 p-6 flex flex-col sm:flex-row items-center gap-4">
           <div className="flex-1">
-            <p className="text-body-sm font-semibold text-neutral-900">
+            <p className="text-body-sm font-semibold text-foreground">
               Vous souhaitez publier votre bien ?
             </p>
-            <p className="text-body-sm text-neutral-500 mt-0.5">
+            <p className="text-body-sm text-muted-foreground mt-0.5">
               Rejoignez les agences partenaires et publiez vos annonces dès aujourd&apos;hui.
             </p>
           </div>
           <Link
             href="/pricing"
-            className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-body-sm font-medium rounded-xl transition-colors"
+            className="shrink-0 flex items-center gap-2 px-5 py-2.5 bg-or hover:bg-bleu-nuit/90 text-white text-body-sm font-medium rounded-xl transition-colors"
           >
             Démarrer gratuitement
             <ArrowRight className="h-4 w-4" />

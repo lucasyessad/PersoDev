@@ -106,9 +106,9 @@ export function PriceEstimator({ defaultValues, compact = false }: PriceEstimato
   };
 
   const selectClass =
-    'w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-sm text-neutral-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none';
+    'w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-sm text-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20 appearance-none';
   const inputClass =
-    'w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-sm text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20';
+    'w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-sm text-foreground placeholder:text-muted-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20';
   const labelClass = 'block text-body-sm font-medium text-neutral-700 mb-1.5';
 
   return (
@@ -143,8 +143,8 @@ export function PriceEstimator({ defaultValues, compact = false }: PriceEstimato
                   className={[
                     'flex-1 text-body-sm font-medium transition-colors',
                     transactionType === 'sale'
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-white text-neutral-600 hover:bg-neutral-50',
+                      ? 'bg-or text-white'
+                      : 'bg-white text-neutral-600 hover:bg-muted',
                   ].join(' ')}
                 >
                   Vente
@@ -155,8 +155,8 @@ export function PriceEstimator({ defaultValues, compact = false }: PriceEstimato
                   className={[
                     'flex-1 text-body-sm font-medium transition-colors border-l border-neutral-300',
                     transactionType === 'rent'
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-white text-neutral-600 hover:bg-neutral-50',
+                      ? 'bg-or text-white'
+                      : 'bg-white text-neutral-600 hover:bg-muted',
                   ].join(' ')}
                 >
                   Location
@@ -199,7 +199,7 @@ export function PriceEstimator({ defaultValues, compact = false }: PriceEstimato
             {!compact && (
               <div>
                 <label htmlFor="est-rooms" className={labelClass}>
-                  Nombre de pièces <span className="text-neutral-400 font-normal">(optionnel)</span>
+                  Nombre de pièces <span className="text-muted-foreground font-normal">(optionnel)</span>
                 </label>
                 <input
                   id="est-rooms"
@@ -220,7 +220,7 @@ export function PriceEstimator({ defaultValues, compact = false }: PriceEstimato
             type="button"
             onClick={handleEstimate}
             disabled={loading}
-            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-600 hover:bg-primary-700 disabled:bg-primary-400 text-white text-body-sm font-medium rounded-xl transition-colors"
+            className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-3 bg-or hover:bg-bleu-nuit/90 disabled:bg-primary-400 text-white text-body-sm font-medium rounded-xl transition-colors"
           >
             {loading ? (
               <>
@@ -249,13 +249,13 @@ export function PriceEstimator({ defaultValues, compact = false }: PriceEstimato
           <div className="border-t border-neutral-100 bg-neutral-50/60 p-6 space-y-4">
             {/* Estimated price */}
             <div className="text-center">
-              <p className="text-caption text-neutral-500 uppercase tracking-wide mb-1">
+              <p className="text-caption text-muted-foreground uppercase tracking-wide mb-1">
                 Estimation
               </p>
-              <p className="text-4xl font-bold text-neutral-900 font-display">
+              <p className="text-4xl font-bold text-foreground font-vitrine">
                 {formatDZD(result.estimated_price)}
               </p>
-              <p className="text-body-sm text-neutral-500 mt-1">
+              <p className="text-body-sm text-muted-foreground mt-1">
                 ~{formatDZD(result.price_per_sqm)}/m²
               </p>
             </div>
@@ -263,9 +263,9 @@ export function PriceEstimator({ defaultValues, compact = false }: PriceEstimato
             {/* Range */}
             <div className="flex items-center gap-2 justify-center">
               <span className="text-body-sm text-neutral-600">Entre</span>
-              <span className="font-semibold text-neutral-900">{formatDZD(result.price_range.min)}</span>
-              <span className="text-neutral-400">et</span>
-              <span className="font-semibold text-neutral-900">{formatDZD(result.price_range.max)}</span>
+              <span className="font-semibold text-foreground">{formatDZD(result.price_range.min)}</span>
+              <span className="text-muted-foreground">et</span>
+              <span className="font-semibold text-foreground">{formatDZD(result.price_range.max)}</span>
             </div>
 
             {/* Confidence + comparables */}
@@ -276,7 +276,7 @@ export function PriceEstimator({ defaultValues, compact = false }: PriceEstimato
                 <CheckCircle2 className="h-3.5 w-3.5" />
                 Confiance: {confidenceConfig[result.confidence].label}
               </span>
-              <span className="text-caption text-neutral-400">
+              <span className="text-caption text-muted-foreground">
                 Basé sur {result.comparables_count} bien{result.comparables_count > 1 ? 's' : ''} comparables
               </span>
             </div>

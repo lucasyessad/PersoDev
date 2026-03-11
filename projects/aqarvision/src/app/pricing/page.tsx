@@ -78,17 +78,17 @@ function formatDZD(amount: number): string {
 
 function CheckIcon() {
   return (
-    <svg className="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-    </svg>
+    <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0">
+      <svg className="h-3 w-3 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
+      </svg>
+    </div>
   );
 }
 
 function XIcon() {
   return (
-    <svg className="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-    </svg>
+    <span className="text-muted-foreground/40">&mdash;</span>
   );
 }
 
@@ -96,76 +96,83 @@ export default function PricingPage() {
   const plans = Object.values(PLAN_CONFIGS);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/" className="text-xl font-bold tracking-tight text-gray-900">
-            Aqar<span className="text-blue-600">Vision</span>
+      <header className="header-glass fixed top-0 left-0 right-0 z-40">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+          <Link href="/" className="font-vitrine text-xl tracking-tight text-foreground">
+            AqarVision
           </Link>
           <nav className="flex items-center gap-6 text-sm">
-            <Link href="/" className="text-gray-600 hover:text-gray-900">{t('nav.home')}</Link>
-            <Link href="/pricing" className="font-medium text-blue-600">{t('pricing.title')}</Link>
+            <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">{t('nav.home')}</Link>
+            <Link href="/pricing" className="font-medium text-foreground">{t('pricing.title')}</Link>
           </nav>
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-6 py-16">
+      <main className="mx-auto max-w-5xl px-6 pt-28 pb-16">
         {/* Hero */}
-        <div className="text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl">
+        <div className="text-center mb-16">
+          <p className="animate-fade-in-up text-xs font-semibold text-or uppercase tracking-widest mb-3">
+            {t('pricing.title')}
+          </p>
+          <h1 className="animate-fade-in-up delay-75 font-vitrine text-display-lg text-foreground mb-5">
             {t('pricing.heading')}
           </h1>
-          <p className="mt-4 text-lg text-gray-600">
-            <span className="font-semibold text-blue-600">{t('pricing.trialDays', { count: TRIAL_DURATION_DAYS })}</span>
+          <p className="animate-fade-in-up delay-100 text-body-lg text-muted-foreground max-w-xl mx-auto">
+            <span className="font-semibold text-foreground">{t('pricing.trialDays', { count: TRIAL_DURATION_DAYS })}</span>
             {' '}{t('pricing.noCommitment')}
           </p>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-green-50 px-4 py-2 text-sm text-green-700">
+          <div className="animate-fade-in-up delay-150 mt-4 inline-flex items-center gap-2 rounded-full bg-emerald-50 px-4 py-2 text-sm text-emerald-700">
             <span className="font-medium">{t('pricing.localPayment')}</span> — {t('pricing.paymentMethods')}
           </div>
         </div>
 
         {/* Plan Cards */}
-        <div className="mt-16 grid gap-8 lg:grid-cols-3">
-          {plans.map((plan) => {
+        <div className="grid gap-6 lg:grid-cols-3 items-start">
+          {plans.map((plan, index) => {
             const isPopular = plan.badge === 'Populaire';
             return (
               <div
                 key={plan.id}
-                className={`relative rounded-2xl border-2 bg-white p-8 shadow-sm ${
+                className={`animate-fade-in-up ${
+                  index === 0 ? 'delay-100' : index === 1 ? 'delay-150' : 'delay-200'
+                } relative rounded-2xl p-8 transition-all ${
                   isPopular
-                    ? 'border-blue-600 shadow-blue-100'
-                    : 'border-gray-200'
+                    ? 'bg-bleu-nuit text-white shadow-float md:scale-105 md:-my-4 z-10 ring-1 ring-bleu-nuit'
+                    : 'glass-card border border-border shadow-card'
                 }`}
               >
                 {plan.badge && (
-                  <span
-                    className={`absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-semibold ${
-                      isPopular
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-amber-100 text-amber-800'
-                    }`}
-                  >
+                  <p className={`text-xs font-semibold uppercase tracking-widest mb-4 ${
+                    isPopular ? 'text-or' : 'text-accent-500'
+                  }`}>
                     {plan.badge}
-                  </span>
+                  </p>
                 )}
 
-                <h2 className="text-xl font-bold text-gray-900">{plan.name}</h2>
-                <p className="mt-1 text-sm text-gray-500">{plan.description}</p>
+                <h2 className={`text-lg font-semibold mb-1 ${isPopular ? 'text-white' : 'text-foreground'}`}>
+                  {plan.name}
+                </h2>
+                <p className={`text-body-sm mb-5 ${isPopular ? 'text-white/60' : 'text-muted-foreground'}`}>
+                  {plan.description}
+                </p>
 
                 {/* Monthly price */}
-                <div className="mt-6">
-                  <span className="text-4xl font-bold tracking-tight text-gray-900">
+                <div className="mb-2">
+                  <span className={`text-heading-2 font-extrabold ${isPopular ? 'text-white' : 'text-foreground'}`}>
                     {formatDZD(plan.pricing.monthlyDZD)}
                   </span>
-                  <span className="ml-1 text-sm text-gray-500">{t('pricing.perMonth')}</span>
+                  <span className={`ml-1 text-sm ${isPopular ? 'text-white/50' : 'text-muted-foreground'}`}>
+                    {t('pricing.perMonth')}
+                  </span>
                 </div>
 
                 {/* Annual savings */}
-                <p className="mt-2 text-xs text-gray-500">
+                <p className={`text-xs mb-6 ${isPopular ? 'text-white/40' : 'text-muted-foreground'}`}>
                   ou {formatDZD(plan.pricing.yearlyDZD)} {t('pricing.perYear')}
                   {' '}
-                  <span className="font-medium text-green-600">
+                  <span className={isPopular ? 'text-or font-medium' : 'font-medium text-emerald-600'}>
                     (-{getBillingDiscount('yearly')}%)
                   </span>
                 </p>
@@ -173,35 +180,48 @@ export default function PricingPage() {
                 {/* CTA */}
                 <Link
                   href="/signup"
-                  className={`mt-8 block rounded-lg py-3 text-center text-sm font-semibold ${
+                  className={`block rounded-xl py-3 text-center text-sm font-semibold transition-colors mb-8 ${
                     isPopular
-                      ? 'bg-blue-600 text-white hover:bg-blue-700'
-                      : 'bg-gray-900 text-white hover:bg-gray-800'
+                      ? 'bg-or text-white hover:bg-or/90'
+                      : 'bg-foreground text-background hover:opacity-90'
                   }`}
                 >
                   {t('pricing.freeTrial', { count: TRIAL_DURATION_DAYS })}
                 </Link>
 
                 {/* Features */}
-                <ul className="mt-8 space-y-3">
-                  {FEATURE_LABELS.map(({ key, labelKey, getValue }) => {
-                    const value = getValue(plan.id);
-                    const isAvailable = value !== false;
-                    const label = t(labelKey);
+                <div className={`border-t ${isPopular ? 'border-white/10' : 'border-border'} pt-6`}>
+                  <p className={`text-caption font-semibold uppercase tracking-wider mb-4 ${
+                    isPopular ? 'text-white/40' : 'text-muted-foreground'
+                  }`}>
+                    Inclus
+                  </p>
+                  <ul className="space-y-3">
+                    {FEATURE_LABELS.map(({ key, labelKey, getValue }) => {
+                      const value = getValue(plan.id);
+                      const isAvailable = value !== false;
+                      const label = t(labelKey);
 
-                    return (
-                      <li key={key} className="flex items-center gap-3 text-sm">
-                        {isAvailable ? <CheckIcon /> : <XIcon />}
-                        <span className={isAvailable ? 'text-gray-700' : 'text-gray-400'}>
-                          {label}
-                          {typeof value === 'string' && (
-                            <span className="ml-1 font-medium text-gray-900">({value})</span>
-                          )}
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
+                      return (
+                        <li key={key} className="flex items-center gap-3 text-sm">
+                          {isAvailable ? <CheckIcon /> : <XIcon />}
+                          <span className={
+                            isAvailable
+                              ? (isPopular ? 'text-white/80' : 'text-foreground')
+                              : (isPopular ? 'text-white/25' : 'text-muted-foreground/50')
+                          }>
+                            {label}
+                            {typeof value === 'string' && (
+                              <span className={`ml-1 font-medium ${isPopular ? 'text-white' : 'text-foreground'}`}>
+                                ({value})
+                              </span>
+                            )}
+                          </span>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               </div>
             );
           })}
@@ -209,33 +229,43 @@ export default function PricingPage() {
 
         {/* Comparison Table */}
         <div className="mt-24">
-          <h2 className="text-center text-2xl font-bold text-gray-900">
-            {t('detail.comparison')}
-          </h2>
-          <div className="mt-8 overflow-x-auto">
+          <div className="text-center mb-12">
+            <p className="text-xs font-semibold text-or uppercase tracking-widest mb-3">
+              Comparatif
+            </p>
+            <h2 className="font-vitrine text-display-md text-foreground">
+              {t('detail.comparison')}
+            </h2>
+          </div>
+          <div className="rounded-2xl border border-border overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b">
-                  <th className="pb-4 text-left font-medium text-gray-500">{t('pricing.feature')}</th>
+                <tr className="border-b border-border bg-muted/50">
+                  <th className="p-5 text-left text-caption font-semibold text-muted-foreground uppercase tracking-wider">
+                    {t('pricing.feature')}
+                  </th>
                   {plans.map((plan) => (
-                    <th key={plan.id} className="pb-4 text-center font-semibold text-gray-900">
+                    <th key={plan.id} className="p-5 text-center font-semibold text-foreground">
                       {plan.name}
+                      {plan.badge === 'Populaire' && (
+                        <span className="ml-2 text-xs text-or font-medium">Populaire</span>
+                      )}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {FEATURE_LABELS.map(({ key, labelKey, getValue }) => (
-                  <tr key={key} className="border-b">
-                    <td className="py-4 text-gray-600">{t(labelKey)}</td>
+                {FEATURE_LABELS.map(({ key, labelKey, getValue }, i) => (
+                  <tr key={key} className={i < FEATURE_LABELS.length - 1 ? 'border-b border-border' : ''}>
+                    <td className="p-5 text-foreground">{t(labelKey)}</td>
                     {plans.map((plan) => {
                       const value = getValue(plan.id);
                       return (
-                        <td key={plan.id} className="py-4 text-center">
+                        <td key={plan.id} className="p-5 text-center">
                           {typeof value === 'boolean' ? (
-                            value ? <span className="inline-block"><CheckIcon /></span> : <span className="inline-block"><XIcon /></span>
+                            value ? <span className="inline-flex justify-center"><CheckIcon /></span> : <XIcon />
                           ) : (
-                            <span className="font-medium text-gray-900">{value}</span>
+                            <span className="font-medium text-foreground">{value}</span>
                           )}
                         </td>
                       );
@@ -248,53 +278,53 @@ export default function PricingPage() {
         </div>
 
         {/* FAQ */}
-        <div className="mt-24">
-          <h2 className="text-center text-2xl font-bold text-gray-900">{t('pricing.faq')}</h2>
-          <div className="mx-auto mt-8 grid max-w-3xl gap-6">
-            <div>
-              <h3 className="font-semibold text-gray-900">{t('pricing.faq1.q')}</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                {t('pricing.faq1.a', { count: TRIAL_DURATION_DAYS })}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">{t('pricing.faq2.q')}</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                {t('pricing.faq2.a')}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">{t('pricing.faq3.q')}</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                {t('pricing.faq3.a')}
-              </p>
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900">{t('pricing.faq4.q')}</h3>
-              <p className="mt-2 text-sm text-gray-600">
-                {t('pricing.faq4.a')}
-              </p>
-            </div>
+        <div className="mt-24 max-w-2xl mx-auto">
+          <h2 className="text-center font-vitrine text-display-md text-foreground mb-8">{t('pricing.faq')}</h2>
+          <div className="divide-y divide-border">
+            {[
+              { q: t('pricing.faq1.q'), a: t('pricing.faq1.a', { count: TRIAL_DURATION_DAYS }) },
+              { q: t('pricing.faq2.q'), a: t('pricing.faq2.a') },
+              { q: t('pricing.faq3.q'), a: t('pricing.faq3.a') },
+              { q: t('pricing.faq4.q'), a: t('pricing.faq4.a') },
+            ].map(({ q, a }) => (
+              <details key={q} className="group py-5">
+                <summary className="flex items-center justify-between cursor-pointer list-none">
+                  <span className="text-body font-medium text-foreground pr-4">{q}</span>
+                  <svg
+                    className="h-4 w-4 text-muted-foreground group-open:rotate-90 transition-transform flex-shrink-0"
+                    fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
+                </summary>
+                <p className="text-body-sm text-muted-foreground mt-3 pr-8 leading-relaxed">
+                  {a}
+                </p>
+              </details>
+            ))}
           </div>
         </div>
 
         {/* CTA bottom */}
-        <div className="mt-24 rounded-2xl bg-blue-600 p-12 text-center text-white">
-          <h2 className="text-3xl font-bold">{t('pricing.ctaHeading')}</h2>
-          <p className="mt-4 text-blue-100">
-            {t('pricing.ctaText', { count: TRIAL_DURATION_DAYS })}
-          </p>
-          <Link
-            href="/signup"
-            className="mt-8 inline-block rounded-lg bg-white px-8 py-3 font-semibold text-blue-600 hover:bg-blue-50"
-          >
-            {t('pricing.ctaButton')}
-          </Link>
+        <div className="mt-24 rounded-3xl bg-bleu-nuit p-12 md:p-16 text-center relative overflow-hidden">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(184,150,62,0.08),transparent_50%)]" />
+          <div className="relative">
+            <h2 className="font-vitrine text-display-md text-white mb-4">{t('pricing.ctaHeading')}</h2>
+            <p className="text-white/60 mb-8 max-w-md mx-auto">
+              {t('pricing.ctaText', { count: TRIAL_DURATION_DAYS })}
+            </p>
+            <Link
+              href="/signup"
+              className="inline-block rounded-xl bg-or px-8 py-3 font-semibold text-white hover:bg-or/90 transition-colors"
+            >
+              {t('pricing.ctaButton')}
+            </Link>
+          </div>
         </div>
       </main>
 
       {/* Footer */}
-      <footer className="border-t px-6 py-8 text-center text-sm text-gray-500">
+      <footer className="border-t border-border px-6 py-8 text-center text-caption text-muted-foreground">
         &copy; {new Date().getFullYear()} AqarVision. {t('footer.rights')}
       </footer>
     </div>

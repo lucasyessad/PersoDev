@@ -68,20 +68,20 @@ export default function SearchMapInner({ properties, height = '500px' }: SearchM
                   className="mb-2 h-28 w-full rounded object-cover"
                 />
               )}
-              <p className="font-semibold leading-snug text-neutral-900 line-clamp-2">
+              <p className="font-semibold leading-snug text-foreground line-clamp-2">
                 {property.title}
               </p>
-              <p className="mt-0.5 font-bold text-primary-600">
+              <p className="mt-0.5 font-bold text-or">
                 {formatPrice(property.price, property.currency)}
               </p>
               {(property.wilaya || property.city) && (
-                <p className="mt-0.5 text-xs text-neutral-500">
+                <p className="mt-0.5 text-xs text-muted-foreground">
                   {[property.wilaya, property.city].filter(Boolean).join(', ')}
                 </p>
               )}
               <Link
                 href={`/bien/${property.property_id}`}
-                className="mt-2 block rounded-md bg-primary-600 px-3 py-1.5 text-center text-xs font-medium text-white hover:bg-primary-700 transition-colors"
+                className="mt-2 block rounded-md bg-or px-3 py-1.5 text-center text-xs font-medium text-white hover:bg-bleu-nuit/90 transition-colors"
               >
                 Voir le bien
               </Link>

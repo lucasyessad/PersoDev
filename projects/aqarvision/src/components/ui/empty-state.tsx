@@ -27,10 +27,10 @@ export function EmptyState({ icon: Icon, title, description, action }: EmptyStat
       {action && (
         action.href ? (
           <a href={action.href}>
-            <Button variant="primary">{action.label}</Button>
+            <Button variant="default">{action.label}</Button>
           </a>
         ) : (
-          <Button variant="primary" onClick={action.onClick}>
+          <Button variant="default" onClick={action.onClick}>
             {action.label}
           </Button>
         )

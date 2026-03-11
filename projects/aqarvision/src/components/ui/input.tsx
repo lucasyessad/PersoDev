@@ -2,6 +2,7 @@
 
 import { forwardRef, InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import { LucideIcon } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 /* ─── Text Input ─────────────────────────────────── */
 
@@ -38,22 +39,21 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             ref={ref}
             id={inputId}
-            className={[
-              'w-full h-11 px-3.5 py-2.5 rounded-md border text-body-md bg-white',
-              'placeholder:text-neutral-400 text-neutral-900',
+            className={cn(
+              'flex h-11 w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm',
+              'placeholder:text-muted-foreground text-neutral-900',
               'transition-colors duration-150',
-              'focus:outline-none focus:ring-3 focus:ring-primary-100 focus:border-primary-600',
-              'disabled:bg-neutral-100 disabled:text-neutral-400 disabled:cursor-not-allowed',
+              'file:border-0 file:bg-transparent file:text-sm file:font-medium',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+              'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-neutral-100',
               hasError
-                ? 'border-error-600 focus:ring-error-100'
-                : 'border-neutral-300 hover:border-neutral-400',
-              Icon || prefix ? 'pl-10' : '',
-              IconRight ? 'pr-10' : '',
-              prefix ? 'pl-14' : '',
+                ? 'border-error-600 focus-visible:ring-error-100'
+                : 'border-input hover:border-neutral-400',
+              (Icon || prefix) && 'pl-10',
+              IconRight && 'pr-10',
+              prefix && 'pl-14',
               className,
-            ]
-              .filter(Boolean)
-              .join(' ')}
+            )}
             {...props}
           />
           {IconRight && (
@@ -61,7 +61,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           )}
         </div>
         {(error || helper) && (
-          <p className={['text-caption', hasError ? 'text-error-600' : 'text-neutral-500'].join(' ')}>
+          <p className={cn('text-caption', hasError ? 'text-error-600' : 'text-neutral-500')}>
             {error ?? helper}
           </p>
         )}
@@ -95,23 +95,21 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
         <textarea
           ref={ref}
           id={inputId}
-          className={[
-            'w-full min-h-[120px] px-3.5 py-2.5 rounded-md border text-body-md bg-white',
-            'placeholder:text-neutral-400 text-neutral-900 resize-vertical',
+          className={cn(
+            'w-full min-h-[120px] px-3.5 py-2.5 rounded-lg border text-sm bg-white',
+            'placeholder:text-muted-foreground text-neutral-900 resize-vertical',
             'transition-colors duration-150',
-            'focus:outline-none focus:ring-3 focus:ring-primary-100 focus:border-primary-600',
-            'disabled:bg-neutral-100 disabled:text-neutral-400 disabled:cursor-not-allowed',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+            'disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-neutral-100',
             hasError
-              ? 'border-error-600 focus:ring-error-100'
-              : 'border-neutral-300 hover:border-neutral-400',
+              ? 'border-error-600 focus-visible:ring-error-100'
+              : 'border-input hover:border-neutral-400',
             className,
-          ]
-            .filter(Boolean)
-            .join(' ')}
+          )}
           {...props}
         />
         {(error || helper) && (
-          <p className={['text-caption', hasError ? 'text-error-600' : 'text-neutral-500'].join(' ')}>
+          <p className={cn('text-caption', hasError ? 'text-error-600' : 'text-neutral-500')}>
             {error ?? helper}
           </p>
         )}

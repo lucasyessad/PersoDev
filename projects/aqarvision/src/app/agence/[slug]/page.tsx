@@ -105,7 +105,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
               unoptimized
             />
           )}
-          <h1 className="text-display-md sm:text-display-lg font-display text-white">
+          <h1 className="text-display-md sm:text-display-lg font-vitrine text-white">
             {agency.name}
           </h1>
 
@@ -129,7 +129,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
               href={`/agence/${slug}/biens`}
-              className="inline-flex items-center gap-2 h-11 px-6 bg-white text-neutral-900 text-body-sm font-semibold transition-all hover:bg-neutral-100 hover:shadow-lg"
+              className="inline-flex items-center gap-2 h-11 px-6 bg-white text-foreground text-body-sm font-semibold transition-all hover:bg-neutral-100 hover:shadow-lg"
               style={{ borderRadius: 'var(--agency-radius-sm, 0.5rem)' }}
             >
               {t('nav.properties')} <ArrowRight className="h-4 w-4" />
@@ -150,8 +150,8 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
         <section className="mx-auto max-w-7xl px-6 py-16">
           <div className="flex items-center justify-between mb-8">
             <div>
-              <h2 className="text-heading-lg text-neutral-900">{t('properties.featured')}</h2>
-              <p className="mt-1 text-body-sm text-neutral-500">
+              <h2 className="text-heading-lg text-foreground">{t('properties.featured')}</h2>
+              <p className="mt-1 text-body-sm text-muted-foreground">
                 {t('properties.latestFrom', { name: agency.name })}
               </p>
             </div>
@@ -194,14 +194,14 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
                   </span>
                 </div>
                 <div className="p-5">
-                  <h3 className="text-body-sm font-semibold text-neutral-900 line-clamp-1">
+                  <h3 className="text-body-sm font-semibold text-foreground line-clamp-1">
                     {property.title}
                   </h3>
-                  <p className="mt-1 flex items-center gap-1 text-caption text-neutral-400">
+                  <p className="mt-1 flex items-center gap-1 text-caption text-muted-foreground">
                     <MapPin className="h-3 w-3" />
                     {getLocationLabel(property)}
                   </p>
-                  <div className="mt-3 flex items-center gap-3 text-caption text-neutral-500">
+                  <div className="mt-3 flex items-center gap-3 text-caption text-muted-foreground">
                     {property.surface && (
                       <span className="flex items-center gap-1">
                         <Maximize2 className="h-3 w-3" /> {property.surface} m²
@@ -216,7 +216,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
                   <p className="mt-3 text-body-sm font-bold" style={{ color: accentColor }}>
                     {formatPrice(property.price, property.currency)}
                     {property.transaction_type === 'rent' && (
-                      <span className="text-neutral-400 font-normal"> /mois</span>
+                      <span className="text-muted-foreground font-normal"> /mois</span>
                     )}
                   </p>
                 </div>
@@ -241,7 +241,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
         <section className="bg-white border-t border-neutral-200">
           <div className="mx-auto max-w-7xl px-6 py-16">
             <div className="max-w-2xl">
-              <h2 className="text-heading-lg text-neutral-900">
+              <h2 className="text-heading-lg text-foreground">
                 {t('about.heading', { name: agency.name })}
               </h2>
               <div className="mt-3 agency-line" style={{ backgroundColor: accentColor }} />
@@ -266,7 +266,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
           className="p-10 sm:p-14 text-center text-white"
           style={{ backgroundColor: accentColor, borderRadius: 'var(--agency-radius, 1rem)' }}
         >
-          <h2 className="text-heading-lg font-display text-white">
+          <h2 className="text-heading-lg font-vitrine text-white">
             {t('contact.ctaTitle', { name: agency.name })}
           </h2>
           <p className="mt-2 text-body-sm text-white/70 max-w-md mx-auto">
@@ -275,7 +275,7 @@ export default async function AgencyPage({ params }: AgencyPageProps) {
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
             <Link
               href={`/agence/${slug}/contact`}
-              className="inline-flex items-center gap-2 h-11 px-6 bg-white text-neutral-900 text-body-sm font-semibold transition-colors hover:bg-neutral-100"
+              className="inline-flex items-center gap-2 h-11 px-6 bg-white text-foreground text-body-sm font-semibold transition-colors hover:bg-neutral-100"
               style={{ borderRadius: 'var(--agency-radius-sm, 0.5rem)' }}
             >
               {t('contact.sendMessage')}

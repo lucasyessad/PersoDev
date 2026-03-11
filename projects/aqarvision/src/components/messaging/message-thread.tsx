@@ -84,7 +84,7 @@ export function MessageThread({ conversationId, initialMessages, currentUserId }
   if (messages.length === 0) {
     return (
       <div className="flex-1 flex items-center justify-center p-8 text-center">
-        <p className="text-body-sm text-neutral-400">
+        <p className="text-body-sm text-muted-foreground">
           Aucun message. Envoyez le premier message pour démarrer la conversation.
         </p>
       </div>
@@ -98,7 +98,7 @@ export function MessageThread({ conversationId, initialMessages, currentUserId }
           {/* Date separator */}
           <div className="flex items-center gap-3 my-4">
             <div className="flex-1 h-px bg-neutral-100" />
-            <span className="text-caption text-neutral-400 whitespace-nowrap">{group.dateLabel}</span>
+            <span className="text-caption text-muted-foreground whitespace-nowrap">{group.dateLabel}</span>
             <div className="flex-1 h-px bg-neutral-100" />
           </div>
 
@@ -115,14 +115,14 @@ export function MessageThread({ conversationId, initialMessages, currentUserId }
                   <div
                     className={`max-w-[75%] rounded-2xl px-4 py-2.5 ${
                       isMine
-                        ? 'bg-primary-600 text-white rounded-br-sm'
-                        : 'bg-neutral-100 text-neutral-900 rounded-bl-sm'
+                        ? 'bg-or text-white rounded-br-sm'
+                        : 'bg-neutral-100 text-foreground rounded-bl-sm'
                     }`}
                   >
                     <p className="text-body-sm whitespace-pre-wrap break-words">{msg.content}</p>
                     <p
                       className={`text-caption mt-1 ${
-                        isMine ? 'text-primary-200 text-right' : 'text-neutral-400'
+                        isMine ? 'text-primary-200 text-right' : 'text-muted-foreground'
                       }`}
                     >
                       {formatTime(msg.created_at)}

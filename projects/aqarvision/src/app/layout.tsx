@@ -30,6 +30,7 @@ export const metadata: Metadata = {
   },
   description:
     'Plateforme SaaS immobilière multi-agences pour le marché algérien. Créez votre vitrine en ligne en quelques clics.',
+  keywords: ['immobilier', 'algérie', 'agence', 'annonces', 'SaaS'],
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
@@ -44,15 +45,24 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html
       lang="fr"
+      dir="ltr"
       className={`${dmSerifDisplay.variable} ${dmSans.variable} ${jetbrainsMono.variable}`}
     >
-      <body className="font-body antialiased">{children}</body>
+      <body className="font-body antialiased">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:bg-bleu-nuit focus:text-white focus:rounded-lg focus:text-sm"
+        >
+          Aller au contenu principal
+        </a>
+        {children}
+      </body>
     </html>
   );
 }

@@ -64,11 +64,11 @@ export function SearchBar({ variant = 'hero', defaultValues = {} }: SearchBarPro
           value={location}
           onChange={e => setLocation(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="flex-1 px-4 text-body-sm text-neutral-900 placeholder:text-neutral-400 outline-none bg-transparent"
+          className="flex-1 px-4 text-body-sm text-foreground placeholder:text-muted-foreground outline-none bg-transparent"
         />
         <button
           onClick={handleSearch}
-          className="w-10 h-10 m-1 bg-primary-600 rounded-full flex items-center justify-center hover:bg-primary-700 transition-colors shrink-0"
+          className="w-10 h-10 m-1 bg-or rounded-full flex items-center justify-center hover:bg-bleu-nuit/90 transition-colors shrink-0"
           aria-label="Rechercher"
         >
           <Search className="h-4 w-4 text-white" />
@@ -85,13 +85,13 @@ export function SearchBar({ variant = 'hero', defaultValues = {} }: SearchBarPro
         <div
           className={[
             'flex-1 flex items-center gap-2 px-6 cursor-text transition-colors',
-            focused === 'location' ? 'bg-neutral-50' : 'hover:bg-neutral-50',
+            focused === 'location' ? 'bg-muted/50' : 'hover:bg-muted',
           ].join(' ')}
           onClick={() => document.getElementById('search-location')?.focus()}
         >
-          <MapPin className="h-4 w-4 text-neutral-400 shrink-0" />
+          <MapPin className="h-4 w-4 text-muted-foreground shrink-0" />
           <div className="flex flex-col min-w-0 w-full">
-            <span className="text-caption text-neutral-500">Ville ou quartier</span>
+            <span className="text-caption text-muted-foreground">Ville ou quartier</span>
             <input
               id="search-location"
               type="text"
@@ -101,30 +101,30 @@ export function SearchBar({ variant = 'hero', defaultValues = {} }: SearchBarPro
               onKeyDown={handleKeyDown}
               onFocus={() => setFocused('location')}
               onBlur={() => setFocused(null)}
-              className="text-body-sm text-neutral-900 placeholder:text-neutral-400 outline-none bg-transparent w-full"
+              className="text-body-sm text-foreground placeholder:text-muted-foreground outline-none bg-transparent w-full"
             />
           </div>
         </div>
 
         {/* Divider */}
-        <div className="w-px bg-neutral-200 my-3" />
+        <div className="w-px bg-muted my-3" />
 
         {/* Type */}
         <div
           className={[
             'flex items-center gap-2 px-6 transition-colors min-w-[140px]',
-            focused === 'type' ? 'bg-neutral-50' : 'hover:bg-neutral-50',
+            focused === 'type' ? 'bg-muted/50' : 'hover:bg-muted',
           ].join(' ')}
         >
-          <Home className="h-4 w-4 text-neutral-400 shrink-0" />
+          <Home className="h-4 w-4 text-muted-foreground shrink-0" />
           <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-caption text-neutral-500">Type de bien</span>
+            <span className="text-caption text-muted-foreground">Type de bien</span>
             <select
               value={type}
               onChange={e => setType(e.target.value)}
               onFocus={() => setFocused('type')}
               onBlur={() => setFocused(null)}
-              className="text-body-sm text-neutral-900 outline-none bg-transparent appearance-none cursor-pointer w-full"
+              className="text-body-sm text-foreground outline-none bg-transparent appearance-none cursor-pointer w-full"
               style={{ backgroundImage: 'none', paddingRight: 0, minHeight: 0 }}
             >
               {PROPERTY_TYPES.map(t => (
@@ -135,24 +135,24 @@ export function SearchBar({ variant = 'hero', defaultValues = {} }: SearchBarPro
         </div>
 
         {/* Divider */}
-        <div className="w-px bg-neutral-200 my-3" />
+        <div className="w-px bg-muted my-3" />
 
         {/* Budget */}
         <div
           className={[
             'flex items-center gap-2 px-6 transition-colors min-w-[130px]',
-            focused === 'price' ? 'bg-neutral-50' : 'hover:bg-neutral-50',
+            focused === 'price' ? 'bg-muted/50' : 'hover:bg-muted',
           ].join(' ')}
         >
-          <DollarSign className="h-4 w-4 text-neutral-400 shrink-0" />
+          <DollarSign className="h-4 w-4 text-muted-foreground shrink-0" />
           <div className="flex flex-col min-w-0 flex-1">
-            <span className="text-caption text-neutral-500">Budget max</span>
+            <span className="text-caption text-muted-foreground">Budget max</span>
             <select
               value={maxPrice}
               onChange={e => setMaxPrice(e.target.value)}
               onFocus={() => setFocused('price')}
               onBlur={() => setFocused(null)}
-              className="text-body-sm text-neutral-900 outline-none bg-transparent appearance-none cursor-pointer w-full"
+              className="text-body-sm text-foreground outline-none bg-transparent appearance-none cursor-pointer w-full"
               style={{ backgroundImage: 'none', paddingRight: 0, minHeight: 0 }}
             >
               {PRICE_OPTIONS.map(p => (
@@ -166,7 +166,7 @@ export function SearchBar({ variant = 'hero', defaultValues = {} }: SearchBarPro
         <div className="flex items-center pr-2 pl-4">
           <button
             onClick={handleSearch}
-            className="w-12 h-12 bg-primary-600 rounded-full flex items-center justify-center hover:bg-primary-700 active:bg-primary-800 transition-colors shadow-md"
+            className="w-12 h-12 bg-or rounded-full flex items-center justify-center hover:bg-bleu-nuit/90 active:bg-bleu-nuit transition-colors shadow-md"
             aria-label="Rechercher"
           >
             <Search className="h-5 w-5 text-white" />

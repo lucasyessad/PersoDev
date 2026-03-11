@@ -1,39 +1,48 @@
-import { HTMLAttributes } from 'react';
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
-export type BadgeVariant = 'default' | 'primary' | 'success' | 'warning' | 'error' | 'premium' | 'info';
+const badgeVariants = cva(
+  "inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+  {
+    variants: {
+      variant: {
+        default:
+          "border-transparent bg-bleu-nuit text-white",
+        secondary:
+          "border-transparent bg-secondary text-secondary-foreground",
+        destructive:
+          "border-transparent bg-red-50 text-red-700",
+        outline: "text-foreground border-border",
+        success:
+          "border-transparent bg-emerald-50 text-emerald-700",
+        warning:
+          "border-transparent bg-amber-50 text-amber-700",
+        // PersoDev extra variants
+        primary:
+          "border-transparent bg-primary-100 text-primary-700",
+        premium:
+          "border-transparent bg-accent-100 text-accent-600",
+        info:
+          "border-transparent bg-info-100 text-info-600",
+        error:
+          "border-transparent bg-error-100 text-error-600",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+    },
+  }
+);
 
-interface BadgeProps extends HTMLAttributes<HTMLSpanElement> {
-  variant?: BadgeVariant;
-}
+export interface BadgeProps
+  extends React.HTMLAttributes<HTMLDivElement>,
+    VariantProps<typeof badgeVariants> {}
 
-const variantClasses: Record<BadgeVariant, string> = {
-  default: 'bg-neutral-100 text-neutral-700',
-  primary: 'bg-primary-100 text-primary-700',
-  success: 'bg-success-100 text-success-600',
-  warning: 'bg-warning-100 text-warning-600',
-  error:   'bg-error-100 text-error-600',
-  premium: 'bg-accent-100 text-accent-600',
-  info:    'bg-info-100 text-info-600',
-};
-
-export function Badge({
-  variant = 'default',
-  children,
-  className = '',
-  ...props
-}: BadgeProps & { children: React.ReactNode; className?: string }) {
+function Badge({ className, variant, ...props }: BadgeProps) {
   return (
-    <span
-      className={[
-        'inline-flex items-center h-[26px] px-2.5 rounded-full text-caption font-semibold whitespace-nowrap',
-        variantClasses[variant],
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      {...props}
-    >
-      {children}
-    </span>
+    <div className={cn(badgeVariants({ variant }), className)} {...props} />
   );
 }
+
+export { Badge, badgeVariants };

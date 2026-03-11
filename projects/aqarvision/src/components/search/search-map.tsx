@@ -7,7 +7,7 @@ const SearchMapInner = dynamic(() => import('./search-map-inner'), {
   ssr: false,
   loading: () => (
     <div className="w-full h-[500px] bg-neutral-100 animate-pulse rounded-xl flex items-center justify-center">
-      <p className="text-body-sm text-neutral-400">Chargement de la carte...</p>
+      <p className="text-body-sm text-muted-foreground">Chargement de la carte...</p>
     </div>
   ),
 });

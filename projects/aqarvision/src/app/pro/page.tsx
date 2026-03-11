@@ -97,14 +97,14 @@ const PLANS = [
 
 function ProNavbar() {
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-primary-900/95 backdrop-blur-sm border-b border-white/10 h-[72px] flex items-center">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-bleu-nuit/95 backdrop-blur-sm border-b border-white/10 h-[72px] flex items-center">
       <div className="w-full max-w-content-xl mx-auto px-6 lg:px-8 flex items-center justify-between gap-6">
         <Link href="/" className="flex items-center gap-2.5 shrink-0">
-          <div className="w-9 h-9 bg-accent-400/20 border border-accent-400/30 rounded-xl flex items-center justify-center">
-            <Building2 className="h-5 w-5 text-accent-400" />
+          <div className="w-9 h-9 bg-or/20 border border-accent-400/30 rounded-xl flex items-center justify-center">
+            <Building2 className="h-5 w-5 text-or" />
           </div>
           <div className="flex items-center gap-1.5">
-            <span className="font-display text-xl text-white tracking-tight">AqarPro</span>
+            <span className="font-vitrine text-xl text-white tracking-tight">AqarPro</span>
             <span className="text-caption text-white/40">by AqarVision</span>
           </div>
         </Link>
@@ -124,7 +124,7 @@ function ProNavbar() {
           </Link>
           <Link
             href="/signup"
-            className="inline-flex items-center h-9 px-5 bg-accent-400 text-primary-900 text-body-sm font-semibold rounded-lg hover:bg-accent-300 transition-colors"
+            className="inline-flex items-center h-9 px-5 bg-or text-bleu-nuit text-body-sm font-semibold rounded-lg hover:bg-or/90 transition-colors"
           >
             Essai gratuit
           </Link>
@@ -138,15 +138,15 @@ function ProNavbar() {
 
 function ProHero() {
   return (
-    <section className="relative pt-[72px] bg-primary-900 overflow-hidden">
+    <section className="relative pt-[72px] bg-bleu-nuit overflow-hidden">
       <div className="max-w-content mx-auto px-6 py-24 text-center">
-        <div className="inline-flex items-center gap-2 bg-accent-400/10 border border-accent-400/20 rounded-full px-4 py-1.5 mb-6">
-          <span className="text-caption text-accent-400 font-semibold">{TRIAL_DURATION_DAYS} jours d&apos;essai gratuit — sans engagement</span>
+        <div className="inline-flex items-center gap-2 bg-or/10 border border-accent-400/20 rounded-full px-4 py-1.5 mb-6">
+          <span className="text-caption text-or font-semibold">{TRIAL_DURATION_DAYS} jours d&apos;essai gratuit — sans engagement</span>
         </div>
 
-        <h1 className="font-display text-display-xl text-white mb-5 leading-tight max-w-3xl mx-auto">
+        <h1 className="font-vitrine text-display-xl text-white mb-5 leading-tight max-w-3xl mx-auto">
           Le tableau de bord<br />
-          <span className="text-accent-400">que votre agence mérite</span>
+          <span className="text-or">que votre agence mérite</span>
         </h1>
 
         <p className="text-body-lg text-white/50 max-w-xl mx-auto mb-10">
@@ -157,7 +157,7 @@ function ProHero() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/signup"
-            className="inline-flex items-center gap-2 h-12 px-8 bg-accent-400 text-primary-900 text-body-sm font-semibold rounded-lg hover:bg-accent-300 transition-colors"
+            className="inline-flex items-center gap-2 h-12 px-8 bg-or text-bleu-nuit text-body-sm font-semibold rounded-lg hover:bg-or/90 transition-colors"
           >
             Créer mon agence gratuitement <ArrowRight className="h-4 w-4" />
           </Link>
@@ -177,7 +177,7 @@ function ProHero() {
             { value: '48', label: 'Wilayas' },
           ].map(s => (
             <div key={s.label} className="text-center">
-              <div className="font-display text-heading-lg text-accent-400">{s.value}</div>
+              <div className="font-vitrine text-heading-lg text-or">{s.value}</div>
               <div className="text-caption text-white/40">{s.label}</div>
             </div>
           ))}
@@ -194,11 +194,11 @@ function ProFeatures() {
     <section id="features" className="py-24 px-6 bg-white">
       <div className="max-w-content-xl mx-auto">
         <div className="text-center max-w-xl mx-auto mb-16">
-          <span className="text-caption font-bold text-accent-600 uppercase tracking-widest mb-3 block">Fonctionnalités</span>
-          <h2 className="font-display text-display-md text-primary-900 mb-4">
+          <span className="text-caption font-bold text-or uppercase tracking-widest mb-3 block">Fonctionnalités</span>
+          <h2 className="font-vitrine text-display-md text-bleu-nuit mb-4">
             Tout ce dont votre agence a besoin
           </h2>
-          <p className="text-body-lg text-neutral-500">
+          <p className="text-body-lg text-muted-foreground">
             Un outil complet pour gérer votre activité immobilière au quotidien,
             du premier contact à la signature.
           </p>
@@ -211,11 +211,11 @@ function ProFeatures() {
               className="flex gap-4 p-6 rounded-xl border border-neutral-100 hover:border-accent-300 hover:shadow-md transition-all"
             >
               <div className="w-10 h-10 bg-accent-100 rounded-xl flex items-center justify-center shrink-0">
-                <Icon className="h-5 w-5 text-accent-600" />
+                <Icon className="h-5 w-5 text-or" />
               </div>
               <div>
-                <h3 className="text-heading-sm text-primary-900 mb-1">{title}</h3>
-                <p className="text-body-sm text-neutral-500">{desc}</p>
+                <h3 className="text-heading-sm text-bleu-nuit mb-1">{title}</h3>
+                <p className="text-body-sm text-muted-foreground">{desc}</p>
               </div>
             </div>
           ))}
@@ -237,11 +237,11 @@ function ProPricing() {
     <section id="pricing" className="py-24 px-6 bg-neutral-50">
       <div className="max-w-content mx-auto">
         <div className="text-center max-w-xl mx-auto mb-16">
-          <span className="text-caption font-bold text-accent-600 uppercase tracking-widest mb-3 block">Tarifs</span>
-          <h2 className="font-display text-display-md text-primary-900 mb-4">
+          <span className="text-caption font-bold text-or uppercase tracking-widest mb-3 block">Tarifs</span>
+          <h2 className="font-vitrine text-display-md text-bleu-nuit mb-4">
             Des plans adaptés à chaque agence
           </h2>
-          <p className="text-body-lg text-neutral-500">
+          <p className="text-body-lg text-muted-foreground">
             Commencez gratuitement avec {TRIAL_DURATION_DAYS} jours d&apos;essai sur le plan Pro. Aucun engagement, aucune carte requise.
           </p>
         </div>
@@ -263,19 +263,19 @@ function ProPricing() {
                 ].join(' ')}
               >
                 {popular && (
-                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-accent-400 text-primary-900 text-caption font-bold px-4 py-1 rounded-full">
+                  <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-or text-bleu-nuit text-caption font-bold px-4 py-1 rounded-full">
                     Populaire
                   </div>
                 )}
 
-                <h3 className="font-display text-heading-lg text-primary-900 mb-1">{config.name}</h3>
-                <p className="text-body-sm text-neutral-500 mb-6">{config.description}</p>
+                <h3 className="font-vitrine text-heading-lg text-bleu-nuit mb-1">{config.name}</h3>
+                <p className="text-body-sm text-muted-foreground mb-6">{config.description}</p>
 
                 <div className="mb-6">
-                  <span className="font-display text-display-sm text-primary-900">
+                  <span className="font-vitrine text-display-sm text-bleu-nuit">
                     {formatPrice(price)}
                   </span>
-                  {price > 0 && <span className="text-body-sm text-neutral-400 ml-1">DA/mois</span>}
+                  {price > 0 && <span className="text-body-sm text-muted-foreground ml-1">DA/mois</span>}
                 </div>
 
                 <ul className="flex flex-col gap-3 mb-8 flex-1">
@@ -293,19 +293,19 @@ function ProPricing() {
                   </li>
                   <li className="flex items-center gap-2 text-body-sm text-neutral-700">
                     <CheckCircle2 className={`h-4 w-4 shrink-0 ${limits.advancedAnalytics ? 'text-accent-500' : 'text-neutral-300'}`} />
-                    <span className={limits.advancedAnalytics ? '' : 'text-neutral-400'}>Analytics avancés</span>
+                    <span className={limits.advancedAnalytics ? '' : 'text-muted-foreground'}>Analytics avancés</span>
                   </li>
                   <li className="flex items-center gap-2 text-body-sm text-neutral-700">
                     <CheckCircle2 className={`h-4 w-4 shrink-0 ${limits.exportLeads ? 'text-accent-500' : 'text-neutral-300'}`} />
-                    <span className={limits.exportLeads ? '' : 'text-neutral-400'}>Export CSV</span>
+                    <span className={limits.exportLeads ? '' : 'text-muted-foreground'}>Export CSV</span>
                   </li>
                   <li className="flex items-center gap-2 text-body-sm text-neutral-700">
                     <CheckCircle2 className={`h-4 w-4 shrink-0 ${limits.luxuryBranding ? 'text-accent-500' : 'text-neutral-300'}`} />
-                    <span className={limits.luxuryBranding ? '' : 'text-neutral-400'}>Branding luxury</span>
+                    <span className={limits.luxuryBranding ? '' : 'text-muted-foreground'}>Branding luxury</span>
                   </li>
                   <li className="flex items-center gap-2 text-body-sm text-neutral-700">
                     <CheckCircle2 className={`h-4 w-4 shrink-0 ${limits.customDomain ? 'text-accent-500' : 'text-neutral-300'}`} />
-                    <span className={limits.customDomain ? '' : 'text-neutral-400'}>Domaine personnalisé</span>
+                    <span className={limits.customDomain ? '' : 'text-muted-foreground'}>Domaine personnalisé</span>
                   </li>
                 </ul>
 
@@ -314,7 +314,7 @@ function ProPricing() {
                   className={[
                     'inline-flex items-center justify-center gap-2 h-11 px-6 text-body-sm font-semibold rounded-xl transition-colors',
                     popular
-                      ? 'bg-accent-400 text-primary-900 hover:bg-accent-300'
+                      ? 'bg-or text-bleu-nuit hover:bg-or/90'
                       : 'border border-neutral-300 text-neutral-700 hover:bg-neutral-50',
                   ].join(' ')}
                 >
@@ -326,7 +326,7 @@ function ProPricing() {
           })}
         </div>
 
-        <p className="text-center text-body-sm text-neutral-400 mt-8">
+        <p className="text-center text-body-sm text-muted-foreground mt-8">
           Paiement par CCP, BaridiMob, Dahabia ou virement bancaire. Remise de 10% au trimestre, 20% à l&apos;année.
         </p>
       </div>
@@ -364,8 +364,8 @@ function ProFAQ() {
     <section id="faq" className="py-24 px-6 bg-white">
       <div className="max-w-content mx-auto max-w-2xl">
         <div className="text-center mb-16">
-          <span className="text-caption font-bold text-accent-600 uppercase tracking-widest mb-3 block">FAQ</span>
-          <h2 className="font-display text-display-md text-primary-900">
+          <span className="text-caption font-bold text-or uppercase tracking-widest mb-3 block">FAQ</span>
+          <h2 className="font-vitrine text-display-md text-bleu-nuit">
             Questions fréquentes
           </h2>
         </div>
@@ -373,8 +373,8 @@ function ProFAQ() {
         <div className="flex flex-col gap-6">
           {FAQ_ITEMS.map(({ q, a }) => (
             <div key={q} className="border-b border-neutral-100 pb-6">
-              <h3 className="text-heading-sm text-primary-900 mb-2">{q}</h3>
-              <p className="text-body-md text-neutral-500">{a}</p>
+              <h3 className="text-heading-sm text-bleu-nuit mb-2">{q}</h3>
+              <p className="text-body-md text-muted-foreground">{a}</p>
             </div>
           ))}
         </div>
@@ -387,9 +387,9 @@ function ProFAQ() {
 
 function ProCTA() {
   return (
-    <section className="py-20 px-6 bg-primary-900">
+    <section className="py-20 px-6 bg-bleu-nuit">
       <div className="max-w-content mx-auto text-center">
-        <h2 className="font-display text-display-md text-white mb-4">
+        <h2 className="font-vitrine text-display-md text-white mb-4">
           Prêt à développer votre agence ?
         </h2>
         <p className="text-body-lg text-white/50 max-w-lg mx-auto mb-8">
@@ -399,7 +399,7 @@ function ProCTA() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link
             href="/signup"
-            className="inline-flex items-center gap-2 h-12 px-8 bg-accent-400 text-primary-900 text-body-sm font-semibold rounded-lg hover:bg-accent-300 transition-colors"
+            className="inline-flex items-center gap-2 h-12 px-8 bg-or text-bleu-nuit text-body-sm font-semibold rounded-lg hover:bg-or/90 transition-colors"
           >
             Commencer gratuitement <ArrowRight className="h-4 w-4" />
           </Link>
@@ -419,16 +419,16 @@ function ProCTA() {
 
 function ProFooter() {
   return (
-    <footer className="bg-primary-900 border-t border-white/5 py-10 px-6">
+    <footer className="bg-bleu-nuit border-t border-white/5 py-10 px-6">
       <div className="max-w-content-xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 bg-primary-800 rounded-lg flex items-center justify-center">
-            <Building2 className="h-4 w-4 text-accent-400" />
+          <div className="w-7 h-7 bg-bleu-nuit rounded-lg flex items-center justify-center">
+            <Building2 className="h-4 w-4 text-or" />
           </div>
-          <span className="font-display text-white text-sm">AqarPro</span>
+          <span className="font-vitrine text-white text-sm">AqarPro</span>
           <span className="text-caption text-white/30">by AqarVision</span>
         </div>
-        <div className="flex items-center gap-4 text-body-sm text-neutral-500">
+        <div className="flex items-center gap-4 text-body-sm text-muted-foreground">
           <Link href="/" className="hover:text-white transition-colors">AqarSearch</Link>
           <Link href="/agences" className="hover:text-white transition-colors">Annuaire</Link>
           <Link href="#" className="hover:text-white transition-colors">Confidentialité</Link>

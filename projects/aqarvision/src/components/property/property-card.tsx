@@ -232,16 +232,16 @@ export function PropertyCard({
             {statusBadge}
           </div>
           <div>
-            <p className="font-mono text-price-sm text-neutral-900">{formatPrice(price, currency)}</p>
-            <h3 className="text-heading-sm text-neutral-900 mt-1 line-clamp-2">{title}</h3>
-            <p className="flex items-center gap-1 text-body-sm text-neutral-500 mt-1">
+            <p className="font-mono text-price-sm text-foreground">{formatPrice(price, currency)}</p>
+            <h3 className="text-heading-sm text-foreground mt-1 line-clamp-2">{title}</h3>
+            <p className="flex items-center gap-1 text-body-sm text-muted-foreground mt-1">
               <MapPin className="h-3.5 w-3.5" />
               {location}
             </p>
           </div>
-          {specs && <p className="text-body-sm text-neutral-500">{specs}</p>}
+          {specs && <p className="text-body-sm text-muted-foreground">{specs}</p>}
           {agency && (
-            <p className="text-caption text-neutral-400">{agency.name}</p>
+            <p className="text-caption text-muted-foreground">{agency.name}</p>
           )}
         </div>
       </Link>
@@ -254,7 +254,7 @@ export function PropertyCard({
       <Link
         href={cardHref}
         className={[
-          'group flex items-center gap-3 p-3 rounded-lg hover:bg-neutral-50 transition-colors',
+          'group flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors',
           className,
         ].join(' ')}
       >
@@ -264,9 +264,9 @@ export function PropertyCard({
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-mono text-price-sm text-neutral-900">{formatPrice(price, currency)}</p>
+          <p className="font-mono text-price-sm text-foreground">{formatPrice(price, currency)}</p>
           <p className="text-body-sm text-neutral-700 truncate">{title}</p>
-          <p className="text-caption text-neutral-500">{location}</p>
+          <p className="text-caption text-muted-foreground">{location}</p>
         </div>
         {statusBadge}
       </Link>
@@ -317,24 +317,24 @@ export function PropertyCard({
       {/* Content */}
       <div className="flex flex-col gap-1.5 p-4">
         {/* Price */}
-        <p className={['font-mono text-neutral-900', isMiniSite ? 'text-price text-accent-600' : 'text-price-sm'].join(' ')}>
+        <p className={['font-mono text-foreground', isMiniSite ? 'text-price text-accent-600' : 'text-price-sm'].join(' ')}>
           {formatPrice(price, currency)}
         </p>
 
         {/* Title */}
-        <h3 className={['text-neutral-900 line-clamp-2', isMiniSite ? 'text-heading-md' : 'text-heading-sm'].join(' ')}>
+        <h3 className={['text-foreground line-clamp-2', isMiniSite ? 'text-heading-md' : 'text-heading-sm'].join(' ')}>
           {title}
         </h3>
 
         {/* Location */}
-        <p className="flex items-center gap-1 text-body-sm text-neutral-500">
+        <p className="flex items-center gap-1 text-body-sm text-muted-foreground">
           <MapPin className="h-3.5 w-3.5 shrink-0" />
           {city ? `${location}, ${city}` : location}
         </p>
 
         {/* Specs */}
         {specs && (
-          <div className="flex items-center gap-3 text-body-sm text-neutral-500 pt-0.5">
+          <div className="flex items-center gap-3 text-body-sm text-muted-foreground pt-0.5">
             {bedrooms != null && (
               <span className="flex items-center gap-1">
                 <BedDouble className="h-3.5 w-3.5" />
@@ -364,7 +364,7 @@ export function PropertyCard({
                 <Image src={agency.logo} alt={agency.name} fill className="object-contain" sizes="20px" />
               </div>
             )}
-            <p className="text-caption text-neutral-400">{agency.name}</p>
+            <p className="text-caption text-muted-foreground">{agency.name}</p>
           </div>
         )}
       </div>

@@ -23,12 +23,12 @@ export default async function ProfilPage() {
       {/* Header */}
       <header className="border-b border-neutral-200 bg-white">
         <div className="mx-auto max-w-3xl px-6 py-5">
-          <nav className="mb-1 flex items-center gap-2 text-caption text-neutral-400">
+          <nav className="mb-1 flex items-center gap-2 text-caption text-muted-foreground">
             <Link href="/" className="hover:text-neutral-600 transition-colors">Accueil</Link>
             <span>/</span>
             <span className="text-neutral-600">Mon profil</span>
           </nav>
-          <h1 className="text-heading-lg text-neutral-900">Mon profil</h1>
+          <h1 className="text-heading-lg text-foreground">Mon profil</h1>
         </div>
       </header>
 
@@ -54,22 +54,22 @@ export default async function ProfilPage() {
 
             {/* Info summary */}
             <div className="min-w-0 flex-1">
-              <h2 className="text-heading-sm text-neutral-900 truncate">
+              <h2 className="text-heading-sm text-foreground truncate">
                 {profile?.full_name ?? 'Utilisateur'}
               </h2>
               <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-                <span className="flex items-center gap-1.5 text-body-sm text-neutral-500">
+                <span className="flex items-center gap-1.5 text-body-sm text-muted-foreground">
                   <Mail className="h-3.5 w-3.5" />
                   {user.email}
                 </span>
                 {profile?.phone && (
-                  <span className="flex items-center gap-1.5 text-body-sm text-neutral-500">
+                  <span className="flex items-center gap-1.5 text-body-sm text-muted-foreground">
                     <Phone className="h-3.5 w-3.5" />
                     {profile.phone}
                   </span>
                 )}
                 {profile?.wilaya && (
-                  <span className="flex items-center gap-1.5 text-body-sm text-neutral-500">
+                  <span className="flex items-center gap-1.5 text-body-sm text-muted-foreground">
                     <MapPin className="h-3.5 w-3.5" />
                     {profile.wilaya}
                   </span>
@@ -81,7 +81,7 @@ export default async function ProfilPage() {
 
         {/* Edit form */}
         <div className="rounded-xl border border-neutral-200 bg-white p-6">
-          <h2 className="mb-5 text-heading-sm text-neutral-900">Informations personnelles</h2>
+          <h2 className="mb-5 text-heading-sm text-foreground">Informations personnelles</h2>
           <ProfileForm
             initialValues={{
               full_name: profile?.full_name,
@@ -100,8 +100,8 @@ export default async function ProfilPage() {
                 <Shield className="h-5 w-5 text-neutral-600" />
               </div>
               <div>
-                <p className="text-body-md font-medium text-neutral-900">Sécurité du compte</p>
-                <p className="text-body-sm text-neutral-500">Gérez votre mot de passe et la sécurité</p>
+                <p className="text-body-md font-medium text-foreground">Sécurité du compte</p>
+                <p className="text-body-sm text-muted-foreground">Gérez votre mot de passe et la sécurité</p>
               </div>
             </div>
             <Link

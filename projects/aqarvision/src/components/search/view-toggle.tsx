@@ -17,8 +17,8 @@ export function ViewToggle({ mode, onChange }: ViewToggleProps) {
         onClick={() => onChange('list')}
         className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-body-sm font-medium transition-colors ${
           mode === 'list'
-            ? 'bg-primary-600 text-white shadow-sm'
-            : 'text-neutral-500 hover:text-neutral-700'
+            ? 'bg-or text-white shadow-sm'
+            : 'text-muted-foreground hover:text-neutral-700'
         }`}
         aria-pressed={mode === 'list'}
         aria-label="Vue liste"
@@ -31,8 +31,8 @@ export function ViewToggle({ mode, onChange }: ViewToggleProps) {
         onClick={() => onChange('map')}
         className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-body-sm font-medium transition-colors ${
           mode === 'map'
-            ? 'bg-primary-600 text-white shadow-sm'
-            : 'text-neutral-500 hover:text-neutral-700'
+            ? 'bg-or text-white shadow-sm'
+            : 'text-muted-foreground hover:text-neutral-700'
         }`}
         aria-pressed={mode === 'map'}
         aria-label="Vue carte"

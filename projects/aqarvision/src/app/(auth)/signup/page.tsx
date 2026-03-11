@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/browser';
+import { Building2 } from 'lucide-react';
 
 type Mode = 'agency' | 'user';
 
@@ -11,37 +12,40 @@ export default function SignupPage() {
   const [mode, setMode] = useState<Mode>('user');
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4 py-12">
+    <div className="flex min-h-screen items-center justify-center bg-blanc-casse px-4 py-12">
       <div className="w-full max-w-md space-y-8">
         {/* Logo */}
         <div className="text-center">
-          <Link href="/" className="text-2xl font-bold text-blue-600">AqarVision</Link>
-          <p className="mt-1 text-sm text-gray-500">Créez votre compte</p>
+          <Link href="/" className="inline-flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-bleu-nuit rounded-xl flex items-center justify-center shadow-sm">
+              <Building2 className="h-5 w-5 text-or" />
+            </div>
+            <span className="font-vitrine text-2xl text-bleu-nuit tracking-tight">AqarVision</span>
+          </Link>
+          <p className="mt-2 text-sm text-muted-foreground">Créez votre compte</p>
         </div>
 
         {/* Tab switcher */}
-        <div className="flex rounded-lg border border-gray-200 bg-white p-1 shadow-sm">
+        <div className="relative z-10 flex rounded-lg border border-border bg-white p-1 shadow-soft">
           <button
             type="button"
             onClick={() => setMode('user')}
-            className={[
-              'flex-1 rounded-md py-2 text-sm font-medium transition-colors',
+            className={`flex-1 rounded-md py-2 text-sm font-medium cursor-pointer transition-colors ${
               mode === 'user'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900',
-            ].join(' ')}
+                ? 'bg-bleu-nuit text-white shadow-sm'
+                : 'text-gray-500 hover:text-gray-900'
+            }`}
           >
             Je cherche un bien
           </button>
           <button
             type="button"
             onClick={() => setMode('agency')}
-            className={[
-              'flex-1 rounded-md py-2 text-sm font-medium transition-colors',
+            className={`flex-1 rounded-md py-2 text-sm font-medium cursor-pointer transition-colors ${
               mode === 'agency'
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'text-gray-600 hover:text-gray-900',
-            ].join(' ')}
+                ? 'bg-or text-white shadow-sm'
+                : 'text-gray-500 hover:text-gray-900'
+            }`}
           >
             Je suis une agence
           </button>
@@ -50,9 +54,9 @@ export default function SignupPage() {
         {/* Forms */}
         {mode === 'user' ? <UserSignupForm /> : <AgencySignupForm />}
 
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-muted-foreground">
           Déjà un compte ?{' '}
-          <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
+          <Link href="/login" className="font-medium text-or hover:text-or/80 transition-colors">
             Se connecter
           </Link>
         </p>
@@ -113,8 +117,8 @@ function UserSignupForm() {
   if (success) return <SuccessCard />;
 
   return (
-    <div className="rounded-xl bg-white p-8 shadow-sm space-y-5">
-      <div className="rounded-lg bg-blue-50 px-4 py-3 text-sm text-blue-800">
+    <div className="rounded-xl bg-white p-8 shadow-card space-y-5">
+      <div className="rounded-lg bg-bleu-nuit/5 px-4 py-3 text-sm text-bleu-nuit">
         Créez un compte gratuit pour sauvegarder vos favoris, activer des alertes et contacter les agences.
       </div>
 
@@ -126,7 +130,7 @@ function UserSignupForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="fullName" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="fullName" className="mb-1 block text-sm font-medium text-foreground">
             Nom complet
           </label>
           <input
@@ -135,13 +139,13 @@ function UserSignupForm() {
             type="text"
             required
             autoComplete="name"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-or focus:outline-none focus:ring-1 focus:ring-or transition-colors"
             placeholder="Ahmed Benali"
           />
         </div>
 
         <div>
-          <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="email" className="mb-1 block text-sm font-medium text-foreground">
             Email
           </label>
           <input
@@ -150,13 +154,13 @@ function UserSignupForm() {
             type="email"
             required
             autoComplete="email"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-or focus:outline-none focus:ring-1 focus:ring-or transition-colors"
             placeholder="vous@exemple.dz"
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="password" className="mb-1 block text-sm font-medium text-foreground">
             Mot de passe
           </label>
           <input
@@ -166,13 +170,13 @@ function UserSignupForm() {
             required
             autoComplete="new-password"
             minLength={6}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-or focus:outline-none focus:ring-1 focus:ring-or transition-colors"
             placeholder="Minimum 6 caractères"
           />
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="confirmPassword" className="mb-1 block text-sm font-medium text-foreground">
             Confirmer le mot de passe
           </label>
           <input
@@ -182,7 +186,7 @@ function UserSignupForm() {
             required
             autoComplete="new-password"
             minLength={6}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-or focus:outline-none focus:ring-1 focus:ring-or transition-colors"
             placeholder="••••••••"
           />
         </div>
@@ -190,7 +194,7 @@ function UserSignupForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="w-full rounded-lg bg-bleu-nuit py-2.5 text-sm font-semibold text-white transition-colors hover:bg-bleu-nuit/90 disabled:opacity-50"
         >
           {isPending ? 'Création...' : 'Créer mon compte'}
         </button>
@@ -281,8 +285,8 @@ function AgencySignupForm() {
   if (success) return <SuccessCard />;
 
   return (
-    <div className="rounded-xl bg-white p-8 shadow-sm space-y-5">
-      <div className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
+    <div className="rounded-xl bg-white p-8 shadow-card space-y-5">
+      <div className="rounded-lg bg-or/10 px-4 py-3 text-sm text-or">
         Créez votre vitrine agence et publiez vos annonces immobilières dès aujourd&apos;hui.
       </div>
 
@@ -294,7 +298,7 @@ function AgencySignupForm() {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="agencyName" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="agencyName" className="mb-1 block text-sm font-medium text-foreground">
             Nom de votre agence
           </label>
           <input
@@ -303,13 +307,13 @@ function AgencySignupForm() {
             type="text"
             required
             minLength={2}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-or focus:outline-none focus:ring-1 focus:ring-or transition-colors"
             placeholder="Mon Agence Immobilière"
           />
         </div>
 
         <div>
-          <label htmlFor="agencyEmail" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="agencyEmail" className="mb-1 block text-sm font-medium text-foreground">
             Email professionnel
           </label>
           <input
@@ -318,13 +322,13 @@ function AgencySignupForm() {
             type="email"
             required
             autoComplete="email"
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-or focus:outline-none focus:ring-1 focus:ring-or transition-colors"
             placeholder="contact@agence.dz"
           />
         </div>
 
         <div>
-          <label htmlFor="agencyPassword" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="agencyPassword" className="mb-1 block text-sm font-medium text-foreground">
             Mot de passe
           </label>
           <input
@@ -334,13 +338,13 @@ function AgencySignupForm() {
             required
             autoComplete="new-password"
             minLength={6}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-or focus:outline-none focus:ring-1 focus:ring-or transition-colors"
             placeholder="Minimum 6 caractères"
           />
         </div>
 
         <div>
-          <label htmlFor="agencyConfirmPassword" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="agencyConfirmPassword" className="mb-1 block text-sm font-medium text-foreground">
             Confirmer le mot de passe
           </label>
           <input
@@ -350,7 +354,7 @@ function AgencySignupForm() {
             required
             autoComplete="new-password"
             minLength={6}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg border border-border px-3 py-2.5 text-sm text-foreground focus:border-or focus:outline-none focus:ring-1 focus:ring-or transition-colors"
             placeholder="••••••••"
           />
         </div>
@@ -358,7 +362,7 @@ function AgencySignupForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full rounded-lg bg-blue-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700 disabled:opacity-50"
+          className="w-full rounded-lg bg-or py-2.5 text-sm font-semibold text-white transition-colors hover:bg-or/90 disabled:opacity-50"
         >
           {isPending ? 'Création en cours...' : 'Créer mon agence'}
         </button>
@@ -371,19 +375,19 @@ function AgencySignupForm() {
 
 function SuccessCard() {
   return (
-    <div className="rounded-xl bg-white p-8 text-center shadow-sm">
+    <div className="rounded-xl bg-white p-8 text-center shadow-card">
       <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100">
         <svg className="h-7 w-7 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
         </svg>
       </div>
-      <h2 className="text-lg font-bold text-gray-900">Vérifiez votre email</h2>
-      <p className="mt-2 text-sm text-gray-600">
+      <h2 className="text-lg font-bold text-foreground">Vérifiez votre email</h2>
+      <p className="mt-2 text-sm text-muted-foreground">
         Un lien de confirmation a été envoyé. Cliquez dessus pour activer votre compte.
       </p>
       <Link
         href="/login"
-        className="mt-5 inline-block text-sm font-medium text-blue-600 hover:text-blue-500"
+        className="mt-5 inline-block text-sm font-medium text-or hover:text-or/80 transition-colors"
       >
         Retour à la connexion
       </Link>

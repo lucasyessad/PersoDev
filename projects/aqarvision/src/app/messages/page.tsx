@@ -24,18 +24,18 @@ export default async function MessagesPage() {
       <header className="bg-white border-b border-neutral-200">
         <div className="max-w-[1440px] mx-auto px-6 py-5 flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
+            <div className="w-7 h-7 bg-or rounded-lg flex items-center justify-center">
               <Building2 className="h-4 w-4 text-white" />
             </div>
-            <span className="font-display text-lg text-primary-900">Aqar</span>
+            <span className="font-vitrine text-lg text-bleu-nuit">Aqar</span>
           </Link>
           <div className="border-l border-neutral-200 h-5" />
           <div className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-neutral-500" />
-            <h1 className="font-display text-heading-md text-neutral-900">Mes messages</h1>
+            <MessageSquare className="h-5 w-5 text-muted-foreground" />
+            <h1 className="font-vitrine text-heading-md text-foreground">Mes messages</h1>
           </div>
           {conversations.length > 0 && (
-            <span className="text-body-sm text-neutral-500">
+            <span className="text-body-sm text-muted-foreground">
               {conversations.length} conversation{conversations.length !== 1 ? 's' : ''}
             </span>
           )}

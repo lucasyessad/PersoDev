@@ -62,9 +62,9 @@ export function ContactCard({
     <div className="bg-white border border-neutral-200 rounded-xl shadow-lg p-6 flex flex-col gap-5">
       {/* Price */}
       <div>
-        <p className="font-mono text-price text-neutral-900">{formatPrice(price, currency)}</p>
+        <p className="font-mono text-price text-foreground">{formatPrice(price, currency)}</p>
         {pricePerM2 && (
-          <p className="text-body-sm text-neutral-500 mt-0.5">
+          <p className="text-body-sm text-muted-foreground mt-0.5">
             ~{formatPrice(pricePerM2, currency)}/m²
           </p>
         )}
@@ -73,7 +73,7 @@ export function ContactCard({
       {sent ? (
         <div className="text-center py-4">
           <div className="text-success-600 text-heading-sm mb-2">✓ Message envoyé !</div>
-          <p className="text-body-sm text-neutral-500">L&apos;agence vous contactera très prochainement.</p>
+          <p className="text-body-sm text-muted-foreground">L&apos;agence vous contactera très prochainement.</p>
         </div>
       ) : (
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
@@ -103,13 +103,13 @@ export function ContactCard({
             className="min-h-[100px]"
           />
 
-          <Button type="submit" variant="primary" fullWidth loading={loading}>
-            Envoyer un message
+          <Button type="submit" variant="default" className="w-full" disabled={loading}>
+            {loading ? 'Envoi...' : 'Envoyer un message'}
           </Button>
 
           {agency?.phone && (
             <a href={`tel:${agency.phone}`}>
-              <Button type="button" variant="secondary" fullWidth>
+              <Button type="button" variant="secondary" className="w-full">
                 <Phone className="h-4 w-4" />
                 Appeler l&apos;agence
               </Button>
@@ -127,9 +127,9 @@ export function ContactCard({
             </div>
           )}
           <div>
-            <p className="text-body-sm font-medium text-neutral-900">{agency.name}</p>
+            <p className="text-body-sm font-medium text-foreground">{agency.name}</p>
             {agency.agentName && (
-              <p className="text-caption text-neutral-500">Agent : {agency.agentName}</p>
+              <p className="text-caption text-muted-foreground">Agent : {agency.agentName}</p>
             )}
           </div>
         </div>
@@ -152,11 +152,11 @@ export function ContactBottomBar({
   return (
     <div className="fixed bottom-0 left-0 right-0 z-30 bg-white border-t border-neutral-200 px-4 py-3 flex items-center justify-between sm:hidden">
       <div>
-        <p className="font-mono text-price-sm text-neutral-900">
+        <p className="font-mono text-price-sm text-foreground">
           {price.toLocaleString('fr-FR')} {currency}
         </p>
       </div>
-      <Button variant="primary" onClick={onContactClick}>
+      <Button variant="default" onClick={onContactClick}>
         Contacter
       </Button>
     </div>

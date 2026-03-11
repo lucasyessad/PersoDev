@@ -64,7 +64,7 @@ export function CompareButton({ propertyId, title }: CompareButtonProps) {
         <button
           disabled
           aria-label="Maximum 4 biens"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 text-neutral-400 cursor-not-allowed border border-neutral-200"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium bg-neutral-100 text-muted-foreground cursor-not-allowed border border-neutral-200"
         >
           <Scale className="h-3.5 w-3.5" />
           Comparer
@@ -83,8 +83,8 @@ export function CompareButton({ propertyId, title }: CompareButtonProps) {
       className={[
         'flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors',
         selected
-          ? 'bg-primary-600 text-white border-primary-600 hover:bg-primary-700'
-          : 'bg-white text-neutral-600 border-neutral-300 hover:bg-neutral-50',
+          ? 'bg-or text-white border-or hover:bg-bleu-nuit/90'
+          : 'bg-white text-neutral-600 border-neutral-300 hover:bg-muted',
       ].join(' ')}
     >
       <Scale className="h-3.5 w-3.5" />

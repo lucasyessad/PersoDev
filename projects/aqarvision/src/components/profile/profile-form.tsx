@@ -74,7 +74,7 @@ export function ProfileForm({ initialValues }: ProfileFormProps) {
           type="text"
           maxLength={100}
           defaultValue={initialValues?.full_name ?? ''}
-          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-foreground placeholder:text-muted-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           placeholder="Votre nom complet"
         />
       </div>
@@ -89,7 +89,7 @@ export function ProfileForm({ initialValues }: ProfileFormProps) {
           type="tel"
           maxLength={20}
           defaultValue={initialValues?.phone ?? ''}
-          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-neutral-900 placeholder:text-neutral-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-foreground placeholder:text-muted-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
           placeholder="+213 5XX XX XX XX"
         />
       </div>
@@ -102,7 +102,7 @@ export function ProfileForm({ initialValues }: ProfileFormProps) {
           id="wilaya"
           name="wilaya"
           defaultValue={initialValues?.wilaya ?? ''}
-          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-neutral-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
         >
           <option value="">Sélectionner une wilaya</option>
           {WILAYAS.map((w) => (
@@ -119,7 +119,7 @@ export function ProfileForm({ initialValues }: ProfileFormProps) {
           id="locale"
           name="locale"
           defaultValue={initialValues?.locale ?? 'fr'}
-          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-neutral-900 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
+          className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-body-md text-foreground focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
         >
           <option value="fr">Français</option>
           <option value="ar">العربية</option>
@@ -130,7 +130,7 @@ export function ProfileForm({ initialValues }: ProfileFormProps) {
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-lg bg-primary-600 px-5 py-2.5 text-body-sm font-semibold text-white transition-colors hover:bg-primary-700 disabled:opacity-50"
+          className="rounded-lg bg-or px-5 py-2.5 text-body-sm font-semibold text-white transition-colors hover:bg-bleu-nuit/90 disabled:opacity-50"
         >
           {isPending ? 'Enregistrement...' : 'Enregistrer les modifications'}
         </button>

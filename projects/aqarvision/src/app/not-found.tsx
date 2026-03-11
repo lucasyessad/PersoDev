@@ -1,16 +1,33 @@
-import Link from 'next/link';
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center">
-      <h1 className="text-4xl font-bold">404</h1>
-      <p className="mt-2 text-gray-600">Page introuvable</p>
-      <Link
-        href="/"
-        className="mt-6 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-      >
-        Retour à l&apos;accueil
-      </Link>
+    <div className="min-h-screen bg-blanc-casse flex items-center justify-center px-4">
+      <div className="max-w-md text-center animate-fade-in-up">
+        {/* Large 404 display */}
+        <p className="font-vitrine text-[8rem] leading-none font-extrabold text-foreground/5 select-none mb-2">
+          404
+        </p>
+
+        {/* Message */}
+        <h1 className="font-vitrine text-heading-1 font-bold text-foreground mb-3">
+          Page introuvable
+        </h1>
+        <p className="text-body text-muted-foreground mb-10 max-w-sm mx-auto">
+          La page que vous recherchez n&apos;existe pas, a été déplacée ou
+          n&apos;est plus disponible.
+        </p>
+
+        {/* CTA */}
+        <Link href="/">
+          <Button size="lg">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Retour à l&apos;accueil
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }

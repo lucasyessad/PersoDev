@@ -24,16 +24,16 @@ export default async function AgencesPage() {
       <header className="bg-white border-b border-neutral-200">
         <div className="max-w-[1440px] mx-auto px-6 h-[72px] flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
+            <div className="w-7 h-7 bg-or rounded-lg flex items-center justify-center">
               <Building2 className="h-4 w-4 text-white" />
             </div>
-            <span className="font-display text-lg text-primary-900">Aqar</span>
+            <span className="font-vitrine text-lg text-bleu-nuit">Aqar</span>
           </Link>
           <div className="border-l border-neutral-200 h-5" />
-          <nav className="flex items-center gap-1 text-body-sm text-neutral-500">
-            <Link href="/" className="hover:text-neutral-900 transition-colors">Accueil</Link>
+          <nav className="flex items-center gap-1 text-body-sm text-muted-foreground">
+            <Link href="/" className="hover:text-foreground transition-colors">Accueil</Link>
             <ChevronRight className="h-3.5 w-3.5" />
-            <span className="text-neutral-900">Agences</span>
+            <span className="text-foreground">Agences</span>
           </nav>
         </div>
       </header>
@@ -41,10 +41,10 @@ export default async function AgencesPage() {
       {/* Hero */}
       <div className="bg-white border-b border-neutral-100 py-12 px-6">
         <div className="max-w-[1440px] mx-auto">
-          <h1 className="font-display text-display-lg text-neutral-900 mb-2">
+          <h1 className="font-vitrine text-display-lg text-foreground mb-2">
             Annuaire des agences
           </h1>
-          <p className="text-body-lg text-neutral-500">
+          <p className="text-body-lg text-muted-foreground">
             {list.length > 0
               ? `${list.length} agence${list.length !== 1 ? 's' : ''} partenaire${list.length !== 1 ? 's' : ''}`
               : 'Les meilleures agences immobilières au Maroc'}
@@ -68,28 +68,28 @@ export default async function AgencesPage() {
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={agency.logo_url} alt={agency.name} className="w-10 h-10 object-contain rounded-lg" />
                   ) : (
-                    <Building2 className="h-6 w-6 text-primary-600" />
+                    <Building2 className="h-6 w-6 text-or" />
                   )}
                 </div>
 
-                <h2 className="text-heading-sm text-neutral-900 mb-1 group-hover:text-primary-700 transition-colors">
+                <h2 className="text-heading-sm text-foreground mb-1 group-hover:text-bleu-nuit/90 transition-colors">
                   {agency.name}
                 </h2>
 
                 {agency.city && (
-                  <div className="flex items-center gap-1 text-body-sm text-neutral-500 mb-3">
+                  <div className="flex items-center gap-1 text-body-sm text-muted-foreground mb-3">
                     <MapPin className="h-3.5 w-3.5 shrink-0" />
                     {agency.city}
                   </div>
                 )}
 
                 {agency.description && (
-                  <p className="text-body-sm text-neutral-500 line-clamp-2 mb-4">
+                  <p className="text-body-sm text-muted-foreground line-clamp-2 mb-4">
                     {agency.description}
                   </p>
                 )}
 
-                <span className="inline-flex items-center gap-1 text-body-sm text-primary-600 font-medium group-hover:gap-2 transition-all">
+                <span className="inline-flex items-center gap-1 text-body-sm text-or font-medium group-hover:gap-2 transition-all">
                   Voir l&apos;agence <ArrowRight className="h-3.5 w-3.5" />
                 </span>
               </Link>
@@ -99,17 +99,17 @@ export default async function AgencesPage() {
           /* Empty state with CTA for agencies */
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <div className="w-16 h-16 bg-primary-50 rounded-2xl flex items-center justify-center mb-6">
-              <Building2 className="h-8 w-8 text-primary-600" />
+              <Building2 className="h-8 w-8 text-or" />
             </div>
-            <h2 className="font-display text-display-md text-neutral-900 mb-3">
+            <h2 className="font-vitrine text-display-md text-foreground mb-3">
               Aucune agence pour l&apos;instant
             </h2>
-            <p className="text-body-lg text-neutral-500 max-w-md mb-8">
+            <p className="text-body-lg text-muted-foreground max-w-md mb-8">
               Les agences partenaires apparaîtront ici. Vous êtes une agence immobilière ?
             </p>
             <Link
               href="/dashboard"
-              className="inline-flex items-center gap-2 h-11 px-6 bg-primary-600 text-white text-body-md font-semibold rounded-lg hover:bg-primary-700 transition-colors"
+              className="inline-flex items-center gap-2 h-11 px-6 bg-or text-white text-body-md font-semibold rounded-lg hover:bg-bleu-nuit/90 transition-colors"
             >
               Rejoindre AqarPro
               <ArrowRight className="h-4 w-4" />

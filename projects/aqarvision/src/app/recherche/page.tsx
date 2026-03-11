@@ -67,13 +67,13 @@ export default async function RecherchePage({ searchParams }: PageProps) {
             Précédent
           </Link>
         ) : (
-          <span className="flex items-center gap-1.5 h-10 px-4 rounded-md border border-neutral-200 bg-neutral-50 text-body-sm text-neutral-400">
+          <span className="flex items-center gap-1.5 h-10 px-4 rounded-md border border-neutral-200 bg-neutral-50 text-body-sm text-muted-foreground">
             <ChevronLeft className="h-4 w-4" />
             Précédent
           </span>
         )}
 
-        <span className="text-body-sm text-neutral-500">
+        <span className="text-body-sm text-muted-foreground">
           Page {page} / {totalPages}
         </span>
 
@@ -86,7 +86,7 @@ export default async function RecherchePage({ searchParams }: PageProps) {
             <ChevronRight className="h-4 w-4" />
           </Link>
         ) : (
-          <span className="flex items-center gap-1.5 h-10 px-4 rounded-md border border-neutral-200 bg-neutral-50 text-body-sm text-neutral-400">
+          <span className="flex items-center gap-1.5 h-10 px-4 rounded-md border border-neutral-200 bg-neutral-50 text-body-sm text-muted-foreground">
             Suivant
             <ChevronRight className="h-4 w-4" />
           </span>
@@ -101,10 +101,10 @@ export default async function RecherchePage({ searchParams }: PageProps) {
         <div className="max-w-[1440px] mx-auto px-6 h-[72px] flex items-center gap-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
+            <div className="w-7 h-7 bg-or rounded-lg flex items-center justify-center">
               <Building2 className="h-4 w-4 text-white" />
             </div>
-            <span className="font-display text-lg text-primary-900">Aqar</span>
+            <span className="font-vitrine text-lg text-bleu-nuit">Aqar</span>
           </Link>
 
           {/* Nav search bar */}
@@ -142,9 +142,9 @@ export default async function RecherchePage({ searchParams }: PageProps) {
           />
         ) : (
           <>
-            <p className="text-body-sm text-neutral-500 mb-6">
+            <p className="text-body-sm text-muted-foreground mb-6">
               {total.toLocaleString('fr-FR')} bien{total !== 1 ? 's' : ''} trouvé{total !== 1 ? 's' : ''}
-              {searchQuery && <span className="text-neutral-900 font-medium"> à « {searchQuery} »</span>}
+              {searchQuery && <span className="text-foreground font-medium"> à « {searchQuery} »</span>}
             </p>
             <ResultEmptyState hasFilters={hasFilters} />
           </>

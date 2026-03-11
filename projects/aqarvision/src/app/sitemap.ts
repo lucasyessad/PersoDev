@@ -1,6 +1,8 @@
 import { createClient } from '@/lib/supabase/server';
 import type { MetadataRoute } from 'next';
 
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || 'https://aqarvision.dz';
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
 
@@ -11,16 +13,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const entries: MetadataRoute.Sitemap = [];
 
-  // AqarSearch pages
+  // Static pages
   entries.push(
-    { url: '/recherche', changeFrequency: 'daily', priority: 1.0 },
+    { url: `${BASE_URL}/`, changeFrequency: 'weekly', priority: 1.0 },
+    { url: `${BASE_URL}/recherche`, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${BASE_URL}/pricing`, changeFrequency: 'monthly', priority: 0.7 },
   );
 
   // Property detail pages (AqarSearch B2C)
   if (properties) {
     for (const property of properties) {
       entries.push({
-        url: `/bien/${property.id}`,
+        url: `${BASE_URL}/bien/${property.id}`,
         lastModified: new Date(property.updated_at),
         changeFrequency: 'weekly',
         priority: 0.7,
@@ -31,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Agency mini-sites (AqarVision B2B)
   if (agencies) {
     for (const agency of agencies) {
-      const base = `/agence/${agency.slug}`;
+      const base = `${BASE_URL}/agence/${agency.slug}`;
       const lastModified = new Date(agency.updated_at);
 
       entries.push(

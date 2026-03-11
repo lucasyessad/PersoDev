@@ -102,13 +102,13 @@ export function Sidebar({
     >
       {/* Logo + agency */}
       <div className="flex items-center gap-3 px-4 py-5 border-b border-neutral-200 min-h-[72px]">
-        <div className="w-8 h-8 bg-primary-600 rounded-lg flex items-center justify-center shrink-0">
+        <div className="w-8 h-8 bg-or rounded-lg flex items-center justify-center shrink-0">
           <Building2 className="h-5 w-5 text-white" />
         </div>
         {!collapsed && (
           <div className="flex-1 min-w-0">
-            <p className="text-body-sm font-semibold text-neutral-900 truncate">{agencyName}</p>
-            <p className="text-caption text-neutral-400">AqarPro</p>
+            <p className="text-body-sm font-semibold text-foreground truncate">{agencyName}</p>
+            <p className="text-caption text-muted-foreground">AqarPro</p>
           </div>
         )}
       </div>
@@ -127,7 +127,7 @@ export function Sidebar({
 
         {/* Gestion */}
         {!collapsed && (
-          <p className="px-3 mb-1.5 text-caption text-neutral-400 uppercase tracking-wider">Gestion</p>
+          <p className="px-3 mb-1.5 text-caption text-muted-foreground uppercase tracking-wider">Gestion</p>
         )}
         <ul className="flex flex-col gap-0.5">
           {settingsItems.map(item => (
@@ -146,7 +146,7 @@ export function Sidebar({
               target="_blank"
               rel="noopener noreferrer"
               title={collapsed ? 'Voir ma vitrine' : undefined}
-              className="flex items-center gap-3 px-3 h-10 rounded-md transition-colors text-body-md font-medium text-primary-600 hover:bg-primary-50"
+              className="flex items-center gap-3 px-3 h-10 rounded-md transition-colors text-body-md font-medium text-or hover:bg-muted"
             >
               <ExternalLink className="h-5 w-5 shrink-0" />
               {!collapsed && <span className="truncate">Voir ma vitrine</span>}
@@ -158,24 +158,24 @@ export function Sidebar({
       {/* User profile */}
       <div className="border-t border-neutral-200 p-3">
         {!collapsed ? (
-          <div className="flex items-center gap-2.5 px-2 py-2 rounded-md hover:bg-neutral-50 transition-colors">
+          <div className="flex items-center gap-2.5 px-2 py-2 rounded-md hover:bg-muted transition-colors">
             <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center shrink-0">
-              <span className="text-caption font-semibold text-primary-600">
+              <span className="text-caption font-semibold text-or">
                 {userName.charAt(0).toUpperCase() || 'U'}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-body-sm font-medium text-neutral-900 truncate">{userName || 'Utilisateur'}</p>
-              <p className="text-caption text-neutral-400 truncate">{userEmail}</p>
+              <p className="text-body-sm font-medium text-foreground truncate">{userName || 'Utilisateur'}</p>
+              <p className="text-caption text-muted-foreground truncate">{userEmail}</p>
             </div>
-            <Link href={`${base}/logout`} className="text-neutral-400 hover:text-neutral-700 transition-colors">
+            <Link href={`${base}/logout`} className="text-muted-foreground hover:text-neutral-700 transition-colors">
               <LogOut className="h-4 w-4" />
             </Link>
           </div>
         ) : (
           <Link
             href={`${base}/logout`}
-            className="flex items-center justify-center h-9 w-full text-neutral-400 hover:text-neutral-700 transition-colors rounded-md hover:bg-neutral-50"
+            className="flex items-center justify-center h-9 w-full text-muted-foreground hover:text-neutral-700 transition-colors rounded-md hover:bg-muted"
           >
             <LogOut className="h-4 w-4" />
           </Link>
@@ -218,14 +218,14 @@ function NavLink({
       className={[
         'flex items-center gap-3 px-3 h-10 rounded-md transition-colors text-body-md font-medium',
         active
-          ? 'bg-primary-50 text-primary-600 font-semibold'
-          : 'text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900',
+          ? 'bg-muted text-or font-semibold'
+          : 'text-neutral-600 hover:bg-neutral-100 hover:text-foreground',
       ].join(' ')}
     >
       <div className="relative shrink-0">
         <Icon className="h-5 w-5" />
         {item.badge != null && item.badge > 0 && (
-          <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary-600 text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
+          <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-or text-white text-[10px] font-semibold rounded-full flex items-center justify-center">
             {item.badge > 9 ? '9+' : item.badge}
           </span>
         )}

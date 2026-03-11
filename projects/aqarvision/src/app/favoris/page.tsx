@@ -29,15 +29,15 @@ export default async function FavorisPage() {
       <header className="bg-white border-b border-neutral-200">
         <div className="max-w-[1440px] mx-auto px-6 py-5 flex items-center gap-4">
           <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 bg-primary-600 rounded-lg flex items-center justify-center">
+            <div className="w-7 h-7 bg-or rounded-lg flex items-center justify-center">
               <Building2 className="h-4 w-4 text-white" />
             </div>
-            <span className="font-display text-lg text-primary-900">Aqar</span>
+            <span className="font-vitrine text-lg text-bleu-nuit">Aqar</span>
           </Link>
           <div className="border-l border-neutral-200 h-5" />
-          <h1 className="font-display text-display-md text-neutral-900">Vos favoris</h1>
+          <h1 className="font-vitrine text-display-md text-foreground">Vos favoris</h1>
           {count > 0 && (
-            <span className="text-body-sm text-neutral-500">
+            <span className="text-body-sm text-muted-foreground">
               {count} bien{count !== 1 ? 's' : ''} sauvegardé{count !== 1 ? 's' : ''}
             </span>
           )}
