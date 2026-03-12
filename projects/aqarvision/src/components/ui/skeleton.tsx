@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 /* ─── CVA Base Skeleton (Github) ─────────────────── */
 
 const skeletonVariants = cva(
-  "animate-pulse bg-muted",
+  "skeleton rounded-md",
   {
     variants: {
       variant: {

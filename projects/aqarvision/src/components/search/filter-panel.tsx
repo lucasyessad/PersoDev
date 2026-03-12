@@ -3,6 +3,7 @@
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { COUNTRIES } from '@/config';
 
 const PROPERTY_TYPES = [
@@ -109,7 +110,15 @@ export function FilterPanel() {
       </div>
 
       {/* Filter panel */}
+      <AnimatePresence>
       {isOpen && (
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.25, ease: 'easeOut' }}
+          className="overflow-hidden"
+        >
         <div className="mb-6 grid grid-cols-2 gap-4 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:grid-cols-3 lg:grid-cols-5">
           {/* Country */}
           <div>
@@ -234,7 +243,9 @@ export function FilterPanel() {
             />
           </div>
         </div>
+        </motion.div>
       )}
+      </AnimatePresence>
     </div>
   );
 }
