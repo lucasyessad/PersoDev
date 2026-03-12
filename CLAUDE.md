@@ -25,7 +25,11 @@ PersoDev/
 │   ├── planning-system/   # Manus-style planning system
 │   ├── prompt-generator/  # Intelligent prompt generator
 │   ├── ui-ux-tools/      # Professional UI/UX tools
-│   └── superpowers/      # Advanced development workflows
+│   ├── superpowers/      # Advanced development workflows
+│   ├── claude-mem/       # Persistent memory system for Claude Code
+│   ├── ralph-claude-code/# Autonomous development loops
+│   ├── context7/         # MCP server for up-to-date documentation
+│   └── claude-code-plugins/ # Official Anthropic plugins (sparse checkout)
 │
 ├── library/               # Curated resources organized by use case
 │   ├── skills/           # Specialized task instructions
@@ -46,8 +50,8 @@ PersoDev/
 Skills are organized by category:
 
 - **documents/** - Document manipulation (PDF, DOCX, PPTX, XLSX)
-- **design/** - Creative and design tasks (algorithmic-art, canvas-design, frontend-design, theme-factory)
-- **development/** - Technical development (mcp-builder, webapp-testing, web-artifacts-builder, claude-api, skill-creator)
+- **design/** - Creative and design tasks (algorithmic-art, canvas-design, frontend-design, frontend-design-plugin, theme-factory)
+- **development/** - Technical development (mcp-builder, webapp-testing, web-artifacts-builder, claude-api, skill-creator, claude-mem, context7)
 - **communication/** - Communication tools (internal-comms, slack-gif-creator, brand-guidelines, doc-coauthoring)
 
 **Usage example:**
@@ -76,7 +80,8 @@ Proven development methodologies:
 
 - **planning/** - Planning systems (manus-style, brainstorming, executing-plans, writing-plans)
 - **git-strategies/** - Git workflows (finishing-a-development-branch, using-git-worktrees)
-- **code-review/** - Review processes (receiving-code-review, requesting-code-review)
+- **code-review/** - Review processes (receiving-code-review, requesting-code-review, automated-code-review)
+- **autonomous-development/** - Autonomous dev loops with Ralph (ralph-claude-code)
 - **debugging/** - Debug methodologies (systematic-debugging, test-driven-development)
 
 **Usage example:**
@@ -167,6 +172,10 @@ All source repositories are maintained in `resources/`:
 4. **prompt-generator** - [huangserva/skill-prompt-generator](https://github.com/huangserva/skill-prompt-generator) - Intelligent prompt generation
 5. **ui-ux-tools** - [nextlevelbuilder/ui-ux-pro-max-skill](https://github.com/nextlevelbuilder/ui-ux-pro-max-skill) - Professional UI/UX tools
 6. **superpowers** - [obra/superpowers](https://github.com/obra/superpowers) - Advanced development workflows
+7. **claude-mem** - [thedotmack/claude-mem](https://github.com/thedotmack/claude-mem) - Persistent memory system for Claude Code
+8. **ralph-claude-code** - [frankbria/ralph-claude-code](https://github.com/frankbria/ralph-claude-code) - Autonomous development loops framework
+9. **context7** - [upstash/context7](https://github.com/upstash/context7) - MCP server for up-to-date documentation
+10. **claude-code-plugins** - [anthropics/claude-code](https://github.com/anthropics/claude-code) - Official Anthropic plugins (frontend-design, code-review)
 
 ### Documentation
 
