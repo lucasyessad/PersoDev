@@ -14,15 +14,15 @@
 | Routes AqarSearch | 12+ pages | 14 pages prevues | ~85% |
 | Server Actions | 25 fichiers | 10 fichiers prevus | **Depasse la vision** |
 | Queries | 10 fichiers | 11 fichiers prevus | ~90% |
-| Validators Zod | 9 fichiers | 8 prevus AqarSearch + 11 prevus AqarPro | ~50% |
+| Validators Zod | 9 fichiers (certains couvrent 2+ schemas) | 8 prevus AqarSearch + 11 prevus AqarPro | ~65% |
 | Composants UI | 70+ composants | ~30 prevus | **Depasse la vision** |
 | Tables DB | 15+ tables | 12 + 6 enrichissement AqarPro + 3 enrichissement AqarSearch | ~60% |
 | Tests | 27 fichiers | 13 fichiers prevus AqarSearch + 11 fichiers prevus AqarPro | ~Aligne |
 | Edge Functions | 6 fonctions | Non specifies dans la vision | **Bonus** |
 
-**Score d'alignement global : ~75%**
+**Score d'alignement global : ~80%**
 
-Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vision sur certains aspects (composants, edge functions, integrations). Mais des ecarts structurels existent.
+Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vision sur certains aspects (composants, edge functions, integrations, scoring). Mais des ecarts structurels existent.
 
 ---
 
@@ -39,13 +39,14 @@ Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vi
 - Statuts : brouillon, actif, vendu, loue, archive
 - IA generation de description (`actions/ai.ts`, `api/generer-description`)
 
-### Leads et CRM — ALIGNE
-- Capture de leads (`actions/leads.ts`)
+### Leads et CRM — ALIGNE (depasse la vision)
+- Capture de leads (`actions/leads.ts`) avec rate limiting IP (5 req/60s)
 - Notes internes sur leads (`actions/lead-notes.ts`)
-- Scoring de leads (`lib/lead-scoring.ts`)
-- Gestion de statut (`actions/lead-management.ts`)
+- Scoring de leads sophistique (`lib/lead-scoring.ts`) — algorithme pondere : contact (25%), message (20%), cible (15%), budget (15%), criteres (10%), source (15%). Niveaux : hot (70+), warm (40-69), cold (0-39)
+- Gestion de statut et priorite (`actions/lead-management.ts`)
 - Export CSV (gate par plan)
 - Vue Kanban (`leads/kanban/page.tsx`, `dashboard/leads-kanban.tsx`)
+- Verification des limites mensuelles de leads par plan
 
 ### Messagerie — ALIGNE
 - Conversations contextualisees (`api/conversations/create`, `actions/messaging.ts`)
@@ -53,18 +54,22 @@ Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vi
 - Composants : `conversation-list.tsx`, `message-thread.tsx`, `message-input.tsx`
 - Badge non-lu (`unread-badge.tsx`)
 
-### Branding — ALIGNE
+### Branding — ALIGNE (depasse la vision)
 - Logo, couleurs, slogan, coordonnees
 - Page branding dans settings (`settings/branding/page.tsx`)
 - Composant `branding-form.tsx`
 - Trust badges (`branding/trust-badges.tsx`)
+- Validation plan-aware : le schema Enterprise (`agencyLuxuryBrandingSchema`) ajoute hero video, couleur secondaire, font style, tagline, stats (annees d'experience, biens vendus, clients)
+- Multi-wilaya avec designation du siege (`agencyWilayasSchema`)
+- Calcul de completude agence (`lib/agency-completeness.ts`) — score pondere sur 13 champs avec suggestions d'amelioration
 
 ### Equipe — PARTIELLEMENT ALIGNE
 - Table `agency_members` avec roles (admin, agent, viewer)
 - Page team (`settings/team/page.tsx`)
-- Actions team (`actions/team.ts`)
-- Queries team (`queries/team.ts`)
-- **Manque** : permissions granulaires par role dans les actions (la vision demande owner/admin/agent/viewer avec droits differencies partout)
+- Actions team (`actions/team.ts`) : inviteMember (avec verification limites plan + prevention doublons + reactivation membres inactifs), updateMemberRole, removeMember (soft delete)
+- Queries team (`queries/team.ts`) : getAgencyMembers, getAgencyMembersCount
+- Verification plan : `canAddMember()` dans le plan gating
+- **Manque** : permissions granulaires par role dans les **autres** actions (properties, leads, messages). Actuellement `getAgencyForCurrentUser()` verifie owner OU admin, mais pas les nuances agent/viewer dans chaque action.
 
 ### Dashboard — PARTIELLEMENT ALIGNE
 - Dashboard avec 4 stat cards (biens, vues, leads, conversion)
@@ -76,11 +81,14 @@ Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vi
 - Page analytics existe (`analytics/page.tsx`)
 - **Manque** : analytics avances (biens les plus consultes, performance par theme, performance vitrine, leads par source)
 
-### IA — PARTIELLEMENT ALIGNE
-- Generation de description annonce — OK
+### IA — PARTIELLEMENT ALIGNE (MVP couvert, V1/V2 manquant)
+- Generation de description annonce — OK (`api/generer-description`, `actions/ai.ts`)
 - Generation de description agence — OK (`api/generer-description-agence`)
-- Pricing IA par plan (`actions/ai-pricing.ts`)
-- **Manque** : reformulation, amelioration de texte, generation slogan, messages marketing, posts sociaux, suggestions de completude automatiques. La vision prevoit l'IA "presque partout de maniere discrete", le code ne l'a que sur 2 cas d'usage.
+- Pricing IA par plan (`actions/ai-pricing.ts`) — limites de generations par plan
+- Composant `dashboard/ai-description-generator.tsx` integre dans le formulaire d'annonce
+- **Manque pour V1** : reformulation, amelioration de texte, generation slogan, suggestions de completude automatiques
+- **Manque pour V2** : messages marketing, posts sociaux, emails, assistance qualite
+- La vision prevoit l'IA "presque partout de maniere discrete", le code ne l'a que sur 2 cas d'usage (descriptions annonce + agence). Le MVP est couvert mais l'expansion est necessaire.
 
 ## 2.2 Ce qui est dans le code MAIS PAS dans la vision
 
@@ -95,6 +103,9 @@ Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vi
 - **Admin panel** (`admin/dashboard`, `admin/analytics`, `admin/users`, `admin/verifications`) — non prevu dans la vision (mais utile)
 - **Onboarding wizard** (`onboarding/OnboardingProvider.tsx`, `onboarding/OnboardingWizard.tsx`) — non prevu mais tres utile
 - **Edge Functions Supabase** (6 fonctions : responsiveness, price changes, match properties, notifications, social publish, alert emails) — non prevues mais bonne architecture
+- **Systeme d'abonnement complet** (`actions/subscription.ts`) — creation, annulation, calcul de date de fin, mise a jour du plan agence. Modes de paiement locaux : CCP, Baridi Mob, Virement, Cash, Dahabia. Cycles : mensuel, trimestriel (-10%), annuel (-20%)
+- **Verification agence** (`actions/verification.ts`) — upload registre de commerce + piece d'identite, workflow de validation
+- **Onboarding** (`api/onboarding/complete`, `api/onboarding/status`, composants OnboardingProvider + OnboardingWizard)
 
 ## 2.3 Ce qui est dans la vision MAIS PAS dans le code
 
@@ -126,13 +137,16 @@ Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vi
 
 ## 3.1 Ce qui est IMPLEMENTE et ALIGNE
 
-### Recherche — ALIGNE
+### Recherche — ALIGNE (depasse la vision)
 - Page `/recherche` avec filtres, resultats, pagination
 - Composants : `search-bar.tsx`, `filter-panel.tsx`, `result-card.tsx`
-- Vue carte avec Leaflet (`results-with-map.tsx`, `search-map.tsx`)
-- Filtres : type, transaction, prix, surface, pieces, localisation
+- Vue carte avec Leaflet (`results-with-map.tsx`, `search-map.tsx`) — support bounds geographiques
+- Filtres : type, transaction, prix, surface, pieces, localisation, mots-cles fulltext
 - URL synchronisee avec les filtres
-- Trust score et badges de reactivite
+- **`search_properties_view`** : vue SQL dediee a la recherche publique (equivalent du `search_properties_index` prevu dans la vision)
+- Trust score (`lib/search/trust-score.ts`) — algorithme pondere : images (25%), description (20%), prix (15%), localisation (15%), plan agence (25%). Niveaux : high (80+), medium (50-79), low (0-49)
+- Badges de reactivite agence
+- Query builder dynamique (`lib/search/filters.ts`) avec full-text search, fuzzy location, range queries, map bounds
 
 ### Fiche bien — ALIGNE
 - Page `/bien/[id]` complete
@@ -171,8 +185,8 @@ Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vi
 - Composants messaging complets
 
 ### Biens deja vus — PARTIELLEMENT ALIGNE
-- `actions/viewed-properties.ts`
-- Hook `use-viewed-properties.ts`
+- `actions/viewed-properties.ts` (track + recupere les 200 derniers IDs)
+- Hook `use-viewed-properties.ts` — systeme hybride : localStorage (500 items) + serveur (`viewed_properties` table), merge des deux sources
 - `search/viewed-badge.tsx` (badge "deja vu")
 - **Manque** : bloc "recemment consultes" dans l'espace personnel
 
@@ -184,6 +198,7 @@ Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vi
 ### Demande de visite — PARTIELLEMENT ALIGNE
 - `search/visit-request-form.tsx`
 - `actions/visit-requests.ts`, `validators/visit-request.ts`
+- **Bonne integration** : la creation d'une demande de visite cree automatiquement un lead avec `source='aqarsearch'` et prefixe le message avec "[Demande de visite]"
 - **Manque** : suivi des demandes envoyees dans l'espace personnel
 
 ## 3.2 Ce qui est MANQUANT
@@ -194,8 +209,8 @@ Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vi
 | **Alertes enrichies** | Moyenne | Baisse de prix, biens similaires. Les edge functions `detect-price-changes` et `match-new-property` existent cote serveur mais l'UI cote utilisateur n'est pas implementee |
 | **Reactivite agence (module complet)** | Moyenne | Le badge existe (`responsiveness-badge.tsx`) et l'edge function `calculate-responsiveness` aussi, mais l'affichage dans la fiche agence et les labels ("repond rapidement") ne sont pas complets |
 | **Partage enrichi** | Faible | Le composant `bouton-partage.tsx` existe dans vitrine mais pas le `share-actions.tsx` prevu dans la vision (WhatsApp, copier lien, envoyer a un proche) pour AqarSearch |
-| `search_properties_index` | Moyenne | Vue SQL ou table indexee recommandee dans la vision pour eviter des requetes complexes sur `properties`. Non presente dans les migrations. |
-| `favorite_collections` + `favorite_collection_items` | Moyenne | Le modele many-to-many prevu (un bien dans plusieurs collections) n'est pas clairement implemente avec des tables separees |
+| ~~`search_properties_index`~~ | ~~Moyenne~~ | **CORRIGE** : la vue `search_properties_view` existe et est utilisee par `queries/search.ts`. Alignement confirme. |
+| `favorite_collections` + `favorite_collection_items` | Moyenne | Le modele many-to-many prevu (un bien dans plusieurs collections) est implemente via `actions/collections.ts` (createCollection, addToCollection, removeFromCollection) avec limite de 20 collections par utilisateur. A verifier si le schema de tables correspond exactement au modele prevu. |
 | `user_search_preferences` | Faible | Table de preferences de recherche utilisateur |
 | `search_alert_deliveries` | Faible | Historique des alertes envoyees |
 
@@ -205,15 +220,19 @@ Le code est substantiel et couvre la majorite des cas MVP. Il depasse meme la vi
 
 ## 4.1 Points forts
 
-- **Middleware solide** : CSRF, security headers, auth redirect, locale detection
+- **Middleware solide** : CSRF, security headers (CSP, HSTS, X-Frame-Options, Permissions-Policy), auth redirect, locale detection
 - **Separation des responsabilites** : actions / queries / validators / composants — propre
 - **RLS active** sur toutes les tables
-- **Plan gating** centralise (`lib/plan-gate.ts`, `config/index.ts`)
-- **Rate limiting** avec Upstash Redis
+- **Plan gating tres complet** (`lib/plan-gate.ts`) : factory pattern avec `hasFeature()`, `canPublishProperty()`, `canReceiveLead()`, `canAddMember()`, `canFeatureProperty()`, `remainingStorage()`, `canUpload()`, `isPlanAtLeast()`. Depasse ce que la vision prevoit.
+- **Rate limiting** avec Upstash Redis (leads : 5 req/60s)
 - **Sentry** configure (client, server, edge)
 - **27 tests** couvrant actions, validators, et logique metier
 - **i18n** FR/AR/EN avec RTL
 - **Edge Functions** pour le traitement asynchrone (bonne architecture)
+- **Algorithmes de scoring** : trust score (biens), lead score, completude agence — tous ponderes et bien structures
+- **Auth sophistiquee** : `getAgencyForCurrentUser()` verifie owner OU admin member, type guards avec `isAuthError()`
+- **Supabase multi-client** : browser, server, admin (service_role) — bien separes
+- **React `cache()`** sur toutes les queries pour deduplication intra-requete
 
 ## 4.2 Points d'attention
 
@@ -234,10 +253,22 @@ Deux fichiers de types coexistent :
 
 Ils devraient etre unifies.
 
-### Validators incomplets
-9 validators existent mais la vision en prevoit 19 (11 AqarPro + 8 AqarSearch). Il manque :
-- `branding.ts`, `property-media.ts`, `theme.ts`, `dashboard-preferences.ts`, `team.ts`, `ai.ts` (AqarPro)
-- `saved-search.ts`, `favorite.ts` (AqarSearch)
+### Validators : couverture partielle
+9 validators existent avec des schemas solides :
+- `property.ts` (titre 3-200 chars, prix, surface, 16 champs)
+- `lead.ts` (nom 2+, phone 9+, email optionnel, source enum, status enum)
+- `agency.ts` (base + luxury schema Enterprise avec hero_video, stats, font_style)
+- `search.ts` (filtres + savedSearchSchema)
+- `alert.ts` (saved_search_id, channel, frequency)
+- `collections.ts` (nom 1-100 chars)
+- `visit-request.ts` (property_id, agency_id, nom, phone, message 500 max)
+- `notes.ts` (property_id, content 1-1000 chars)
+
+La vision en prevoit 19 (11 AqarPro + 8 AqarSearch). Il manque :
+- `property-media.ts`, `theme.ts`, `dashboard-preferences.ts`, `team.ts`, `ai.ts` (AqarPro)
+- `favorite.ts` (AqarSearch)
+
+Note : `branding.ts` est en realite couvert dans `agency.ts` (agencyBrandingSchema + agencyLuxuryBrandingSchema). `saved-search.ts` est couvert dans `search.ts` (savedSearchSchema).
 
 ### Config monolithique
 `config/index.ts` (426 lignes) melange : locales, plans, pricing, cache, rate limiting, upload, pagination, social media, storage, templates de messages. Un decoupage en fichiers separes serait plus maintenable.
