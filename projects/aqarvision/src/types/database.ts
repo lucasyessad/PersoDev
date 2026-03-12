@@ -4,7 +4,7 @@
 
 // === Enums ===
 
-export type AgencyTheme = 'classic' | 'modern' | 'luxury' | 'natural' | 'minimal' | 'bold' | 'custom';
+export type AgencyTheme = 'minimal' | 'modern' | 'professional' | 'editorial' | 'premium' | 'luxury' | 'bold' | 'custom';
 export type HeroStyle = 'color' | 'cover' | 'video';
 export type FontStyle = 'modern' | 'classic' | 'elegant';
 export type ThemeMode = 'light' | 'dark';
@@ -459,5 +459,14 @@ export interface AgencyResponsivenessStats {
   response_rate: number | null;
   total_conversations: number;
   responsiveness_level: ResponsivenessLevel;
+  updated_at: string;
+}
+
+export interface DashboardPreferences {
+  id: string;
+  agency_id: string;
+  widget_order: string[];
+  hidden_widgets: string[];
+  created_at: string;
   updated_at: string;
 }
