@@ -63,11 +63,11 @@ Use the PDF skill from library/skills/documents/pdf to extract form fields
 
 Specialized AI assistants organized by domain:
 
-- **languages/** - Language-specific specialists (Python, JavaScript, TypeScript, etc.)
-- **infrastructure/** - DevOps, Cloud, Docker, Kubernetes
-- **testing/** - QA, Security, Testing automation
-- **data-ai/** - Data Science, ML, AI
-- **workflows/** - Orchestration, CI/CD
+- **languages/** (27 agents) - Python, JavaScript, TypeScript, React, Next.js, Vue, Angular, Go, Rust, Java, C#, C++, PHP, Laravel, Django, Rails, Spring Boot, Swift, Kotlin, Flutter, Elixir, SQL, PowerShell, .NET Core/Framework
+- **infrastructure/** (16 agents) - DevOps, Cloud Architect, Docker, Kubernetes, Terraform, Terragrunt, Azure, SRE, Platform Engineer, Network Engineer, Incident Responder, Windows Admin
+- **testing/** (15 agents) - QA Expert, Security Auditor, Penetration Tester, Code Reviewer, Accessibility Tester, Chaos Engineer, Performance Engineer, Compliance Auditor, Test Automator, Debugger
+- **data-ai/** (13 agents) - Data Scientist, ML Engineer, AI Engineer, NLP Engineer, MLOps, LLM Architect, Data Analyst/Engineer, Database Optimizer, Prompt Engineer, Postgres Pro
+- **workflows/** (11 agents) - Multi-agent Coordinator, Workflow Orchestrator, Task Distributor, Context Manager, Knowledge Synthesizer, Agent Installer/Organizer, Performance Monitor
 
 **Usage example:**
 ```
@@ -83,6 +83,11 @@ Proven development methodologies:
 - **code-review/** - Review processes (receiving-code-review, requesting-code-review, automated-code-review)
 - **autonomous-development/** - Autonomous dev loops with Ralph (ralph-claude-code)
 - **debugging/** - Debug methodologies (systematic-debugging, test-driven-development)
+- **dispatching-parallel-agents/** - Parallel agent dispatch patterns
+- **subagent-driven-development/** - Development driven by specialized subagents (spec-reviewer, implementer, code-quality-reviewer)
+- **using-superpowers/** - Advanced superpower workflow usage
+- **verification-before-completion/** - Verification checks before task completion
+- **writing-skills/** - Guide for creating and testing Claude Code skills
 
 **Usage example:**
 ```
