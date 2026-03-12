@@ -1,14 +1,17 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Maximize2, BedDouble, Building2 } from 'lucide-react';
+import { MapPin, Maximize2, BedDouble, Building2, Sparkles, Eye } from 'lucide-react';
 import type { SearchPropertyResult } from '@/types/database';
 import { formatPrice, getLocationLabel } from '@/lib/utils/format';
 import { TrustBadge } from './trust-badge';
+import { ResponsivenessBadge } from './responsiveness-badge';
 
 interface ResultCardProps {
   property: SearchPropertyResult;
   locale?: 'fr' | 'ar' | 'en';
   favoriteButton?: React.ReactNode;
+  /** Whether this property has been viewed by the current user */
+  isViewed?: boolean;
 }
 
 const transactionLabels = {
@@ -17,10 +20,31 @@ const transactionLabels = {
   en: { sale: 'Sale', rent: 'Rent' },
 } as const;
 
-export function ResultCard({ property, locale = 'fr', favoriteButton }: ResultCardProps) {
+const newLabels = {
+  fr: 'Nouveau',
+  ar: 'جديد',
+  en: 'New',
+} as const;
+
+const viewedLabels = {
+  fr: 'Déjà vu',
+  ar: 'تمت المشاهدة',
+  en: 'Viewed',
+} as const;
+
+function isNewProperty(publishedAt: string | null): boolean {
+  if (!publishedAt) return false;
+  const published = new Date(publishedAt);
+  const now = new Date();
+  const diffDays = (now.getTime() - published.getTime()) / (1000 * 60 * 60 * 24);
+  return diffDays <= 7;
+}
+
+export function ResultCard({ property, locale = 'fr', favoriteButton, isViewed = false }: ResultCardProps) {
   const mainImage = property.images?.[0];
   const location = getLocationLabel(property);
   const transactionLabel = transactionLabels[locale][property.transaction_type];
+  const isNew = isNewProperty(property.published_at);
 
   return (
     <div className="group relative overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition-shadow hover:shadow-md">
@@ -50,23 +74,44 @@ export function ResultCard({ property, locale = 'fr', favoriteButton }: ResultCa
           >
             {transactionLabel}
           </span>
-          {/* Featured badge */}
-          {property.is_featured && (
-            <span className="absolute right-3 top-3 rounded-full bg-amber-500 px-2.5 py-0.5 text-xs font-semibold text-white">
-              {locale === 'fr' ? 'En vedette' : locale === 'ar' ? 'مميز' : 'Featured'}
-            </span>
-          )}
+
+          {/* Top-right badges stack */}
+          <div className="absolute right-3 top-3 flex flex-col gap-1.5 items-end">
+            {/* Featured badge */}
+            {property.is_featured && (
+              <span className="rounded-full bg-amber-500 px-2.5 py-0.5 text-xs font-semibold text-white">
+                {locale === 'fr' ? 'En vedette' : locale === 'ar' ? 'مميز' : 'Featured'}
+              </span>
+            )}
+            {/* New badge */}
+            {isNew && (
+              <span className="flex items-center gap-1 rounded-full bg-green-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+                <Sparkles className="h-2.5 w-2.5" />
+                {newLabels[locale]}
+              </span>
+            )}
+            {/* Viewed badge */}
+            {isViewed && (
+              <span className="flex items-center gap-1 rounded-full bg-gray-600/80 px-2 py-0.5 text-[10px] font-medium text-white">
+                <Eye className="h-2.5 w-2.5" />
+                {viewedLabels[locale]}
+              </span>
+            )}
+          </div>
         </div>
       </Link>
 
       {/* Content */}
       <div className="p-4">
-        {/* Price + Trust */}
+        {/* Price + Trust + Responsiveness */}
         <div className="mb-2 flex items-center justify-between">
           <span className="text-lg font-bold text-gray-900">
             {formatPrice(property.price, property.currency)}
           </span>
-          <TrustBadge score={property.trust_score} locale={locale} />
+          <div className="flex items-center gap-1.5">
+            <ResponsivenessBadge level={property.responsiveness_level} locale={locale} />
+            <TrustBadge score={property.trust_score} locale={locale} />
+          </div>
         </div>
 
         {/* Title */}

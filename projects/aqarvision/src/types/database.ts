@@ -283,6 +283,8 @@ export type SearchAlertFrequency = 'instant' | 'daily' | 'weekly';
 export type SearchSortOption = 'recent' | 'price_asc' | 'price_desc' | 'surface_asc' | 'surface_desc' | 'trust_desc';
 export type TrustLevel = 'high' | 'medium' | 'low';
 export type RecommendationSignalType = 'view' | 'favorite' | 'contact' | 'share' | 'search_click' | 'compare';
+export type VisitRequestStatus = 'pending' | 'confirmed' | 'declined' | 'completed';
+export type ResponsivenessLevel = 'fast' | 'moderate' | 'slow' | 'unrated';
 
 export interface SavedSearch {
   id: string;
@@ -401,4 +403,61 @@ export interface SearchPropertyResult {
   has_description: boolean;
   has_features: boolean;
   trust_score: number;
+  responsiveness_level: ResponsivenessLevel;
+}
+
+// === AqarSearch V2 Types ===
+
+export interface ViewedProperty {
+  id: string;
+  user_id: string;
+  property_id: string;
+  viewed_at: string;
+}
+
+export interface PropertyNote {
+  id: string;
+  user_id: string;
+  property_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FavoriteCollection {
+  id: string;
+  user_id: string;
+  name: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface FavoriteCollectionItem {
+  id: string;
+  collection_id: string;
+  favorite_id: string;
+  added_at: string;
+}
+
+export interface VisitRequest {
+  id: string;
+  property_id: string;
+  agency_id: string;
+  user_id: string | null;
+  name: string;
+  phone: string;
+  email: string | null;
+  message: string | null;
+  status: VisitRequestStatus;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AgencyResponsivenessStats {
+  agency_id: string;
+  avg_response_time_minutes: number | null;
+  response_rate: number | null;
+  total_conversations: number;
+  responsiveness_level: ResponsivenessLevel;
+  updated_at: string;
 }

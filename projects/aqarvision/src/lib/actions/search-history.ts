@@ -57,6 +57,31 @@ export async function trackSearch(
 }
 
 /**
+ * Supprime un élément spécifique de l'historique de recherche.
+ */
+export async function deleteSearchHistoryItem(id: string): Promise<ActionResult> {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { success: false, error: 'Vous devez être connecté.' };
+  }
+
+  const { error } = await supabase
+    .from('search_history')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', user.id);
+
+  if (error) {
+    return { success: false, error: 'Erreur lors de la suppression.' };
+  }
+
+  revalidatePath('/espace/historique');
+  return { success: true };
+}
+
+/**
  * Supprime tout l'historique de recherche de l'utilisateur.
  */
 export async function clearSearchHistory(): Promise<ActionResult> {
@@ -73,9 +98,9 @@ export async function clearSearchHistory(): Promise<ActionResult> {
     .eq('user_id', user.id);
 
   if (error) {
-    return { success: false, error: 'Erreur lors de la suppression de l\'historique.' };
+    return { success: false, error: "Erreur lors de la suppression de l'historique." };
   }
 
-  revalidatePath('/recherches');
+  revalidatePath('/espace/historique');
   return { success: true };
 }

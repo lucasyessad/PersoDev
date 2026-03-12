@@ -7,12 +7,14 @@ import {
   User,
   LogOut,
   Building2,
+  FolderOpen,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 
 const liens = [
   { href: "/espace/favoris", label: "Favoris", icon: Heart },
   { href: "/espace/historique", label: "Historique", icon: History },
+  { href: "/espace/collections", label: "Collections", icon: FolderOpen },
   { href: "/espace/messages", label: "Messages", icon: MessageSquare },
   { href: "/espace/profil", label: "Mon profil", icon: User },
 ];
