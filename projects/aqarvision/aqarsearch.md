@@ -1,270 +1,281 @@
-# AqarSearch — Product Specification Complète
+# AqarSearch — Technical & Product Specification
 
-> Spécification détaillée de la branche particulier de AqarVision  
-> Objectif : donner à Claude Code une base claire, structurée et exploitable pour implémenter AqarSearch
+> Spécification fonctionnelle et technique de la branche particulier de AqarVision
 
-**Version** : 1.0  
-**Statut** : Product Spec  
+**Version** : 1.0.0  
+**Statut** : Spécification produit et technique  
 **Produit parent** : AqarVision  
 **Branche concernée** : AqarSearch  
-**Public cible** : particuliers à la recherche d’un bien immobilier
+**Architecture cible** : Monolithe modulaire Next.js 14 + Supabase
 
 ---
 
 # Table des matières
 
-1. [Définition du produit](#1-définition-du-produit)
-2. [Objectifs de AqarSearch](#2-objectifs-de-aqarsearch)
+1. [Définition de AqarSearch](#1-définition-de-aqarsearch)
+2. [Objectif général](#2-objectif-général)
 3. [Positionnement produit](#3-positionnement-produit)
 4. [Relation avec AqarPro](#4-relation-avec-aqarpro)
 5. [Principes UX fondamentaux](#5-principes-ux-fondamentaux)
 6. [Recherche libre sans compte](#6-recherche-libre-sans-compte)
-7. [Création de compte particulier](#7-création-de-compte-particulier)
-8. [Fonctionnalité 1 — Recherche immobilière](#8-fonctionnalité-1--recherche-immobilière)
-9. [Fonctionnalité 2 — Exploration des résultats](#9-fonctionnalité-2--exploration-des-résultats)
-10. [Fonctionnalité 3 — Fiche détaillée du bien](#10-fonctionnalité-3--fiche-détaillée-du-bien)
-11. [Fonctionnalité 4 — Biens déjà vus](#11-fonctionnalité-4--biens-déjà-vus)
-12. [Fonctionnalité 5 — Notes personnelles](#12-fonctionnalité-5--notes-personnelles)
-13. [Fonctionnalité 6 — Favoris](#13-fonctionnalité-6--favoris)
-14. [Fonctionnalité 7 — Collections de favoris](#14-fonctionnalité-7--collections-de-favoris)
-15. [Fonctionnalité 8 — Historique de recherche](#15-fonctionnalité-8--historique-de-recherche)
-16. [Fonctionnalité 9 — Recherche reprise](#16-fonctionnalité-9--recherche-reprise)
-17. [Fonctionnalité 10 — Alertes de recherche](#17-fonctionnalité-10--alertes-de-recherche)
-18. [Fonctionnalité 11 — Alertes enrichies](#18-fonctionnalité-11--alertes-enrichies)
-19. [Fonctionnalité 12 — Messagerie sécurisée](#19-fonctionnalité-12--messagerie-sécurisée)
-20. [Fonctionnalité 13 — Historique des messages](#20-fonctionnalité-13--historique-des-messages)
-21. [Fonctionnalité 14 — Statut de réactivité agence](#21-fonctionnalité-14--statut-de-réactivité-agence)
-22. [Fonctionnalité 15 — Demande de visite](#22-fonctionnalité-15--demande-de-visite)
-23. [Fonctionnalité 16 — Partage facile](#23-fonctionnalité-16--partage-facile)
-24. [Pages à créer](#24-pages-à-créer)
-25. [États utilisateur](#25-états-utilisateur)
-26. [Règles de permission](#26-règles-de-permission)
-27. [Modèle de données recommandé](#27-modèle-de-données-recommandé)
-28. [Événements analytics à suivre](#28-événements-analytics-à-suivre)
-29. [Règles de contenu et microcopy](#29-règles-de-contenu-et-microcopy)
-30. [Règles de design pour Claude Code](#30-règles-de-design-pour-claude-code)
-31. [Résumé d’implémentation pour Claude Code](#31-résumé-dimplémentation-pour-claude-code)
+7. [Compte utilisateur particulier](#7-compte-utilisateur-particulier)
+8. [Périmètre fonctionnel](#8-périmètre-fonctionnel)
+9. [Fonctionnalité 1 — Recherche immobilière](#9-fonctionnalité-1--recherche-immobilière)
+10. [Fonctionnalité 2 — Résultats de recherche](#10-fonctionnalité-2--résultats-de-recherche)
+11. [Fonctionnalité 3 — Fiche détaillée d’un bien](#11-fonctionnalité-3--fiche-détaillée-dun-bien)
+12. [Fonctionnalité 4 — Biens déjà vus](#12-fonctionnalité-4--biens-déjà-vus)
+13. [Fonctionnalité 5 — Notes personnelles](#13-fonctionnalité-5--notes-personnelles)
+14. [Fonctionnalité 6 — Favoris](#14-fonctionnalité-6--favoris)
+15. [Fonctionnalité 7 — Collections de favoris](#15-fonctionnalité-7--collections-de-favoris)
+16. [Fonctionnalité 8 — Historique de recherche](#16-fonctionnalité-8--historique-de-recherche)
+17. [Fonctionnalité 9 — Recherche reprise](#17-fonctionnalité-9--recherche-reprise)
+18. [Fonctionnalité 10 — Alertes de recherche](#18-fonctionnalité-10--alertes-de-recherche)
+19. [Fonctionnalité 11 — Alertes enrichies](#19-fonctionnalité-11--alertes-enrichies)
+20. [Fonctionnalité 12 — Messagerie sécurisée](#20-fonctionnalité-12--messagerie-sécurisée)
+21. [Fonctionnalité 13 — Historique des messages](#21-fonctionnalité-13--historique-des-messages)
+22. [Fonctionnalité 14 — Statut de réactivité agence](#22-fonctionnalité-14--statut-de-réactivité-agence)
+23. [Fonctionnalité 15 — Demande de visite](#23-fonctionnalité-15--demande-de-visite)
+24. [Fonctionnalité 16 — Partage facile](#24-fonctionnalité-16--partage-facile)
+25. [Nouvelles routes Next.js](#25-nouvelles-routes-nextjs)
+26. [Nouveaux modules backend](#26-nouveaux-modules-backend)
+27. [Nouvelles tables SQL](#27-nouvelles-tables-sql)
+28. [Index de recherche](#28-index-de-recherche)
+29. [Règles de visibilité des annonces](#29-règles-de-visibilité-des-annonces)
+30. [Moteur de recherche](#30-moteur-de-recherche)
+31. [Favoris et organisation personnelle](#31-favoris-et-organisation-personnelle)
+32. [Messagerie et demandes de visite](#32-messagerie-et-demandes-de-visite)
+33. [Leads depuis AqarSearch](#33-leads-depuis-aqarsearch)
+34. [Analytics et événements](#34-analytics-et-événements)
+35. [Validators Zod](#35-validators-zod)
+36. [Server Actions](#36-server-actions)
+37. [Composants UI à créer](#37-composants-ui-à-créer)
+38. [Pages à créer](#38-pages-à-créer)
+39. [Sécurité et RLS](#39-sécurité-et-rls)
+40. [Performance et cache](#40-performance-et-cache)
+41. [Tests à ajouter](#41-tests-à-ajouter)
+42. [Arborescence recommandée](#42-arborescence-recommandée)
+43. [Plan d’implémentation par phases](#43-plan-dimplémentation-par-phases)
+44. [Prompt maître pour Claude Code](#44-prompt-maître-pour-claude-code)
 
 ---
 
-# 1. Définition du produit
+# 1. Définition de AqarSearch
 
 AqarSearch est la branche **particulier** de l’écosystème AqarVision.
 
-Son rôle est de permettre aux utilisateurs finaux de :
+Elle permet aux utilisateurs finaux de :
 
-- rechercher des biens immobiliers publiés par les agences présentes sur AqarPro
-- consulter les annonces librement sans créer de compte
-- créer un compte pour suivre leur recherche dans le temps
-- enregistrer des favoris
-- organiser leurs favoris dans des collections
-- reprendre leurs recherches passées
-- créer des alertes personnalisées
-- échanger avec les agences via une messagerie sécurisée
-- demander une visite
-- suivre les biens déjà consultés
+- rechercher librement les biens publiés par les agences présentes sur AqarPro
+- consulter les annonces sans créer de compte
+- créer un compte pour bénéficier de fonctions de suivi avancées
+- organiser leur recherche dans le temps
+- communiquer avec les professionnels via un espace dédié
 
-AqarSearch n’est pas conçu, dans sa première vision, comme un agrégateur externe de tout le marché.
-Il est conçu comme **l’espace particulier intelligent et moderne de la plateforme AqarVision**.
+AqarSearch n’est pas conçu, dans sa première vision, comme un agrégateur global externe du marché immobilier.
+Il est conçu comme **l’espace particulier intelligent, moderne et connecté à AqarPro**.
 
 ---
 
-# 2. Objectifs de AqarSearch
+# 2. Objectif général
 
-Les objectifs principaux sont :
+AqarSearch doit permettre à un particulier de :
 
-- rendre la recherche immobilière simple et agréable
-- éviter de forcer la création de compte trop tôt
-- augmenter la valeur perçue du compte utilisateur
-- aider l’utilisateur à organiser sa recherche
-- fluidifier la mise en relation avec les professionnels
-- créer une expérience de suivi immobilier moderne
+- découvrir rapidement des biens pertinents
+- reprendre facilement sa recherche
+- ne pas perdre les annonces déjà vues
+- organiser ses favoris
+- créer des alertes sur des recherches précises
+- communiquer proprement avec les agences
+- demander une visite sans friction
 
-Le produit doit répondre à cette logique :
-
-- **sans compte** : découvrir facilement
-- **avec compte** : suivre intelligemment sa recherche
+Le produit doit être utile **sans compte**, puis devenir beaucoup plus puissant **avec compte**.
 
 ---
 
 # 3. Positionnement produit
 
-AqarSearch doit se situer entre :
+AqarSearch s’inspire :
 
-- **Airbnb** pour la qualité de l’expérience de recherche
-- **Jinka** pour la logique de suivi, d’alertes et d’organisation de recherche
+- de **Airbnb** pour la qualité de l’expérience utilisateur, la simplicité de la recherche et la fluidité de navigation
+- de **Jinka** pour la logique de suivi de recherche, de favoris et d’alertes intelligentes
 
 Le produit doit être :
 
 - simple
-- fluide
-- premium
+- moderne
 - rassurant
+- visuel
 - mobile-first
-- très clair
-- centré sur l’utilisateur final
-
-AqarSearch ne doit pas ressembler à un portail d’annonces surchargé.
+- très lisible
+- centré sur la continuité de recherche
 
 ---
 
 # 4. Relation avec AqarPro
 
-AqarSearch est directement alimenté par les annonces publiées dans AqarPro.
+AqarSearch dépend directement de l’offre produite dans AqarPro.
 
-Flux fonctionnel :
+Flux général :
 
-1. une agence publie un bien sur AqarPro
-2. le bien devient visible sur AqarSearch
+1. une agence publie un bien via AqarPro
+2. le bien devient visible dans AqarSearch
 3. un particulier consulte le bien
-4. il peut :
-   - l’enregistrer
-   - le partager
-   - créer une alerte similaire
-   - demander une visite
-   - écrire à l’agence
-5. les interactions utiles remontent côté AqarPro
+4. il peut l’enregistrer, le partager, créer une alerte, envoyer un message ou demander une visite
+5. les interactions utiles remontent dans AqarPro
 
-AqarPro produit l’offre.
+AqarPro produit l’offre.  
 AqarSearch organise la découverte, le suivi et l’interaction.
 
 ---
 
 # 5. Principes UX fondamentaux
 
-## 5.1 Recherche d’abord
-L’utilisateur doit pouvoir commencer à chercher immédiatement.
+## 5.1 Recherche immédiate
+L’utilisateur doit pouvoir commencer à chercher sans créer de compte.
 
-## 5.2 Pas de friction inutile
-La création de compte ne doit jamais bloquer la première découverte.
+## 5.2 Compte utile, pas obligatoire
+Le compte ne doit jamais être un prérequis à la découverte.
 
-## 5.3 Compte = valeur
-Le compte doit apporter une vraie utilité :
-- favoris
-- historique
-- alertes
-- messagerie
-- suivi
+## 5.3 Continuité de recherche
+Le produit doit aider l’utilisateur à reprendre sa recherche là où il l’a laissée.
 
-## 5.4 Continuité de recherche
-L’utilisateur doit pouvoir reprendre sa recherche à tout moment sans repartir de zéro.
+## 5.4 Organisation personnelle
+AqarSearch doit devenir un espace où l’utilisateur peut structurer sa recherche.
 
-## 5.5 Clarté
-Le produit doit toujours répondre clairement à :
-- où j’en suis
-- qu’ai-je déjà vu
-- qu’ai-je enregistré
-- quelles alertes sont actives
-- avec qui ai-je échangé
+## 5.5 Mise en relation fluide
+Les échanges avec les professionnels doivent être simples, centralisés et compréhensibles.
 
 ---
 
 # 6. Recherche libre sans compte
 
 ## Définition
-Un visiteur non connecté peut librement utiliser AqarSearch pour :
-- faire une recherche
+Un visiteur non connecté peut librement :
+
+- effectuer une recherche
 - filtrer les résultats
 - consulter les fiches biens
-- voir les agences
 - partager une annonce
+- voir les agences et leurs biens
 
 ## Objectif
-Permettre une entrée immédiate dans le produit.
+Réduire la friction d’entrée.
 
-## Contraintes
+## Limitations sans compte
 Sans compte, l’utilisateur ne peut pas :
-- sauvegarder durablement des favoris
+
+- sauvegarder durablement ses favoris
 - créer des alertes persistantes
 - utiliser la messagerie sécurisée
-- conserver un historique synchronisé
-- gérer des collections
+- retrouver un historique synchronisé
+- organiser ses biens dans des collections
 
-## UX recommandée
-Lorsqu’un visiteur tente d’utiliser une fonction nécessitant un compte :
-- ne pas bloquer brutalement
-- afficher une incitation claire
-- expliquer la valeur du compte
-
-Exemple de message :
-> Créez un compte pour enregistrer ce bien et retrouver votre recherche plus tard.
+## UX attendue
+Quand une action nécessite un compte, l’interface doit :
+- expliquer pourquoi
+- montrer le bénéfice
+- permettre de se connecter puis revenir au contexte courant
 
 ---
 
-# 7. Création de compte particulier
+# 7. Compte utilisateur particulier
 
 ## Objectif
-Permettre au particulier de transformer une simple consultation en suivi structuré de sa recherche.
+Permettre à un particulier de suivre sa recherche immobilière dans la durée.
 
-## Fonctions débloquées par le compte
-- favoris
-- collections de favoris
-- notes personnelles
-- historique de recherche
-- biens déjà vus synchronisés
-- alertes
-- messagerie sécurisée
-- historique des messages
-- demandes de visite suivies
+## Fonctions débloquées
+Avec un compte, l’utilisateur peut :
+
+- enregistrer des favoris
+- classer ses favoris dans des collections
+- ajouter des notes personnelles
+- voir les biens déjà consultés
+- consulter son historique de recherche
+- reprendre une recherche passée
+- créer des alertes
+- recevoir des notifications
+- échanger avec les agences
+- retrouver l’historique de ses messages
+- envoyer des demandes de visite suivies
 
 ## Données minimales du compte
-- prénom / nom ou nom affiché
+- nom ou prénom/nom
 - email
 - mot de passe
-- téléphone optionnel au départ
-- préférences de recherche futures
+- téléphone optionnel
+- préférences de recherche plus tard
 
-## Flux recommandé
+## Flux attendu
 - inscription simple
 - connexion simple
-- retour vers l’annonce ou la recherche en cours après connexion
+- retour vers la page ou le bien consulté après authentification
 
 ---
 
-# 8. Fonctionnalité 1 — Recherche immobilière
+# 8. Périmètre fonctionnel
+
+AqarSearch doit couvrir les blocs suivants :
+
+- recherche immobilière
+- résultats de recherche
+- fiche bien
+- biens déjà vus
+- notes personnelles
+- favoris
+- collections de favoris
+- historique de recherche
+- recherche reprise
+- alertes de recherche
+- alertes enrichies
+- messagerie sécurisée
+- historique des messages
+- statut de réactivité agence
+- demande de visite
+- partage facile
+
+---
+
+# 9. Fonctionnalité 1 — Recherche immobilière
 
 ## Définition
-Le moteur de recherche permet à l’utilisateur de trouver des biens selon des critères structurés.
+Le moteur de recherche permet à l’utilisateur de chercher un bien selon plusieurs critères.
 
-## Champs de recherche principaux
+## Critères principaux
 - transaction : vente / location
-- localisation : wilaya, commune, ville, quartier si disponible
+- pays
+- wilaya
+- commune
+- ville
+- type de bien
 - budget min / max
 - surface min / max
 - nombre de pièces
-- type de bien
-- mots-clés
-
-## Comportement attendu
-- recherche rapide
-- résultats lisibles
-- filtres simples
-- capacité à modifier facilement les critères
-- conservation des filtres dans l’URL
-
-## UX
-Desktop :
-- search bar visible
-- panel de filtres clair
-- résultats en grille ou liste
-
-Mobile :
-- search bar sticky
-- filtres dans un drawer
-- résultats lisibles verticalement
+- mots-clés éventuels
 
 ## Résultat attendu
-Le moteur doit donner immédiatement le sentiment que la recherche est :
-- compréhensible
+Le moteur doit être :
 - rapide
-- utile
+- compréhensible
+- filtrable
+- stable dans son comportement
+
+## UX attendue
+Desktop :
+- barre de recherche visible
+- filtres lisibles
+- URL synchronisée avec les filtres
+
+Mobile :
+- search bar compacte
+- filtres dans un drawer
+- interactions simples au pouce
 
 ---
 
-# 9. Fonctionnalité 2 — Exploration des résultats
+# 10. Fonctionnalité 2 — Résultats de recherche
 
 ## Définition
-Les résultats de recherche doivent être présentés sous forme de cartes claires et premium.
+Les résultats doivent être affichés sous forme de cartes claires et premium.
 
 ## Contenu minimum d’une carte
 - image principale
@@ -272,566 +283,1083 @@ Les résultats de recherche doivent être présentés sous forme de cartes clair
 - type de bien
 - localisation courte
 - surface
-- pièces
-- badge si nécessaire
-- état déjà vu si applicable
-- bouton favori si connecté
+- nombre de pièces
 - agence source
+- badge éventuel
+- état “déjà vu” si applicable
+- bouton favori si connecté
 
-## Objectifs UX
+## Objectifs
 - permettre un scan rapide
-- permettre de distinguer facilement les biens
-- éviter la surcharge d’informations
+- éviter la surcharge
+- rendre la recherche agréable
 
-## Éléments visuels possibles
-- badge “Nouveau”
-- badge “Déjà vu”
-- badge “Agence réactive”
-- badge “Prix modifié” plus tard
+## États possibles
+- résultat standard
+- résultat déjà vu
+- résultat favori
+- résultat avec badge agence réactive
 
 ---
 
-# 10. Fonctionnalité 3 — Fiche détaillée du bien
+# 11. Fonctionnalité 3 — Fiche détaillée d’un bien
 
 ## Définition
-La fiche bien est la page de référence d’une annonce.
+La fiche bien est la page de référence d’une annonce côté particulier.
 
 ## Sections minimales
 - galerie photos
 - titre
 - prix
 - localisation
-- caractéristiques
+- caractéristiques principales
 - description
-- agence source
-- actions principales
-- biens similaires plus tard si besoin
+- informations agence
+- actions de contact
+- partage
+- favori
+- demande de visite
 
-## Actions disponibles
-- partager
+## Objectifs
+- comprendre le bien rapidement
+- pouvoir l’enregistrer
+- pouvoir agir sans effort
+
+## Actions principales
 - enregistrer en favori
-- demander une visite
+- ajouter une note
+- partager
 - écrire à l’agence
-- appeler / WhatsApp si disponible
-
-## Objectif UX
-Aider l’utilisateur à :
-- comprendre rapidement le bien
-- mémoriser ses points forts
-- agir facilement
+- demander une visite
 
 ---
 
-# 11. Fonctionnalité 4 — Biens déjà vus
+# 12. Fonctionnalité 4 — Biens déjà vus
 
 ## Définition
-Le système doit mémoriser les annonces déjà consultées par l’utilisateur.
+Le produit doit mémoriser les biens déjà consultés.
 
 ## Cas sans compte
-- stockage local possible
-- durée limitée
+- stockage local temporaire
 - dépend du navigateur
 
 ## Cas avec compte
-- synchronisation dans le profil
-- historique plus durable
-- affichage multi-appareils possible plus tard
+- synchronisation dans le profil utilisateur
+- historique persistant
+- base pour la recherche reprise
 
-## Utilité
-- éviter les reconsultations inutiles
-- aider à reprendre la recherche
-- ajouter un marqueur “déjà vu” dans les résultats
-
-## Affichages attendus
-- badge “déjà vu”
-- page ou bloc “récemment consultés”
-- proposition de reprise de recherche
+## Rendu attendu
+- badge “Déjà vu” dans les résultats
+- bloc “Derniers biens consultés”
+- reprise plus facile de la recherche
 
 ---
 
-# 12. Fonctionnalité 5 — Notes personnelles
+# 13. Fonctionnalité 5 — Notes personnelles
 
 ## Définition
-Chaque utilisateur connecté peut ajouter une note privée sur un bien.
+Un utilisateur connecté peut ajouter une note privée sur chaque bien.
 
-## Exemples de notes
+## Exemples
 - trop cher
 - quartier intéressant
-- appeler demain
-- à montrer à ma famille
-- possible investissement
+- à revoir ce week-end
+- à envoyer à mes parents
 
 ## Règles
-- note visible uniquement par l’utilisateur
-- une note par bien minimum
-- modifiable à tout moment
-- supprimable à tout moment
+- note visible uniquement par son auteur
+- note modifiable
+- note supprimable
+- une note liée à un bien
 
 ## Objectifs
-- aider à la comparaison
-- créer un vrai outil de suivi
-- éviter de perdre le contexte de réflexion
-
-## Interfaces
-- bouton “Ajouter une note”
-- champ texte dans la fiche bien
-- prévisualisation de la note dans les favoris
+- aider à comparer
+- aider à mémoriser
+- rendre l’espace personnel plus utile
 
 ---
 
-# 13. Fonctionnalité 6 — Favoris
+# 14. Fonctionnalité 6 — Favoris
 
 ## Définition
 Un utilisateur connecté peut enregistrer des biens en favoris.
 
-## Actions disponibles
+## Actions
 - ajouter en favori
 - retirer des favoris
-- voir la liste des favoris
+- afficher la liste des favoris
 
-## Comportement attendu
-- action rapide
-- feedback visuel immédiat
-- synchronisation par compte
+## Objectif
+Permettre de retrouver rapidement les biens qui intéressent l’utilisateur.
 
-## Objectifs
-- retrouver facilement les biens intéressants
-- créer un début d’organisation personnelle
+## UX
+- bouton favori sur carte résultat
+- bouton favori sur fiche bien
+- page dédiée `/favoris`
 
 ---
 
-# 14. Fonctionnalité 7 — Collections de favoris
+# 15. Fonctionnalité 7 — Collections de favoris
 
 ## Définition
-Les favoris ne doivent pas être une simple liste plate.
+Les favoris doivent pouvoir être organisés dans des collections.
 
-Chaque utilisateur peut organiser ses favoris en collections personnalisées.
-
-## Actions disponibles
+## Actions possibles
 - créer une collection
 - nommer une collection
 - renommer une collection
 - supprimer une collection
-- ajouter un favori à une ou plusieurs collections
-- déplacer un bien d’une collection à une autre si besoin
-- voir tous les biens d’une collection
+- ajouter un favori à une collection
+- déplacer ou reclassement d’un bien si nécessaire
 
-## Exemples de collections
+## Exemples
 - Achat
 - Location
 - À visiter
 - Investissement
 - À comparer
-- Famille
-- Court terme
 
 ## Objectifs
 - transformer les favoris en outil d’organisation
-- améliorer la valeur du compte
-- aider à segmenter une recherche complexe
-
-## UX recommandée
-Au moment de l’ajout en favori :
-- permettre d’enregistrer directement dans une collection existante
-- ou proposer de créer une collection
+- améliorer la valeur du compte particulier
+- structurer une recherche complexe
 
 ---
 
-# 15. Fonctionnalité 8 — Historique de recherche
+# 16. Fonctionnalité 8 — Historique de recherche
 
 ## Définition
-Le système doit mémoriser les recherches effectuées par l’utilisateur connecté.
+Le système conserve les recherches effectuées par l’utilisateur connecté.
 
 ## Données à conserver
-- texte de recherche éventuel
-- filtres utilisés
+- critères de recherche
 - localisation
 - budget
-- date / heure
-- dernière utilisation
-
-## Objectif
-Permettre à l’utilisateur de retrouver rapidement une recherche passée.
+- type de bien
+- date
+- dernière exécution
 
 ## Actions disponibles
-- revoir une recherche passée
+- revoir une recherche
 - relancer une recherche
-- supprimer un élément de l’historique
-- tout effacer
+- supprimer un élément
+- vider l’historique
 
-## Différence avec les alertes
-L’historique enregistre ce qui a été cherché.
-L’alerte enregistre ce qui doit être surveillé.
+## Objectif
+Permettre à l’utilisateur de reprendre facilement une recherche passée.
 
 ---
 
-# 16. Fonctionnalité 9 — Recherche reprise
+# 17. Fonctionnalité 9 — Recherche reprise
 
 ## Définition
-Quand l’utilisateur revient, le produit doit lui proposer de reprendre sa recherche.
+Quand l’utilisateur revient, AqarSearch doit lui proposer de reprendre sa recherche.
 
-## Données utiles
+## Informations utiles
 - dernière recherche effectuée
 - derniers biens consultés
-- dernières collections ouvertes
+- derniers favoris ajoutés
 - dernières alertes actives
 
-## Affichages possibles
+## Rendu UX
 - “Reprendre votre dernière recherche”
 - “Continuer là où vous vous êtes arrêté”
-- “Derniers biens consultés”
+- bloc de continuité sur la home ou l’espace personnel
 
-## Objectifs
-- réduire la friction
-- améliorer la continuité
-- rendre AqarSearch plus intelligent
+## Objectif
+Réduire la friction et augmenter la rétention.
 
 ---
 
-# 17. Fonctionnalité 10 — Alertes de recherche
+# 18. Fonctionnalité 10 — Alertes de recherche
 
 ## Définition
-Un utilisateur connecté peut sauvegarder une recherche et demander à être alerté lorsqu’un bien correspondant apparaît.
+Un utilisateur connecté peut sauvegarder une recherche et demander à être alerté.
 
 ## Paramètres d’une alerte
-- nom libre
-- critères de recherche
-- fréquence d’alerte
-- canal de notification
+- nom de l’alerte
+- critères associés
+- fréquence
+- canal
 
 ## Canaux possibles
 - notification interne
 - email
-- push plus tard
 
 ## Actions
 - créer une alerte
 - activer / désactiver
 - renommer
 - supprimer
-- voir les critères associés
+- consulter les critères
 
 ## Objectif
-Ne pas obliger l’utilisateur à vérifier la plateforme manuellement.
+Ne pas forcer l’utilisateur à revenir manuellement vérifier les nouveautés.
 
 ---
 
-# 18. Fonctionnalité 11 — Alertes enrichies
+# 19. Fonctionnalité 11 — Alertes enrichies
 
 ## Définition
-Les alertes ne doivent pas se limiter à “nouveau bien correspondant”.
+Les alertes ne se limitent pas à “nouveau bien correspondant”.
 
-## Types d’alertes enrichies retenues
-- nouveau bien correspondant aux critères
+## Cas retenus
+- nouveau bien correspondant à une recherche
 - baisse de prix sur un bien suivi
 - bien similaire à un favori
 - bien similaire à une recherche enregistrée
 
 ## Objectifs
 - rendre le produit proactif
-- augmenter la valeur du compte
-- donner une vraie raison de revenir
-
-## Règle UX
-L’utilisateur doit comprendre clairement :
-- pourquoi il reçoit l’alerte
-- à quel bien ou à quelle recherche elle se rapporte
+- augmenter l’utilité du compte
+- créer un vrai accompagnement de recherche
 
 ---
 
-# 19. Fonctionnalité 12 — Messagerie sécurisée
+# 20. Fonctionnalité 12 — Messagerie sécurisée
 
 ## Définition
 Les utilisateurs connectés peuvent communiquer avec les agences via une messagerie interne.
 
 ## Objectifs
-- éviter la dispersion des échanges
-- garder une trace claire des discussions
-- centraliser la relation particulier / agence
+- centraliser les échanges
+- éviter de perdre des conversations
+- maintenir un canal clair et sécurisé
 
 ## Règles
 - la messagerie nécessite un compte
-- chaque conversation doit être reliée à :
-  - une agence
-  - éventuellement un bien
-- les messages doivent être horodatés
-- les messages doivent être historisés
+- chaque conversation doit être liée à une agence
+- une conversation peut aussi être liée à un bien précis
+- les messages sont horodatés
+- les messages sont historisés
 
-## Actions possibles
-- démarrer une conversation depuis une fiche bien
-- répondre à une conversation existante
-- voir les messages non lus
-- archiver plus tard si nécessaire
+## Actions
+- démarrer une conversation
+- répondre
+- voir les non lus
+- consulter une conversation existante
 
-## Minimum UX
-- liste des conversations
-- vue détaillée conversation
-- rappel du bien concerné
+---
+
+# 21. Fonctionnalité 13 — Historique des messages
+
+## Définition
+L’utilisateur doit pouvoir retrouver tous ses échanges avec les agences.
+
+## Informations à afficher
+- agence
+- bien concerné
+- dernier message
+- date du dernier échange
 - état lu / non lu
 
----
-
-# 20. Fonctionnalité 13 — Historique des messages
-
-## Définition
-Le compte particulier doit conserver l’historique des échanges avec les agences.
-
-## Contenu de l’historique
-- agence contactée
-- bien concerné
-- messages envoyés
-- messages reçus
-- date du dernier échange
-- statut de lecture
-
-## Objectifs
-- ne pas perdre le fil des échanges
-- aider à retrouver un contact
-- éviter les doublons de demandes
-
-## Affichages utiles
-- conversations récentes
-- par agence
-- par bien
-- dernier message visible dans la liste
+## Objectif
+Aider l’utilisateur à ne pas perdre le fil de ses contacts immobiliers.
 
 ---
 
-# 21. Fonctionnalité 14 — Statut de réactivité agence
+# 22. Fonctionnalité 14 — Statut de réactivité agence
 
 ## Définition
-AqarSearch peut afficher des informations simples sur la réactivité de l’agence.
+AqarSearch peut afficher une information simple sur la réactivité d’une agence.
 
-## Exemples d’affichage
+## Exemples
 - répond généralement rapidement
 - agence active récemment
 - réponse habituelle rapide
 
-## Objectif
-Rassurer les utilisateurs finaux et valoriser les agences sérieuses.
+## Objectifs
+- rassurer les particuliers
+- valoriser les agences sérieuses
+- améliorer la confiance globale
 
-## Règle
-Ne pas afficher des métriques trop complexes.
-Privilégier des formulations simples et lisibles.
+## Règle UX
+Utiliser des formulations simples, pas des métriques techniques.
 
 ---
 
-# 22. Fonctionnalité 15 — Demande de visite
+# 23. Fonctionnalité 15 — Demande de visite
 
 ## Définition
 L’utilisateur peut envoyer une demande de visite depuis une fiche bien.
 
 ## Différence avec la messagerie
-La demande de visite est une action structurée, plus concrète qu’un simple message libre.
+La demande de visite est une action structurée, liée à une intention claire.
 
-## Données automatiquement associées
+## Données transmises automatiquement
 - bien concerné
-- titre du bien
-- identifiant du bien
-- agence concernée
-- contexte “demande de visite”
+- titre ou identifiant du bien
+- agence destinataire
+- contexte de visite
 
-## Données utilisateur possibles
+## Données utilisateur
 - nom
 - téléphone
 - email
 - message optionnel
 
 ## Objectifs
-- rendre le contact plus actionnable
+- rendre le contact plus concret
+- simplifier l’action
 - faciliter le traitement côté agence
-- donner une intention claire
 
 ---
 
-# 23. Fonctionnalité 16 — Partage facile
+# 24. Fonctionnalité 16 — Partage facile
 
 ## Définition
-Chaque bien doit pouvoir être partagé facilement.
+Chaque bien doit pouvoir être partagé rapidement.
 
 ## Actions minimales
 - partager via WhatsApp
 - copier le lien
-- partager à un proche
+- envoyer à un proche
 
 ## Objectifs
-- faciliter la prise de décision collective
+- faciliter la décision à plusieurs
 - augmenter la diffusion naturelle des annonces
-- rendre les fiches utiles au-delà de la simple consultation
-
-## Règle UX
-Le partage doit être visible mais discret.
+- rendre les fiches plus utiles
 
 ---
 
-# 24. Pages à créer
+# 25. Nouvelles routes Next.js
 
-## Pages publiques
-- page d’accueil AqarSearch
-- page de résultats de recherche
-- page détail bien
-- page agence publique éventuelle si nécessaire
+```txt
+src/app/
+  recherche/
+    page.tsx
+    loading.tsx
+    error.tsx
+  bien/
+    [id]/
+      page.tsx
+      loading.tsx
+      error.tsx
+  favoris/
+    page.tsx
+  collections/
+    page.tsx
+  alertes/
+    page.tsx
+  recherches/
+    page.tsx
+  messages/
+    page.tsx
+    [conversationId]/page.tsx
+  compte/
+    page.tsx
 
-## Pages compte utilisateur
-- connexion
-- inscription
-- espace personnel
+Pages principales
+	•	/recherche → moteur de recherche
+	•	/bien/[id] → fiche bien
+	•	/favoris → liste des favoris
+	•	/collections → gestion des collections
+	•	/alertes → gestion des alertes
+	•	/recherches → historique et recherches sauvegardées
+	•	/messages → liste des conversations
+	•	/messages/[conversationId] → détail conversation
+	•	/compte → espace personnel
+
+⸻
+
+26. Nouveaux modules backend
+
+src/lib/
+  search/
+  alerts/
+  messaging/
+  actions/
+  validators/
+  queries/
+  history/
+  favorites/
+
+Modules attendus
+
+lib/search/
+	•	search-properties.ts
+	•	filters.ts
+	•	ranking.ts
+	•	normalize.ts
+
+lib/alerts/
+	•	create-alert.ts
+	•	match-alerts.ts
+	•	send-alerts.ts
+
+lib/messaging/
+	•	create-conversation.ts
+	•	send-message.ts
+	•	list-conversations.ts
+	•	mark-as-read.ts
+
+lib/history/
+	•	track-viewed-property.ts
+	•	track-search.ts
+
+lib/favorites/
+	•	collections.ts
+	•	notes.ts
+
+⸻
+
+27. Nouvelles tables SQL
+
+27.1 saved_searches
+
+Recherches sauvegardées.
+
+27.2 search_alerts
+
+Alertes liées aux recherches.
+
+27.3 search_history
+
+Historique des recherches exécutées.
+
+27.4 viewed_properties
+
+Biens déjà vus.
+
+Colonnes recommandées :
+	•	id
+	•	user_id
+	•	property_id
+	•	viewed_at
+	•	last_viewed_at
+	•	views_count
+
+27.5 property_notes
+
+Notes personnelles sur les biens.
+
+Colonnes recommandées :
+	•	id
+	•	user_id
+	•	property_id
+	•	content
+	•	created_at
+	•	updated_at
+
+27.6 favorite_collections
+
+Collections de favoris.
+
+Colonnes recommandées :
+	•	id
+	•	user_id
+	•	name
+	•	created_at
+	•	updated_at
+
+27.7 favorite_collection_items
+
+Association entre favoris et collections.
+
+Colonnes recommandées :
+	•	id
+	•	collection_id
+	•	property_id
+	•	created_at
+
+27.8 conversations
+
+Conversations entre particulier et agence.
+
+Colonnes recommandées :
+	•	id
+	•	user_id
+	•	agency_id
+	•	property_id nullable
+	•	last_message_at
+	•	created_at
+
+27.9 messages
+
+Messages d’une conversation.
+
+Colonnes recommandées :
+	•	id
+	•	conversation_id
+	•	sender_type
+	•	sender_user_id nullable
+	•	sender_agency_member_id nullable
+	•	content
+	•	is_read
+	•	created_at
+
+27.10 visit_requests
+
+Demandes de visite.
+
+Colonnes recommandées :
+	•	id
+	•	user_id nullable
+	•	agency_id
+	•	property_id
+	•	name
+	•	phone
+	•	email
+	•	message
+	•	status
+	•	created_at
+
+27.11 agency_responsiveness_stats
+
+Indicateurs simples de réactivité agence.
+
+Colonnes recommandées :
+	•	agency_id
+	•	response_label
+	•	updated_at
+
+⸻
+
+28. Index de recherche
+
+Objectif
+
+Créer une couche dédiée à la recherche publique.
+
+Recommandation
+
+Créer une vue SQL ou table indexée :
+
+search_properties_index
+
+Colonnes minimales
+	•	property_id
+	•	agency_id
+	•	agency_name
+	•	agency_slug
+	•	title
+	•	description
+	•	price
+	•	currency
+	•	transaction_type
+	•	type
+	•	surface
+	•	rooms
+	•	bathrooms
+	•	country
+	•	wilaya
+	•	commune
+	•	city
+	•	images_count
+	•	published_at
+	•	updated_at
+	•	search_text
+
+⸻
+
+29. Règles de visibilité des annonces
+
+Une annonce ne doit être visible dans AqarSearch que si :
+	•	le bien est actif
+	•	l’agence est active
+	•	le bien a un titre
+	•	le bien a un prix
+	•	le bien a une localisation exploitable
+	•	le bien a au moins une image ou une description suffisante
+
+⸻
+
+30. Moteur de recherche
+
+Entrées
+	•	transaction
+	•	pays
+	•	wilaya
+	•	commune
+	•	ville
+	•	type de bien
+	•	budget
+	•	surface
+	•	pièces
+	•	mots-clés
+	•	tri
+
+Sorties
+
+Chaque résultat doit renvoyer :
+	•	id du bien
+	•	titre
+	•	image principale
+	•	prix
+	•	localisation courte
+	•	surface
+	•	pièces
+	•	type
+	•	agence
+	•	indicateur déjà vu si applicable
+	•	indicateur favori si applicable
+
+Interface recommandée
+
+searchProperties(input: SearchInput): Promise<SearchResultPage>
+
+
+⸻
+
+31. Favoris et organisation personnelle
+
+Favoris
+	•	ajouter
+	•	retirer
+	•	lister
+
+Notes
+	•	créer
+	•	modifier
+	•	supprimer
+
+Collections
+	•	créer
+	•	renommer
+	•	supprimer
+	•	associer un bien
+	•	désassocier un bien
+
+L’espace personnel doit permettre une vraie organisation, pas seulement une liste plate.
+
+⸻
+
+32. Messagerie et demandes de visite
+
+Messagerie
+	•	création de conversation
+	•	envoi de message
+	•	récupération historique
+	•	lecture / non lu
+
+Demande de visite
+	•	création structurée
+	•	lien automatique avec le bien
+	•	remontée côté agence
+
+⸻
+
+33. Leads depuis AqarSearch
+
+Toutes les interactions importantes doivent pouvoir enrichir AqarPro.
+
+Sources possibles
+	•	aqarsearch_detail
+	•	aqarsearch_message
+	•	aqarsearch_visit_request
+
+Données à remonter
+	•	agence
+	•	bien
+	•	utilisateur
+	•	message ou intention
+	•	contexte
+
+⸻
+
+34. Analytics et événements
+
+Événements à tracer :
+	•	search_executed
+	•	property_viewed
+	•	property_marked_viewed
+	•	favorite_added
+	•	favorite_removed
+	•	collection_created
+	•	collection_renamed
+	•	note_added
+	•	search_alert_created
+	•	message_sent
+	•	visit_requested
+	•	property_shared
+
+⸻
+
+35. Validators Zod
+
+Créer :
+	•	search.ts
+	•	alert.ts
+	•	favorite.ts
+	•	collection.ts
+	•	note.ts
+	•	message.ts
+	•	visit-request.ts
+
+⸻
+
+36. Server Actions
+
+Créer :
+
+favorites.ts
+	•	addFavorite(propertyId)
+	•	removeFavorite(propertyId)
+
+collections.ts
+	•	createCollection(name)
+	•	renameCollection(id, name)
+	•	deleteCollection(id)
+	•	addPropertyToCollection(collectionId, propertyId)
+	•	removePropertyFromCollection(collectionId, propertyId)
+
+notes.ts
+	•	savePropertyNote(propertyId, content)
+	•	deletePropertyNote(propertyId)
+
+alerts.ts
+	•	createSavedSearch(formData)
+	•	updateSavedSearch(id, formData)
+	•	deleteSavedSearch(id)
+	•	createSearchAlert(savedSearchId, frequency, channel)
+	•	toggleSearchAlert(id, isActive)
+
+search-history.ts
+	•	trackSearch(query, filters)
+	•	clearSearchHistory()
+
+viewed-properties.ts
+	•	trackViewedProperty(propertyId)
+
+messaging.ts
+	•	createConversation(agencyId, propertyId?)
+	•	sendMessage(conversationId, content)
+	•	markConversationAsRead(conversationId)
+
+visit-requests.ts
+	•	createVisitRequest(formData)
+
+Toutes les actions doivent retourner :
+
+{
+  success: boolean
+  error?: string
+}
+
+
+⸻
+
+37. Composants UI à créer
+
+src/components/search/
+
+Composants
+	•	search-bar.tsx
+	•	filter-panel.tsx
+	•	result-card.tsx
+	•	favorite-button.tsx
+	•	viewed-badge.tsx
+	•	note-editor.tsx
+	•	collection-selector.tsx
+	•	saved-search-card.tsx
+	•	alert-button.tsx
+	•	conversation-list.tsx
+	•	message-thread.tsx
+	•	visit-request-form.tsx
+	•	share-actions.tsx
+	•	result-empty-state.tsx
+
+⸻
+
+38. Pages à créer
+
+/recherche/page.tsx
+	•	lecture des query params
+	•	validation des filtres
+	•	affichage résultats
+	•	pagination
+
+/bien/[id]/page.tsx
+	•	chargement d’un bien public
+	•	affichage fiche complète
+	•	tracking vue
+	•	actions utilisateur
+
+/favoris/page.tsx
+	•	liste des favoris
+	•	ajout/retrait
+	•	lien vers collections
+
+/collections/page.tsx
+	•	affichage des collections
+	•	création / renommage / suppression
+
+/alertes/page.tsx
+	•	liste des alertes
+	•	activation / désactivation
+
+/recherches/page.tsx
+	•	historique de recherche
+	•	recherches sauvegardées
+
+/messages/page.tsx
+	•	liste des conversations
+
+/messages/[conversationId]/page.tsx
+	•	détail d’une conversation
+
+/compte/page.tsx
+	•	résumé du compte particulier
+	•	accès rapide aux sections de suivi
+
+⸻
+
+39. Sécurité et RLS
+
+Règles minimales
+	•	favoris : propriétaire uniquement
+	•	notes : propriétaire uniquement
+	•	collections : propriétaire uniquement
+	•	search history : propriétaire uniquement
+	•	alerts : propriétaire uniquement
+	•	conversations : participants uniquement
+	•	messages : participants uniquement
+	•	visit requests : lecture côté agence concernée uniquement
+
+Vérifications côté serveur
+
+Même avec RLS :
+	•	vérifier la session
+	•	vérifier les IDs
+	•	vérifier que le bien est visible
+	•	vérifier que l’agence existe et est active
+
+⸻
+
+40. Performance et cache
+
+Cache recommandé
+	•	/recherche : dynamique avec cache court
+	•	/bien/[id] : ISR ou revalidate court
+	•	/favoris, /collections, /alertes, /messages, /recherches : privé, pas de cache public
+
+Pagination
+
+Préférer :
+	•	pagination serveur simple
+	•	limit / offset au départ
+
+⸻
+
+41. Tests à ajouter
+
+Validators
+	•	search.test.ts
+	•	alert.test.ts
+	•	collection.test.ts
+	•	note.test.ts
+	•	message.test.ts
+	•	visit-request.test.ts
+
+Actions
+	•	actions-favorites.test.ts
+	•	actions-collections.test.ts
+	•	actions-notes.test.ts
+	•	actions-alerts.test.ts
+	•	actions-search-history.test.ts
+	•	actions-messaging.test.ts
+	•	actions-visit-requests.test.ts
+
+Logique métier
+	•	biens déjà vus
+	•	reprise de recherche
+	•	visibilité d’un bien
+	•	création d’une conversation
+	•	création d’une demande de visite
+
+⸻
+
+42. Arborescence recommandée
+
+src/
+├── app/
+│   ├── recherche/
+│   │   ├── page.tsx
+│   │   ├── loading.tsx
+│   │   └── error.tsx
+│   ├── bien/
+│   │   └── [id]/
+│   │       ├── page.tsx
+│   │       ├── loading.tsx
+│   │       └── error.tsx
+│   ├── favoris/
+│   │   └── page.tsx
+│   ├── collections/
+│   │   └── page.tsx
+│   ├── alertes/
+│   │   └── page.tsx
+│   ├── recherches/
+│   │   └── page.tsx
+│   ├── messages/
+│   │   ├── page.tsx
+│   │   └── [conversationId]/
+│   │       └── page.tsx
+│   └── compte/
+│       └── page.tsx
+│
+├── components/
+│   └── search/
+│       ├── search-bar.tsx
+│       ├── filter-panel.tsx
+│       ├── result-card.tsx
+│       ├── favorite-button.tsx
+│       ├── viewed-badge.tsx
+│       ├── note-editor.tsx
+│       ├── collection-selector.tsx
+│       ├── saved-search-card.tsx
+│       ├── alert-button.tsx
+│       ├── conversation-list.tsx
+│       ├── message-thread.tsx
+│       ├── visit-request-form.tsx
+│       ├── share-actions.tsx
+│       └── result-empty-state.tsx
+│
+├── lib/
+│   ├── search/
+│   │   ├── search-properties.ts
+│   │   ├── filters.ts
+│   │   ├── ranking.ts
+│   │   └── normalize.ts
+│   ├── alerts/
+│   │   ├── create-alert.ts
+│   │   ├── match-alerts.ts
+│   │   └── send-alerts.ts
+│   ├── messaging/
+│   │   ├── create-conversation.ts
+│   │   ├── send-message.ts
+│   │   ├── list-conversations.ts
+│   │   └── mark-as-read.ts
+│   ├── actions/
+│   │   ├── favorites.ts
+│   │   ├── collections.ts
+│   │   ├── notes.ts
+│   │   ├── alerts.ts
+│   │   ├── search-history.ts
+│   │   ├── viewed-properties.ts
+│   │   ├── messaging.ts
+│   │   └── visit-requests.ts
+│   ├── validators/
+│   │   ├── search.ts
+│   │   ├── alert.ts
+│   │   ├── favorite.ts
+│   │   ├── collection.ts
+│   │   ├── note.ts
+│   │   ├── message.ts
+│   │   └── visit-request.ts
+│   └── queries/
+│       ├── search.ts
+│       ├── property-public.ts
+│       ├── favorites.ts
+│       ├── collections.ts
+│       ├── alerts.ts
+│       ├── history.ts
+│       └── messaging.ts
+
+
+⸻
+
+43. Plan d’implémentation par phases
+
+Phase 1 — fondations
+	•	saved_searches
+	•	search_alerts
+	•	search_history
+	•	viewed_properties
+	•	property_notes
+	•	favorite_collections
+	•	favorite_collection_items
+	•	conversations
+	•	messages
+	•	visit_requests
+	•	search_properties_index
+
+Phase 2 — UI publique
+	•	/recherche
+	•	/bien/[id]
+	•	cartes résultats
+	•	partage
+	•	tracking biens vus
+
+Phase 3 — espace utilisateur
+	•	favoris
+	•	collections
+	•	notes
+	•	historique
+	•	recherche reprise
+
+Phase 4 — suivi et interaction
+	•	alertes
+	•	messagerie
+	•	historique des messages
+	•	demande de visite
+
+Phase 5 — enrichissements
+	•	statut de réactivité agence
+	•	alertes enrichies
+	•	améliorations de continuité
+
+⸻
+
+44. Prompt maître pour Claude Code
+
+Construis AqarSearch comme la branche particulier de AqarVision.
+
+Objectif :
+Créer une expérience de recherche immobilière moderne, inspirée d’Airbnb pour l’UX et de Jinka pour la logique de suivi de recherche, connectée directement aux biens publiés par les agences dans AqarPro.
+
+Principes clés :
+- la recherche doit être possible sans compte
+- le compte sert à débloquer les fonctions avancées de suivi
+- AqarSearch n’est pas un agrégateur global externe
+- AqarVision reste la source de vérité pour les agences, les biens et les leads
+- AqarSearch gère la recherche, l’organisation personnelle, les alertes et l’interaction côté particulier
+
+À implémenter :
+
+1. recherche libre :
+- /recherche
+- /bien/[id]
+
+2. compte particulier :
 - favoris
-- collections
-- historique de recherche
-- alertes
-- messagerie
+- collections de favoris
+- notes personnelles
 - biens déjà vus
-
----
-
-# 25. États utilisateur
-
-## Visiteur non connecté
-Peut :
-- rechercher
-- consulter
-- partager
-
-Ne peut pas :
-- sauvegarder durablement
-- créer des alertes persistantes
-- envoyer des messages via messagerie
-- organiser ses suivis
-
-## Utilisateur connecté
-Peut :
-- tout rechercher
-- enregistrer
-- noter
-- organiser
-- créer des alertes
-- envoyer des messages
-- suivre ses échanges et ses biens
-
----
-
-# 26. Règles de permission
-
-## Sans compte
-- recherche autorisée
-- lecture autorisée
-- partage autorisé
-
-## Avec compte
-- favoris
-- notes
-- collections
+- historique de recherche
+- recherche reprise
 - alertes
-- historique complet
-- messagerie
-- demandes de visite suivies
+- messagerie sécurisée
+- historique des messages
+- demande de visite
 
----
+3. nouvelles tables :
+- saved_searches
+- search_alerts
+- search_history
+- viewed_properties
+- property_notes
+- favorite_collections
+- favorite_collection_items
+- conversations
+- messages
+- visit_requests
 
-# 27. Modèle de données recommandé
+4. composants UI :
+- search-bar
+- filter-panel
+- result-card
+- favorite-button
+- viewed-badge
+- note-editor
+- collection-selector
+- saved-search-card
+- alert-button
+- conversation-list
+- message-thread
+- visit-request-form
+- share-actions
 
-Tables ou entités à prévoir :
-
-- `favorites`
-- `favorite_collections`
-- `favorite_collection_items`
-- `search_history`
-- `saved_searches`
-- `search_alerts`
-- `viewed_properties`
-- `property_notes`
-- `conversations`
-- `messages`
-- `visit_requests`
-
-Les noms exacts peuvent évoluer, mais le produit doit couvrir ces concepts.
-
----
-
-# 28. Événements analytics à suivre
-
-Événements utiles :
-
-- recherche lancée
-- filtre modifié
-- bien consulté
-- bien marqué comme déjà vu
-- favori ajouté
-- favori retiré
-- collection créée
-- collection renommée
-- note ajoutée
-- alerte créée
-- alerte déclenchée
-- message envoyé
-- demande de visite envoyée
-- partage effectué
-
----
-
-# 29. Règles de contenu et microcopy
-
-Le ton de AqarSearch doit être :
-
-- simple
-- rassurant
-- moderne
-- humain
-- clair
-
-Éviter :
-- jargon trop technique
-- formulations lourdes
-- messages trop froids
-
-Exemples :
-- Enregistrer ce bien
-- Ajouter une note
-- Reprendre ma recherche
-- Créer une alerte
-- Demander une visite
-- Continuer la conversation
-
----
-
-# 30. Règles de design pour Claude Code
-
-AqarSearch doit être conçu comme :
-
-- un produit particulier premium
-- inspiré d’Airbnb pour l’expérience
-- inspiré de Jinka pour le suivi de recherche
-- fluide sur mobile
-- très lisible
-- très propre visuellement
-
-Le design doit mettre l’accent sur :
-
-- la recherche
-- les cartes biens
-- les favoris
-- l’espace personnel
-- la clarté des actions
-
----
-
-# 31. Résumé d’implémentation pour Claude Code
-
-Claude Code doit construire AqarSearch comme un produit qui permet :
-
-1. de rechercher librement des biens sans créer de compte
-2. de créer un compte pour suivre sa recherche dans le temps
-3. d’enregistrer et organiser ses favoris
-4. d’ajouter des notes sur les biens
-5. de revoir les biens déjà consultés
-6. de retrouver son historique de recherche
-7. de reprendre sa recherche facilement
-8. de créer des alertes intelligentes
-9. d’échanger avec les agences via une messagerie sécurisée
-10. de demander une visite avec le contexte du bien
-11. de partager un bien facilement
-
-Le produit ne doit pas être pensé comme un simple catalogue d’annonces.
-
-Il doit devenir un **espace personnel de recherche immobilière**, utile, fluide et moderne.
+5. intégration avec AqarPro :
+- consommer les annonces publiées
+- générer des leads et demandes de visite côté agences
+- centraliser les messages dans le bon contexte agence / bien
