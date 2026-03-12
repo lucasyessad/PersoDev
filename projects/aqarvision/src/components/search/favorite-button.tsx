@@ -1,8 +1,10 @@
 'use client';
 
 import { Heart } from 'lucide-react';
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
+import { motion } from 'framer-motion';
 import { addFavorite, removeFavorite } from '@/lib/actions/favorites';
+import { heartBounce } from '@/lib/animations';
 
 interface FavoriteButtonProps {
   propertyId: string;
@@ -12,12 +14,15 @@ interface FavoriteButtonProps {
 
 export function FavoriteButton({ propertyId, isFavorited, isAuthenticated }: FavoriteButtonProps) {
   const [isPending, startTransition] = useTransition();
+  const [animating, setAnimating] = useState(false);
 
   const handleClick = () => {
     if (!isAuthenticated) {
       window.location.href = `/login?redirectTo=${encodeURIComponent(window.location.pathname)}`;
       return;
     }
+
+    if (!isFavorited) setAnimating(true);
 
     startTransition(async () => {
       if (isFavorited) {
@@ -29,9 +34,13 @@ export function FavoriteButton({ propertyId, isFavorited, isAuthenticated }: Fav
   };
 
   return (
-    <button
+    <motion.button
       onClick={handleClick}
       disabled={isPending}
+      variants={heartBounce}
+      animate={animating ? 'bounce' : 'idle'}
+      onAnimationComplete={() => setAnimating(false)}
+      whileTap={{ scale: 0.9 }}
       className={`rounded-full p-2 transition-colors ${
         isFavorited
           ? 'bg-red-50 text-red-500 hover:bg-red-100'
@@ -40,6 +49,6 @@ export function FavoriteButton({ propertyId, isFavorited, isAuthenticated }: Fav
       aria-label={isFavorited ? 'Retirer des favoris' : 'Ajouter aux favoris'}
     >
       <Heart className={`h-5 w-5 ${isFavorited ? 'fill-current' : ''}`} />
-    </button>
+    </motion.button>
   );
 }
